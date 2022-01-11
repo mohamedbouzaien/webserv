@@ -1,5 +1,4 @@
 #include "header.hpp"
-#define SERVER_BACKLOG 100
 #include <fcntl.h>
 void	error_n_die(std::string s) {
 	std::cout << s << std::endl;
@@ -62,7 +61,7 @@ int setup_server() {
 	servaddr.sin_port = htons(SERVER_PORT);
 	if ((bind(server_socket, (sockaddr *) &servaddr, addrlen)) < 0)
 		error_n_die("bind error");
-	if ((listen(server_socket, SERVER_BACKLOG)) < 0)
+	if ((listen(server_socket, 10)) < 0)
 		error_n_die("listen error");
 	return (server_socket);
 }
@@ -116,28 +115,11 @@ void *handle_connection(int client_socket) {
 int		main(int ac, char **av) {
 	int server_socket;
 	int client_socket;
-	fd_set current_sockets, ready_sockets;
 
 	server_socket = setup_server();
-	FD_ZERO(&current_sockets);
-	FD_SET(server_socket, &current_sockets);
 	while (true) {
 		std::cout << std::endl << "+++++++ Waiting for new connection ++++++++" << std::endl << std::endl;
-		ready_sockets = current_sockets;
-		if (select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) < 0)
-			error_n_die("select error");
-		for (int i = 0; i < FD_SETSIZE; i++) {
-			if (FD_ISSET(i, &ready_sockets)) {
-				if (i == server_socket)
-				{
-					client_socket = accept_connection(server_socket);
-					FD_SET(client_socket, &current_sockets);
-				}
-				else {
-					handle_connection(client_socket);
-					FD_CLR(i, &current_sockets);
-				}
-			}
-		}
+		client_socket = accept_connection(server_socket);
+		handle_connection(client_socket);
 	}
 }
