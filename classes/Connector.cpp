@@ -6,13 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 12:28:43 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/12 12:43:51 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Connector.hpp"
 
-Connector::Connector(Listener &socket): _socket(socket)
+Connector::Connector(Listener &listener): _listener(listener)
 {
 
 }
@@ -40,8 +40,8 @@ const char* Connector::RecvFailedException::what() const throw()
 
 void    Connector::accept_c()
 {
-	socklen_t	addrlen = sizeof(this->_socket.getAddress());
-	_client_socket = accept(this->_socket.getFd(), (struct sockaddr*)&(_socket.getAddress()), &addrlen);
+	socklen_t	addrlen = sizeof(this->_listener.getAddress());
+	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_listener.getAddress()), &addrlen);
 	if (_client_socket < 0)
 		throw Connector::ConnectionFailedException();
 }
