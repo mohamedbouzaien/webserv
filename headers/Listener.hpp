@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 14:38:57 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/11 22:08:19 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/12 12:26:02 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,17 @@
 # include<netinet/in.h>
 # include<iostream>
 
-class	Socket
+class	Listener
 {
 	private:
 		int			_fd;
 		sockaddr_in _address;
 
 	public:
-		Socket();
-		Socket(Socket &copy);
-		Socket	&operator=(Socket &copy);
-		virtual	~Socket() {};
+		Listener();
+		Listener(Listener &copy);
+		Listener	&operator=(Listener &copy);
+		virtual	~Listener() {};
 		int		getFd();
 		sockaddr_in	&getAddress();
 		class CreationFailedException : public std::exception

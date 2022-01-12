@@ -6,13 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/11 22:12:05 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/12 12:28:43 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Connector.hpp"
 
-Connector::Connector(Socket &socket): _socket(socket)
+Connector::Connector(Listener &socket): _socket(socket)
 {
 
 }

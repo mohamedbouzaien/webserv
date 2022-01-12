@@ -6,14 +6,14 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/11 22:05:04 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/12 12:28:19 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONNECTOR_HPP
 
 # define CONNECTOR_HPP
-# include "Socket.hpp"
+# include "Listener.hpp"
 # include <sys/socket.h>
 # include <unistd.h>
 
@@ -21,9 +21,9 @@ class Connector
 {
 	private:
 		int		_client_socket;
-		Socket	_socket;
+		Listener	_socket;
 	public:
-		Connector(Socket &socket);
+		Connector(Listener &socket);
 		Connector(Connector &copy);
 		Connector	&operator=(Connector &other);
 		virtual	~Connector() {};
