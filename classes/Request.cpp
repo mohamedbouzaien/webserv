@@ -1,6 +1,6 @@
-#include "Request.hpp"
+#include "../headers/Request.hpp"
 #
-Request::Request() {}
+Request::Request() : _method(BAD_REQUEST) {}
 
 Request::Request(const Request &other) {
 	*this = other;
@@ -21,7 +21,62 @@ Request &Request::operator=(const Request &other) {
 	return (*this);
 }
 
-void Request::setRequest(std::string header) {}
+std::string Request::getLine(const std::string& s) const {
+	std::string::size_type pos = s.find('\n');
+	if (pos != std::string::npos)
+        return ((s.substr(0, pos)));
+    else
+        return (std::string(NULL));
+}
+
+int	Request::getWordEnd(const std::string& s) const {
+	int i = 0;
+	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r')
+		i++;
+	return (i);
+}
+
+void Request::setRequest(std::string& header) {
+	std::string s = getLine(header);
+	std::string keyword;
+	std::string::size_type pos = getWordEnd(s);
+	keyword = s.substr(0, pos);
+	if (keyword == "GET")
+		_method = GET;
+	else if (keyword == "POST")
+		_method = POST;
+	else if (keyword == "DELETE")
+		_method = DELETE;
+	else
+		{
+			_method = BAD_REQUEST;
+			return ;
+		}
+	pos += 1;
+	while (s[pos] == ' ')
+		pos++;
+	s = s.erase(0, pos);
+	pos = getWordEnd(s);
+	keyword = s.substr(0, pos);
+	_path = keyword;
+	pos += 1;
+	while (s[pos] == ' ')
+		pos++;
+	s = s.erase(0, pos);
+	pos = getWordEnd(s);
+	if (!pos)
+		_method = BAD_REQUEST;
+	keyword = s.substr(0, pos);
+	_protocol = keyword;
+	pos += 1;
+	while (s[pos] == ' ')
+		pos++;
+	if (s[pos] && (s[pos] != '\r' || (s[pos] == '\r' && s[pos + 1] != 10)))
+		_method = BAD_REQUEST;
+	std::cout << "method: " << _method << "|" << std::endl;
+	std::cout << "path: " << _path << "|" << std::endl;
+	std::cout << "protocol: " << _protocol << "|" << std::endl;
+}
 
 //Setters
 

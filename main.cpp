@@ -6,12 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 12:44:24 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/12 15:40:10 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include<iostream>
 # include "headers/Connector.hpp"
+#include "headers/Request.hpp"
 
 int main()
 {
