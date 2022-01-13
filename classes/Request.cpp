@@ -24,12 +24,12 @@ Request &Request::operator=(const Request &other) {
 
 int	Request::getWordEnd(const char *s) const {
 	int i = 0;
-	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r')
+	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r' && s[i] != '\n')
 		i++;
 	return (i);
 }
 
-void Request::setRequest(char *header) {
+int Request::setRequestLine(char *header) {
 
 	int i = 0;
 	int pos = getWordEnd(&header[i]);
@@ -60,6 +60,46 @@ void Request::setRequest(char *header) {
 		i++;
 	if (((header[i] != '\r' && header[i] != '\n') || (header[i] == '\r' && header[i + 1] != 10)) || !_path.size() || !_protocol.size())
 		_method = BAD_REQUEST;
+	while (header[i] && header[i] != '\n')
+		i++;
+	return (i);
+}
+
+std::string Request::setStringField(char *header) {
+	while (*header == ' ')
+		header++;
+	std::string s = std::string(header, getWordEnd(header));
+	return (s);
+}
+
+int Request::setRequestField(char *header) {
+	char *check_key = strchr(header, ':');
+	if (!check_key)
+		return (1);
+	int pos = check_key - header;
+	std::string keyword(header, pos);
+	std::cout << keyword << std::endl;
+	pos++;
+	if (keyword == "host")
+		_host = setStringField(header + pos);
+	std::cout << _host << std::endl;
+	return (1);
+}
+
+void Request::parseRequest(char *header) {
+	header += this->setRequestLine(header);
+	std::cout << "|" << header << "|" << std::endl;
+	std::cout << "method: " << _method << std::endl;
+	std::cout << "path: " << _path << std::endl;
+	std::cout << "protocol: " << _protocol << std::endl;
+	if (_method == BAD_REQUEST || !*header)
+		return;
+	header++;
+	//while (*header && *header != '\n')
+	//{
+		header += setRequestField(header);
+		header++;
+	//}
 }
 
 //Setters

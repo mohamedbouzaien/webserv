@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/13 14:35:34 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/13 15:16:18 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void    Connector::handle()
 		throw Connector::RecvFailedException();
 	std::cout << "The message was: " << buffer << std::endl;
 
-	request.setRequest(buffer);
+	request.parseRequest(buffer);
 	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	close(_client_socket);
