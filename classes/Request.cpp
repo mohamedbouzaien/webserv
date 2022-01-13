@@ -65,11 +65,41 @@ int Request::setRequestLine(char *header) {
 	return (i);
 }
 
-std::string Request::setStringField(char *header) {
+int Request::setHostField(char *header) {
+	if (_host.size())
+	{
+		_method = BAD_REQUEST;
+		return (_method);
+	}
 	while (*header == ' ')
 		header++;
-	std::string s = std::string(header, getWordEnd(header));
-	return (s);
+	int pos = getWordEnd(header);
+	_host = std::string(header, pos);
+	header += pos;
+	while (*header == ' ')
+		header++;
+	if (((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10)) )
+		_method = BAD_REQUEST;
+	return (_method);
+}
+
+std::list<std::string> Request::setListField(char *header) {
+	std::list<std::string> list;
+	int pos = 0;
+
+	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))))
+	{
+		while (*header == ' ')
+			header++;
+		while (header[pos] && header[pos] != ' ' && header[pos] != '	' && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
+			pos++;
+		list.push_back(std::string(header, pos));
+		header += pos;
+		if (*header == ',')
+			header++;
+		pos = 0;
+	}
+	return (list);
 }
 
 int Request::setRequestField(char *header) {
@@ -78,11 +108,17 @@ int Request::setRequestField(char *header) {
 		return (1);
 	int pos = check_key - header;
 	std::string keyword(header, pos);
-	std::cout << keyword << std::endl;
 	pos++;
+	for (int i = 0; keyword[i]; i++)
+		keyword[i] = std::tolower(keyword[i]);
 	if (keyword == "host")
-		_host = setStringField(header + pos);
-	std::cout << _host << std::endl;
+		setHostField(header + pos);
+	else if (keyword == "accept")
+		_accept = setListField(header + pos);
+std::list<std::string>::iterator it = _accept.begin();
+std::list<std::string>::iterator ite = _accept.end();
+for (;it != ite;it++)
+	std::cout << *it << std::endl;
 	return (1);
 }
 
@@ -99,6 +135,8 @@ void Request::parseRequest(char *header) {
 	//{
 		header += setRequestField(header);
 		header++;
+
+	std::cout << "method: " << _method << std::endl;
 	//}
 }
 
@@ -120,7 +158,7 @@ void Request::setHost(std::string host) {
 	_host = host;
 }
 
-void Request::setAccept(std::string accept) {
+void Request::setAccept(std::list<std::string> accept) {
 	_accept = accept;
 }
 
@@ -146,7 +184,7 @@ std::string Request::getHost() const {
 	return (_host);
 }
 
-std::string Request::getAccpet() const {
+std::list<std::string> Request::getAccpet() const {
 	return (_accept);
 }
 

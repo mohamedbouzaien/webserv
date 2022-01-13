@@ -25,7 +25,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "GET / HTTP/1.1\nhost: localhost, yuzu\n\n";
+	std::string request = "GET / HTTP/1.1\nAccePt: fr-eng,    yuzu\n\n";
 	send(sockfd, request.c_str(), request.size(), 0);
 	char response[MAXLINE];
 	memset(response, 0, MAXLINE);
