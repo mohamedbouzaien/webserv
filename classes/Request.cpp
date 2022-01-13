@@ -22,13 +22,6 @@ Request &Request::operator=(const Request &other) {
 	return (*this);
 }
 
-int Request::getLine(const char  *s) const {
-	int i = 0;
-	while (s[i] && s[i] != '\n')
-		i++;
-	return (i);
-}
-
 int	Request::getWordEnd(const char *s) const {
 	int i = 0;
 	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r')
@@ -41,7 +34,7 @@ void Request::setRequest(char *header) {
 	int i = 0;
 	int pos = getWordEnd(&header[i]);
 	std::string keyword(&header[i], pos);
-	std::cout << "|" << header << "|" << std::endl;
+
 	if (keyword == "GET")
 		_method = GET;
 	else if (keyword == "POST")
@@ -49,10 +42,7 @@ void Request::setRequest(char *header) {
 	else if (keyword == "DELETE")
 		_method = DELETE;
 	else
-		{
 			_method = BAD_REQUEST;
-			return ;
-		}
 	i += pos;
 	while (header[i] == ' ')
 		i++;
@@ -68,51 +58,8 @@ void Request::setRequest(char *header) {
 	i += pos;
 	while (header[i] == ' ')
 		i++;
-	std::cout << (int)header[i] << std::endl;
-	if ((header[i] != '\r' && header[i] != '\n') || (header[i] == '\r' && header[i + 1] != 10))
+	if (((header[i] != '\r' && header[i] != '\n') || (header[i] == '\r' && header[i + 1] != 10)) || !_path.size() || !_protocol.size())
 		_method = BAD_REQUEST;
-
-/*
-	std::string s = getLine(header);
-	std::string keyword;
-	std::string::size_type pos = getWordEnd(s);
-	keyword = s.substr(0, pos);
-	if (keyword == "GET")
-		_method = GET;
-	else if (keyword == "POST")
-		_method = POST;
-	else if (keyword == "DELETE")
-		_method = DELETE;
-	else
-		{
-			_method = BAD_REQUEST;
-			return ;
-		}
-	pos += 1;
-	while (s[pos] == ' ')
-		pos++;
-	s = s.erase(0, pos);
-	pos = getWordEnd(s);
-	keyword = s.substr(0, pos);
-	_path = keyword;
-	pos += 1;
-	while (s[pos] == ' ')
-		pos++;
-	s = s.erase(0, pos);
-	pos = getWordEnd(s);
-	if (!pos)
-		_method = BAD_REQUEST;
-	keyword = s.substr(0, pos);
-	_protocol = keyword;
-	pos += 1;
-	while (s[pos] == ' ')
-		pos++;
-	if (s[pos] && (s[pos] != '\r' || (s[pos] == '\r' && s[pos + 1] != 10)))
-		_method = BAD_REQUEST;
-		*/
-	std::cout << "method: " << _method << "|" << std::endl;
-	std::cout << "path: " << _path << "|" << std::endl;
-	std::cout << "protocol: " << _protocol << "|" << std::endl;
 }
 
 //Setters
