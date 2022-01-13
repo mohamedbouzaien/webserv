@@ -20,9 +20,12 @@ class Request {
 		~Request();
 		Request &operator=(const Request &other);
 
-		std::string getLine(const std::string& s) const ;
-		int getWordEnd(const std::string& s) const ; 
-		void setRequest(std::string& header);
+		int getLine(const char * s) const ;
+		int getWordEnd(const char * s) const ; 
+		void setRequest(char * header);
+		//std::string getLine(const std::string& s) const ;
+		//int getWordEnd(const std::string& s) const ; 
+		//void setRequest(std::string& header);
 		//Setters
 		void setMethod(int method);
 		void setPath(std::string path);

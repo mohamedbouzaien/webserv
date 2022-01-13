@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 14:38:57 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 17:55:40 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/13 10:35:24 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 # define SERVER_HPP
 
-# define PORT 8080
+# define PORT 80
 
 # include<sys/socket.h>
 # include<netinet/in.h>

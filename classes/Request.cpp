@@ -1,5 +1,6 @@
 #include "../headers/Request.hpp"
-#
+#include <cstring>
+
 Request::Request() : _method(BAD_REQUEST) {}
 
 Request::Request(const Request &other) {
@@ -21,22 +22,57 @@ Request &Request::operator=(const Request &other) {
 	return (*this);
 }
 
-std::string Request::getLine(const std::string& s) const {
-	std::string::size_type pos = s.find('\n');
-	if (pos != std::string::npos)
-        return ((s.substr(0, pos)));
-    else
-        return (std::string(NULL));
+int Request::getLine(const char  *s) const {
+	int i = 0;
+	while (s[i] && s[i] != '\n')
+		i++;
+	return (i);
 }
 
-int	Request::getWordEnd(const std::string& s) const {
+int	Request::getWordEnd(const char *s) const {
 	int i = 0;
 	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r')
 		i++;
 	return (i);
 }
 
-void Request::setRequest(std::string& header) {
+void Request::setRequest(char *header) {
+
+	int i = 0;
+	int pos = getWordEnd(&header[i]);
+	std::string keyword(&header[i], pos);
+	std::cout << "|" << header << "|" << std::endl;
+	if (keyword == "GET")
+		_method = GET;
+	else if (keyword == "POST")
+		_method = POST;
+	else if (keyword == "DELETE")
+		_method = DELETE;
+	else
+		{
+			_method = BAD_REQUEST;
+			return ;
+		}
+	i += pos;
+	while (header[i] == ' ')
+		i++;
+	pos = getWordEnd(&header[i]);
+	_path = std::string(&header[i], pos);
+	i += pos;
+	while (header[i] == ' ')
+		i++;
+	pos = getWordEnd(&header[i]);
+	if (pos == 0)
+		_method = BAD_REQUEST;
+	_protocol = std::string(&header[i], pos);
+	i += pos;
+	while (header[i] == ' ')
+		i++;
+	std::cout << (int)header[i] << std::endl;
+	if ((header[i] != '\r' && header[i] != '\n') || (header[i] == '\r' && header[i + 1] != 10))
+		_method = BAD_REQUEST;
+
+/*
 	std::string s = getLine(header);
 	std::string keyword;
 	std::string::size_type pos = getWordEnd(s);
@@ -73,6 +109,7 @@ void Request::setRequest(std::string& header) {
 		pos++;
 	if (s[pos] && (s[pos] != '\r' || (s[pos] == '\r' && s[pos + 1] != 10)))
 		_method = BAD_REQUEST;
+		*/
 	std::cout << "method: " << _method << "|" << std::endl;
 	std::cout << "path: " << _path << "|" << std::endl;
 	std::cout << "protocol: " << _protocol << "|" << std::endl;
