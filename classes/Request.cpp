@@ -90,8 +90,14 @@ std::list<std::string> Request::setListField(char *header) {
 	{
 		while (*header == ' ')
 			header++;
-		while (header[pos] && header[pos] != ' ' && header[pos] != '	' && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
-			pos++;
+		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
+		{
+			if (header[pos] == '(')
+				while (header[pos] && header[pos] != ')')
+					pos++;
+			else
+				pos++;
+		}
 		list.push_back(std::string(header, pos));
 		header += pos;
 		if (*header == ',')
