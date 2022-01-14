@@ -122,15 +122,22 @@ void Request::parseRequest(char *header) {
 	if (_method == BAD_REQUEST || !*header)
 		return;
 	header++;
-	//while (*header && *header != '\n')
-	//{
-		header += setRequestField(header);
+	while (*header && *header != '\n')
+	{
+		setRequestField(header);
+		header = strchr(header, '\n');
+		if (header == NULL)
+		{
+			_method = BAD_REQUEST;
+			break;
+		}
 		header++;
-	//}
+	}
 
 	std::map<std::string, std::list<std::string> >::iterator it = _params.begin();
 	std::map<std::string, std::list<std::string> >::iterator ite = _params.end();
 
+	std::cout << "PARAMS:" << std::endl;
 	for (;it != ite;it++) {
 		std::cout << it->first << ": " << std::endl;
 		std::list<std::string> l = it->second;
