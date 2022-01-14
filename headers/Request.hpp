@@ -13,7 +13,7 @@ class Request {
 		std::string _path;
 		std::string _protocol;
 		std::string _host;
-		std::map<std::string, std::list<std::string> > _params;
+		std::map<std::string, std::list<std::pair<std::string, std::string> > > _params;
 
 	public:
 		Request();
@@ -26,7 +26,7 @@ class Request {
 		int setRequestLine(char *header);
 		int setRequestField(char *header);
 		int setHostField(char *header);
-		std::list<std::string> setListField(char *header);
+		std::list<std::pair<std::string, std::string> > setListField(char *header);
 		void parseRequest(char *header);
 		//Setters
 		void setMethod(int method);

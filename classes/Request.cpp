@@ -82,9 +82,11 @@ int Request::setHostField(char *header) {
 	return (_method);
 }
 
-std::list<std::string> Request::setListField(char *header) {
-	std::list<std::string> list;
+std::list<std::pair<std::string, std::string> > Request::setListField(char *header) {
+	std::list<std::pair<std::string, std::string> > list;
 	int pos = 0;
+	int is_q = 0;
+	std::string quality;
 
 	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))))
 	{
@@ -92,16 +94,29 @@ std::list<std::string> Request::setListField(char *header) {
 			header++;
 		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
 		{
+			if (strstr(header + pos, ";q=") == header + pos)
+				is_q = pos;
 			if (header[pos] == '(')
 				while (header[pos] && header[pos] != ')')
 					pos++;
 			else
 				pos++;
 		}
-		list.push_back(std::string(header, pos));
-		header += pos;
+		if (is_q)
+		{
+			int i = 3;
+			while (header[is_q + i] == ' ')
+				i++;
+			quality = std::string(header + is_q + i, pos - is_q - i);
+		}
+		else
+			is_q = pos;
+		list.push_back(std::make_pair<std::string, std::string>(std::string(header, is_q), quality));
+		header += pos ;
 		if (*header == ',')
 			header++;
+		quality = std::string();
+		is_q = 0;
 		pos = 0;
 	}
 	return (list);
@@ -140,15 +155,15 @@ void Request::parseRequest(char *header) {
 		header++;
 	}
 
-	std::map<std::string, std::list<std::string> >::iterator it = _params.begin();
-	std::map<std::string, std::list<std::string> >::iterator ite = _params.end();
+	std::map<std::string, std::list<std::pair<std::string, std::string> > >::iterator it = _params.begin();
+	std::map<std::string, std::list<std::pair<std::string, std::string> > >::iterator ite = _params.end();
 
 	std::cout << "PARAMS:" << std::endl;
 	for (;it != ite;it++) {
 		std::cout << it->first << ": " << std::endl;
-		std::list<std::string> l = it->second;
-		for (std::list<std::string>::iterator lit = l.begin(); lit != l.end(); lit++)
-			std::cout << "     " << *lit << std::endl;
+		std::list<std::pair<std::string, std::string> > l = it->second;
+		for (std::list<std::pair<std::string, std::string> >::iterator lit = l.begin(); lit != l.end(); lit++)
+			std::cout << "     " << lit->first << ",q= " << lit->second << std::endl;
 	}
 }
 
