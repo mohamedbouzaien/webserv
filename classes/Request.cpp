@@ -16,8 +16,7 @@ Request &Request::operator=(const Request &other) {
 		_path = other._path;
 		_protocol = other._protocol;
 		_host = other._host;
-		_accept = other._accept;
-		_user_agent = other._user_agent;
+		_params = other._params;
 	}
 	return (*this);
 }
@@ -113,21 +112,13 @@ int Request::setRequestField(char *header) {
 		keyword[i] = std::tolower(keyword[i]);
 	if (keyword == "host")
 		setHostField(header + pos);
-	else if (keyword == "accept")
-		_accept = setListField(header + pos);
-std::list<std::string>::iterator it = _accept.begin();
-std::list<std::string>::iterator ite = _accept.end();
-for (;it != ite;it++)
-	std::cout << *it << std::endl;
+	else
+		_params[keyword] = setListField(header + pos);
 	return (1);
 }
 
 void Request::parseRequest(char *header) {
 	header += this->setRequestLine(header);
-	std::cout << "|" << header << "|" << std::endl;
-	std::cout << "method: " << _method << std::endl;
-	std::cout << "path: " << _path << std::endl;
-	std::cout << "protocol: " << _protocol << std::endl;
 	if (_method == BAD_REQUEST || !*header)
 		return;
 	header++;
@@ -135,9 +126,17 @@ void Request::parseRequest(char *header) {
 	//{
 		header += setRequestField(header);
 		header++;
-
-	std::cout << "method: " << _method << std::endl;
 	//}
+
+	std::map<std::string, std::list<std::string> >::iterator it = _params.begin();
+	std::map<std::string, std::list<std::string> >::iterator ite = _params.end();
+
+	for (;it != ite;it++) {
+		std::cout << it->first << ": " << std::endl;
+		std::list<std::string> l = it->second;
+		for (std::list<std::string>::iterator lit = l.begin(); lit != l.end(); lit++)
+			std::cout << "     " << *lit << std::endl;
+	}
 }
 
 //Setters
@@ -158,14 +157,6 @@ void Request::setHost(std::string host) {
 	_host = host;
 }
 
-void Request::setAccept(std::list<std::string> accept) {
-	_accept = accept;
-}
-
-void Request::setUserAgent(std::string user_agent) {
-	_user_agent = user_agent;
-}
-
 //Getters
 
 int Request::getMethod() const {
@@ -182,12 +173,4 @@ std::string Request::getProtocol() const {
 
 std::string Request::getHost() const {
 	return (_host);
-}
-
-std::list<std::string> Request::getAccpet() const {
-	return (_accept);
-}
-
-std::string Request::getUserAgent() const {
-	return (_user_agent);
 }
