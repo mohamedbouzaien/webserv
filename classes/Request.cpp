@@ -82,10 +82,65 @@ int Request::setHostField(char *header) {
 	return (_method);
 }
 
-std::list<std::pair<std::string, std::string> > Request::setListField(char *header) {
-	std::list<std::pair<std::string, std::string> > list;
+std::list<std::pair<std::string, std::string> > Request::setAcceptParams(char *header) {
+	std::list<std::pair<std::string, std::string> > accept_params;
 	int pos = 0;
-	int is_q = 0;
+	std::string keyword;
+
+	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))) && *header != ',')
+	{
+		//get keyword
+		//skip spaces
+		while (*header == ' ')
+			header++;
+		if (*header == ',' || *header == '=')
+			return (accept_params);
+		//get keyword len
+		while (header[pos] && header[pos] != ' ' && header[pos] != '=') {
+			if (header[pos] == '(')
+				while (header[pos] && header[pos] != ')')
+					pos++;
+			else
+				pos++;
+		}
+		keyword = std::string(header, pos);
+		header += pos;
+		//get value
+		//skip "  =   "
+		while (*header == ' ')
+			header++;
+		if (*header == '=')
+			header++;
+		while (*header == ' ')
+			header++;
+		pos = 0;
+		// get value lenght
+		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ';' && header[pos] != ',')
+		{
+			if (header[pos] == '(')
+				while (header[pos] && header[pos] != ')')
+					pos++;
+			else
+				pos++;
+		}
+		//create pair key - value
+		accept_params.push_back(std::make_pair<std::string, std::string>(keyword, std::string(header, pos)));
+		header += pos ;
+		if (*header == ';')
+			header++;
+		pos = 0;
+	}
+
+	return (accept_params);
+}
+
+std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > Request::setListField(char *header) {
+
+	std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > list;
+	std::list<std::pair<std::string, std::string> > accept_params;
+
+	int pos = 0;
+	int is_q = -1;
 	std::string quality;
 
 	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))))
@@ -94,29 +149,24 @@ std::list<std::pair<std::string, std::string> > Request::setListField(char *head
 			header++;
 		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
 		{
-			if (strstr(header + pos, ";q=") == header + pos)
+			if (header[pos] == ';' && is_q == -1) {
 				is_q = pos;
+				accept_params = setAcceptParams(header + pos + 1);
+			}
 			if (header[pos] == '(')
 				while (header[pos] && header[pos] != ')')
 					pos++;
 			else
 				pos++;
 		}
-		if (is_q)
-		{
-			int i = 3;
-			while (header[is_q + i] == ' ')
-				i++;
-			quality = std::string(header + is_q + i, pos - is_q - i);
-		}
-		else
+		if (is_q == -1)
 			is_q = pos;
-		list.push_back(std::make_pair<std::string, std::string>(std::string(header, is_q), quality));
+		list.push_back(std::make_pair<std::string, std::list<std::pair<std::string, std::string> > >(std::string(header, is_q), accept_params));
 		header += pos ;
 		if (*header == ',')
 			header++;
 		quality = std::string();
-		is_q = 0;
+		is_q = -1;
 		pos = 0;
 	}
 	return (list);
@@ -155,15 +205,20 @@ void Request::parseRequest(char *header) {
 		header++;
 	}
 
-	std::map<std::string, std::list<std::pair<std::string, std::string> > >::iterator it = _params.begin();
-	std::map<std::string, std::list<std::pair<std::string, std::string> > >::iterator ite = _params.end();
+	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator it = _params.begin();
+	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator ite = _params.end();
 
 	std::cout << "PARAMS:" << std::endl;
 	for (;it != ite;it++) {
 		std::cout << it->first << ": " << std::endl;
-		std::list<std::pair<std::string, std::string> > l = it->second;
-		for (std::list<std::pair<std::string, std::string> >::iterator lit = l.begin(); lit != l.end(); lit++)
-			std::cout << "     " << lit->first << ",q= " << lit->second << std::endl;
+		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > l = it->second;
+		for (std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > >::iterator lit = l.begin(); lit != l.end(); lit++)
+		{
+			std::cout << "     " << lit->first << ": " << std::endl;
+			std::list<std::pair<std::string, std::string> > accept_params = lit->second;
+			for(std::list<std::pair<std::string, std::string> >::iterator nit = accept_params.begin(); nit != accept_params.end(); nit++)
+				std::cout << "           " << nit->first << " = " << nit->second << std::endl;
+		}
 	}
 }
 
