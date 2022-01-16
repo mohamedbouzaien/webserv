@@ -4,7 +4,11 @@ OBJ_DIR			= objs/
 SRC_DIR			= classes/
 
 
-SRCS			= Connector.cpp Listener.cpp
+SRCS			= Connector.cpp\
+				  Listener.cpp\
+				  Config.cpp\
+				  Server_t.cpp
+
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
 OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
@@ -13,7 +17,7 @@ OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
 
 CC				= g++
 RM				= rm -f
-CFLAGS			= -g -Wall -Wextra -Werror -o
+CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -o
 
 NAME			= webserv
 

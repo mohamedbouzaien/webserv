@@ -12,24 +12,32 @@
 
 #include<iostream>
 # include "headers/Connector.hpp"
+# include "headers/Config.hpp"
 
-int main()
+int main(int ac, char **av)
 {
-	try
-	{
-		Listener listener;
-		listener.execute();
-		while (true)
-		{
-			Connector	connector(listener);
-			connector.accept_c();
-			connector.handle();
-		}
-		
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << " errno: "<< errno << '\n';
-	}
-	
+    const char * conf_path = "./default.conf";
+    if (ac > 2)
+        std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
+    else
+    {
+        if (ac == 2)
+            conf_path = av[1];
+        try
+        {
+            Config conf(conf_path);
+            Listener listener;
+            listener.execute();
+            while (true)
+            {
+                Connector	connector(listener);
+                connector.accept_c();
+                connector.handle();
+            }
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << " errno: "<< errno << '\n';
+        }
+    }
 }
