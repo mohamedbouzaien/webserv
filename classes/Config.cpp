@@ -63,7 +63,7 @@ void Config::check_server(std::fstream &file, std::string &word) const
         else
         {
             file.close();
-            throw (ExpectedServerException());
+            throw (ParseErrException(CONF_ERR_NO_SERV));
         }
     }
     else if (!word.compare(0, 7, "server{"))
@@ -71,21 +71,26 @@ void Config::check_server(std::fstream &file, std::string &word) const
     else
     {
         file.close();
-        throw (ExpectedServerException());
+        throw (ParseErrException(CONF_ERR_NO_SERV));
     }
     if (word.empty())
         next_word(file, word);
 }
 
+
+
+/* The loop for each server{} scope */
 void Config::parse_server(std::fstream &file, std::string &word)
 {
     check_server(file, word);
     Server_t serv;
     std::cout << word << " | ";
-    while (word[0] != '}')
+    while (word[0] != '}' && file.good())
+        parse_directive(file, word);
+    if (!file.good())
     {
-        next_word(file, word);
-        std::cout << word << " | ";
+        file.close();
+        throw (ParseErrException(CONF_ERR_NO_BRKT));
     }
     _servers.push_back(serv);
 }
@@ -110,7 +115,7 @@ Config::Config(const char * path): _servers(std::vector<Server_t>())
     file.close();
 }
 
-Config::Config(Config &copy)
+Config::Config(const Config &copy)
 {
 	(void)copy;
 }
@@ -119,7 +124,7 @@ Config::Config(Config &copy)
 Config::~Config()
 {}
 
-Config	&Config::operator=(Config &other)
+Config	&Config::operator=(const Config &other)
 {
 	//to do
 	return (other);
@@ -130,7 +135,8 @@ const char* Config::FileOpenException::what() const throw()
 	return ("Configuration file couldn't be open");
 }
 
-const char* Config::ExpectedServerException ::what() const throw()
+Config::ParseErrException::ParseErrException(const char *s): _s(s) {}
+const char* Config::ParseErrException::what() const throw()
 {
-	return ("Configuration file parsing error: expected server{...} directive");
+	return (_s);
 }

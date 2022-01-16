@@ -6,6 +6,11 @@
 
 # include "../headers/Server_t.hpp"
 
+# define CONF_ERR_HEAD "Error in conf: "
+
+# define CONF_ERR_NO_SERV CONF_ERR_HEAD "expected server{...} directive"
+# define CONF_ERR_NO_BRKT CONF_ERR_HEAD "expected closing bracket }"
+
 class Config
 {
     private:
@@ -20,8 +25,8 @@ class Config
 
     public:
         Config(const char * path);
-        Config(Config &copy);
-        Config  &operator=(Config &other);
+        Config(const Config &copy);
+        Config  &operator=(const Config &other);
         virtual ~Config();
 
        	class FileOpenException : public std::exception
@@ -30,9 +35,12 @@ class Config
                 virtual const char* what() const throw();
         };
 
-        class ExpectedServerException : public std::exception
+        class ParseErrException : public std::exception
         {
+            private:
+                const char *_s;
             public:
+                ParseErrException(const char *s);
                 virtual const char* what() const throw();
         };
 
