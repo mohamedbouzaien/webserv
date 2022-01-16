@@ -10,6 +10,7 @@
 
 # define CONF_ERR_NO_SERV CONF_ERR_HEAD "expected server{...} directive"
 # define CONF_ERR_NO_BRKT CONF_ERR_HEAD "expected closing bracket }"
+# define CONF_ERR_UNEX_BRKT CONF_ERR_HEAD "unexpected closing bracket }"
 
 class Config
 {
@@ -19,6 +20,8 @@ class Config
 /* Private functions used for parsing */
         void check_comment(std::fstream &file, std::string &word) const;
         void next_word(std::fstream &file, std::string &word) const;
+
+        void parse_directive(std::fstream &file, std::string &word) const;
 
         void check_server(std::fstream &file, std::string &word) const;
         void parse_server(std::fstream &file, std::string &word);

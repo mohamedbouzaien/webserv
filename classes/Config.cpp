@@ -45,6 +45,45 @@ void Config::next_word(std::fstream &file, std::string &word) const
 \**************/
 
 
+/*****************\
+|* directive pvs *|
+\*****************/
+
+/* Parse one directive and give it it's argument */
+void Config::parse_directive(std::fstream &file, std::string &word) const
+{
+    std::vector<std::string> args;
+    size_t pos = word.find(';', 0);
+    while (pos == std::string::npos && file.good())
+    {
+        if (word.find('}', 0) != std::string::npos)
+        {
+            file.close();
+            throw ParseErrException(CONF_ERR_UNEX_BRKT);
+        }
+        //std::cout << "param: " << word << " | ";
+        args.push_back(word);
+        next_word(file, word);
+        pos = word.find(';', 0);
+    }
+    if (word == ";")
+        next_word(file, word);
+    else
+    {
+        args.push_back(std::string(word, 0, pos));
+        word.erase(0, ++pos);
+        if (word.empty())
+            next_word(file, word);
+    }
+
+    // TODO Dispatcher les directives vers la fonctions qui leur correspond
+    std::cout << std::endl << "directive: ";
+    for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
+        std::cout << *it << " | ";
+    std::cout << std::endl;
+}
+
+
 
 /**************\
 |* server pvs *|
@@ -77,16 +116,15 @@ void Config::check_server(std::fstream &file, std::string &word) const
         next_word(file, word);
 }
 
-
-
 /* The loop for each server{} scope */
 void Config::parse_server(std::fstream &file, std::string &word)
 {
     check_server(file, word);
     Server_t serv;
-    std::cout << word << " | ";
+    std::cout << "server opened";
     while (word[0] != '}' && file.good())
         parse_directive(file, word);
+    std::cout << "server closed" << std::endl;
     if (!file.good())
     {
         file.close();
@@ -109,8 +147,8 @@ Config::Config(const char * path): _servers(std::vector<Server_t>())
     while (file.good())
     {
         next_word(file, word);
-        std::cout << word << " | ";
-        parse_server(file, word);
+        if (!word.empty())
+            parse_server(file, word);
     }
     file.close();
 }
@@ -127,7 +165,8 @@ Config::~Config()
 Config	&Config::operator=(const Config &other)
 {
 	//to do
-	return (other);
+    (void)other;
+	return *this;
 }
 
 const char* Config::FileOpenException::what() const throw()
