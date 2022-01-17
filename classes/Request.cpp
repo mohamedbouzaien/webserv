@@ -185,6 +185,11 @@ std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> >
 }
 
 int Request::setRequestField(char *header) {
+	if (*header == ' ' || *header == '	')
+	{
+		_method = BAD_REQUEST;
+		return (1);
+	}
 	char *check_key = strchr(header, ':');
 	if (!check_key)
 		return (1);
@@ -209,8 +214,7 @@ void Request::parseRequest(char *header) {
 	{
 		setRequestField(header);
 		header = strchr(header, '\n');
-	std::cout << "method: " << _method << ", " << _host.first << ", port " << _host.second << "." << std::endl;
-		if (header == NULL)
+		if (header == NULL || _method == BAD_REQUEST)
 		{
 			_method = BAD_REQUEST;
 			break;
