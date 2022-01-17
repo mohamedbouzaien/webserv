@@ -38,12 +38,20 @@ void Config::next_word(std::fstream &file, std::string &word) const
 |* server_name pvs *|
 \*******************/
 
+void Config::parse_names(args_t &args, Server_t &server){
+    (void)args;
+    (void)server;
+}
 
 
 /**************\
 |* listen pvs *|
 \**************/
 
+void Config::parse_listen(args_t &args, Server_t &server){
+    (void)args;
+    (void)server;
+}
 
 /*****************\
 |* directive pvs *|
@@ -52,7 +60,7 @@ void Config::next_word(std::fstream &file, std::string &word) const
 /* Parse one directive and give it it's argument */
 void Config::parse_directive(std::fstream &file, std::string &word) const
 {
-    std::vector<std::string> args;
+    args_t args;
     size_t pos = word.find(';', 0);
     while (pos == std::string::npos && file.good())
     {
@@ -77,7 +85,7 @@ void Config::parse_directive(std::fstream &file, std::string &word) const
     }
 
     // TODO Dispatcher les directives vers la fonctions qui leur correspond
-    std::cout << std::endl << "directive: ";
+    std::cout << std::endl << "  directive: ";
     for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
         std::cout << *it << " | ";
     std::cout << std::endl;
@@ -121,10 +129,10 @@ void Config::parse_server(std::fstream &file, std::string &word)
 {
     check_server(file, word);
     Server_t serv;
-    std::cout << "server opened";
+    std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word);
-    std::cout << "server closed" << std::endl;
+    std::cout << "}" << std::endl;
     if (!file.good())
     {
         file.close();

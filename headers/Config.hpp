@@ -17,11 +17,17 @@ class Config
     private:
         std::vector<Server_t> _servers;
 
+/* Private typedefs */
+        typedef std::vector<std::string> args_t;
+
 /* Private functions used for parsing */
         void check_comment(std::fstream &file, std::string &word) const;
         void next_word(std::fstream &file, std::string &word) const;
 
         void parse_directive(std::fstream &file, std::string &word) const;
+
+        void parse_listen(args_t &args, Server_t &server);
+        void parse_names(args_t &args, Server_t &server);
 
         void check_server(std::fstream &file, std::string &word) const;
         void parse_server(std::fstream &file, std::string &word);
