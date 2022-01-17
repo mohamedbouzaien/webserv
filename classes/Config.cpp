@@ -57,6 +57,13 @@ bool Config::is_valid_ip(std::string &ip){
     return true;
 }
 
+bool Config::is_valid_port(std::string &port){
+    for (std::string::iterator it = port.begin(); it != port.end(); ++it)
+        if (!(*it >= '0' && *it <= '9'))
+            return false;
+    return true;
+}
+
 void Config::parse_listen(args_t &args, Server_t &server){
     std::string ip = "*";
     in_port_t   port = 80;
@@ -74,7 +81,7 @@ void Config::parse_listen(args_t &args, Server_t &server){
         else if (is_valid_port(args[1]))
             (void)port; // la faudra mettre un atoi une connerie du genre mais flm vrmt
         else
-            throw (CONF_ERR_LIST_VARG) // Com 2 au dessus bis.
+            throw (CONF_ERR_LIST_VARG); // Com 2 au dessus bis.
     }
     server.add_listen(std::make_pair(args[1], port));
 }
@@ -110,8 +117,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t ser
             next_word(file, word);
     }
 
-    if (args[0] == "listen)
-        listen(args, server);
+    if (args[0] == "listen")
+        parse_listen(args, serv);
     // TODO Dispatcher les directives vers la fonctions qui leur correspond
     std::cout << std::endl << "  directive: ";
     for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
