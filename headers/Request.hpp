@@ -12,7 +12,7 @@ class Request {
 		int _method;
 		std::string _path;
 		std::string _protocol;
-		std::string _host;
+		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > > _params;
 
 	public:
@@ -33,10 +33,10 @@ class Request {
 		void setMethod(int method);
 		void setPath(std::string path);
 		void setProtocol(std::string protocol);
-		void setHost(std::string host);
+		void setHost(std::pair<std::string, std::string> host);
 		//Getters
 		int  getMethod() const ;
 		std::string getPath() const ;
 		std::string getProtocol() const ;
-		std::string getHost() const ;
+		std::pair<std::string, std::string> getHost() const ;
 };

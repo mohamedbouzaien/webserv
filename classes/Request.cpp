@@ -65,16 +65,28 @@ int Request::setRequestLine(char *header) {
 }
 
 int Request::setHostField(char *header) {
-	if (_host.size())
+	int pos = 0;
+	bool is_port = false;
+
+	if (_host.first.size())
 	{
 		_method = BAD_REQUEST;
 		return (_method);
 	}
 	while (*header == ' ')
 		header++;
-	int pos = getWordEnd(header);
-	_host = std::string(header, pos);
+	while (header[pos] && header[pos] != ' ' && header[pos] != '	' && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ':')
+		pos++;
+	if (header[pos] == ':')
+		is_port = true;
+	_host.first = std::string(header, pos);
 	header += pos;
+	if (is_port)
+	{
+		pos = getWordEnd(header);
+		_host.second = std::string(header, pos);
+		header += pos;
+	}
 	while (*header == ' ')
 		header++;
 	if (((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10)) )
@@ -197,6 +209,7 @@ void Request::parseRequest(char *header) {
 	{
 		setRequestField(header);
 		header = strchr(header, '\n');
+	std::cout << "method: " << _method << ", " << _host.first << ", port " << _host.second << "." << std::endl;
 		if (header == NULL)
 		{
 			_method = BAD_REQUEST;
@@ -205,6 +218,8 @@ void Request::parseRequest(char *header) {
 		header++;
 	}
 
+	std::cout << "method: " << _method << ", " << _host.first << ", port " << _host.second << "." << std::endl;
+/*
 	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator it = _params.begin();
 	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator ite = _params.end();
 
@@ -219,7 +234,7 @@ void Request::parseRequest(char *header) {
 			for(std::list<std::pair<std::string, std::string> >::iterator nit = accept_params.begin(); nit != accept_params.end(); nit++)
 				std::cout << "           " << nit->first << " = " << nit->second << std::endl;
 		}
-	}
+	}*/
 }
 
 //Setters
@@ -236,7 +251,7 @@ void Request::setProtocol(std::string protocol) {
 	_protocol = protocol;
 }
 
-void Request::setHost(std::string host) {
+void Request::setHost(std::pair<std::string, std::string> host) {
 	_host = host;
 }
 
@@ -254,6 +269,6 @@ std::string Request::getProtocol() const {
 	return (_protocol);
 }
 
-std::string Request::getHost() const {
+std::pair<std::string, std::string> Request::getHost() const {
 	return (_host);
 }
