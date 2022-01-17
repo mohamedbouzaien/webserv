@@ -48,9 +48,35 @@ void Config::parse_names(args_t &args, Server_t &server){
 |* listen pvs *|
 \**************/
 
+bool Config::is_valid_ip(std::string &ip){
+    if (ip == "*")
+        return true;
+    for (std::string::iterator it = ip.begin(); it != ip.end(); ++it)
+        if (!(*it >= '0' && *it <= '9') || *it != '.')
+            return false;
+    return true;
+}
+
 void Config::parse_listen(args_t &args, Server_t &server){
-    (void)args;
-    (void)server;
+    std::string ip = "*";
+    in_port_t   port = 80;
+
+    if (args.size() != 2)
+        throw(CONF_ERR_LIST_NARG); //Il faudrait peut etre close le fd ici mais CA ME LES BRISE on va sans doute le passer en variable d'objet hein
+    if (args[1].find(':'))
+    {
+
+    }
+    else
+    {
+        if (is_valid_ip(args[1]))
+            ip = args[1];
+        else if (is_valid_port(args[1]))
+            (void)port; // la faudra mettre un atoi une connerie du genre mais flm vrmt
+        else
+            throw (CONF_ERR_LIST_VARG) // Com 2 au dessus bis.
+    }
+    server.add_listen(std::make_pair(args[1], port));
 }
 
 /*****************\
@@ -58,7 +84,7 @@ void Config::parse_listen(args_t &args, Server_t &server){
 \*****************/
 
 /* Parse one directive and give it it's argument */
-void Config::parse_directive(std::fstream &file, std::string &word) const
+void Config::parse_directive(std::fstream &file, std::string &word, Server_t serv)
 {
     args_t args;
     size_t pos = word.find(';', 0);
@@ -84,6 +110,8 @@ void Config::parse_directive(std::fstream &file, std::string &word) const
             next_word(file, word);
     }
 
+    if (args[0] == "listen)
+        listen(args, server);
     // TODO Dispatcher les directives vers la fonctions qui leur correspond
     std::cout << std::endl << "  directive: ";
     for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
@@ -131,7 +159,7 @@ void Config::parse_server(std::fstream &file, std::string &word)
     Server_t serv;
     std::cout << "server {";
     while (word[0] != '}' && file.good())
-        parse_directive(file, word);
+        parse_directive(file, word, serv);
     std::cout << "}" << std::endl;
     if (!file.good())
     {
