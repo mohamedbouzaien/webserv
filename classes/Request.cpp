@@ -22,11 +22,11 @@ int	Request::getWordEnd(const char *s) const {
 	return (i);
 }
 
-int Request::setRequestLine(char *header) {
+int Request::setRequestLine(char *buffer) {
 
 	int i = 0;
-	int pos = getWordEnd(&header[i]);
-	std::string keyword(&header[i], pos);
+	int pos = getWordEnd(&buffer[i]);
+	std::string keyword(&buffer[i], pos);
 
 	if (keyword == "GET")
 		_header.setMethod(GET);
@@ -37,28 +37,28 @@ int Request::setRequestLine(char *header) {
 	else
 		_header.setMethod(BAD_REQUEST);
 	i += pos;
-	while (header[i] == ' ')
+	while (buffer[i] == ' ')
 		i++;
-	pos = getWordEnd(&header[i]);
-	_header.setPath(std::string(&header[i], pos));
+	pos = getWordEnd(&buffer[i]);
+	_header.setPath(std::string(&buffer[i], pos));
 	i += pos;
-	while (header[i] == ' ')
+	while (buffer[i] == ' ')
 		i++;
-	pos = getWordEnd(&header[i]);
+	pos = getWordEnd(&buffer[i]);
 	if (pos == 0)
 		_header.setMethod(BAD_REQUEST);
-	_header.setProtocol(std::string(&header[i], pos));
+	_header.setProtocol(std::string(&buffer[i], pos));
 	i += pos;
-	while (header[i] == ' ')
+	while (buffer[i] == ' ')
 		i++;
-	if (((header[i] != '\r' && header[i] != '\n') || (header[i] == '\r' && header[i + 1] != 10)) || ! _header.getPath().size() || ! _header.getProtocol().size())
+	if (((buffer[i] != '\r' && buffer[i] != '\n') || (buffer[i] == '\r' && buffer[i + 1] != 10)) || ! _header.getPath().size() || ! _header.getProtocol().size())
 		_header.setMethod(BAD_REQUEST);
-	while (header[i] && header[i] != '\n')
+	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	return (i);
 }
 
-int Request::setHostField(char *header) {
+int Request::setHostField(char *buffer) {
 	int pos = 0;
 	bool is_port = false;
 	std::string host_name;
@@ -69,83 +69,80 @@ int Request::setHostField(char *header) {
 		_header.setMethod(BAD_REQUEST);
 		return (BAD_REQUEST);
 	}
-	while (*header == ' ')
-		header++;
-	while (header[pos] && header[pos] != ' ' && header[pos] != '	' && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ':')
+	while (*buffer == ' ')
+		buffer++;
+	while (buffer[pos] && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ':')
 		pos++;
-	if (header[pos] == ':')
+	if (buffer[pos] == ':')
 		is_port = true;
-	host_name = std::string(header, pos);
-	//_host.first = std::string(header, pos);
-	header += pos;
+	host_name = std::string(buffer, pos);
+	buffer += pos;
 	if (is_port)
 	{
-		pos = getWordEnd(header);
-		host_name = std::string(header, pos);
-		//_host.second = std::string(header, pos);
-		header += pos;
+		pos = getWordEnd(buffer);
+		host_name = std::string(buffer, pos);
+		buffer += pos;
 	}
 	_header.setHost(std::make_pair(host_name, host_port));
-	while (*header == ' ')
-		header++;
-	if (((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10)) )
+	while (*buffer == ' ')
+		buffer++;
+	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
 		_header.setMethod(BAD_REQUEST);
 	return (_header.getMethod());
 }
 
-std::list<std::pair<std::string, std::string> > Request::setAcceptParams(char *header) {
+std::list<std::pair<std::string, std::string> > Request::setAcceptParams(char *buffer) {
 	std::list<std::pair<std::string, std::string> > accept_params;
 	int pos = 0;
 	std::string keyword;
 
-	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))) && *header != ',')
+	while ((((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10))) && *buffer != ',')
 	{
 		//get keyword
 		//skip spaces
-		while (*header == ' ')
-			header++;
-		if (*header == ',' || *header == '=')
+		while (*buffer == ' ')
+			buffer++;
+		if (*buffer == ',' || *buffer == '=')
 			return (accept_params);
 		//get keyword len
-		while (header[pos] && header[pos] != ' ' && header[pos] != '=') {
-			if (header[pos] == '(')
-				while (header[pos] && header[pos] != ')')
+		while (buffer[pos] && buffer[pos] != ' ' && buffer[pos] != '=') {
+			if (buffer[pos] == '(')
+				while (buffer[pos] && buffer[pos] != ')')
 					pos++;
 			else
 				pos++;
 		}
-		keyword = std::string(header, pos);
-		header += pos;
+		keyword = std::string(buffer, pos);
+		buffer += pos;
 		//get value
 		//skip "  =   "
-		while (*header == ' ')
-			header++;
-		if (*header == '=')
-			header++;
-		while (*header == ' ')
-			header++;
+		while (*buffer == ' ')
+			buffer++;
+		if (*buffer == '=')
+		
+		while (*buffer == ' ')
+			buffer++;
 		pos = 0;
 		// get value lenght
-		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ';' && header[pos] != ',')
+		while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ';' && buffer[pos] != ',')
 		{
-			if (header[pos] == '(')
-				while (header[pos] && header[pos] != ')')
+			if (buffer[pos] == '(')
+				while (buffer[pos] && buffer[pos] != ')')
 					pos++;
 			else
 				pos++;
 		}
 		//create pair key - value
-		accept_params.push_back(std::make_pair<std::string, std::string>(keyword, std::string(header, pos)));
-		header += pos ;
-		if (*header == ';')
-			header++;
+		accept_params.push_back(std::make_pair<std::string, std::string>(keyword, std::string(buffer, pos)));
+		buffer += pos ;
+		if (*buffer == ';')
+			buffer++;
 		pos = 0;
 	}
-
 	return (accept_params);
 }
 
-std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > Request::setListField(char *header) {
+std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > Request::setListField(char *buffer) {
 
 	std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > list;
 	std::list<std::pair<std::string, std::string> > accept_params;
@@ -154,28 +151,28 @@ std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> >
 	int is_q = -1;
 	std::string quality;
 
-	while ((((*header != '\r' && *header != '\n') || (*header == '\r' && *(header + 1) != 10))))
+	while ((((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10))))
 	{
-		while (*header == ' ')
-			header++;
-		while (header[pos] && header[pos] != '\r' && header[pos] != '\n' && header[pos] != ',' )
+		while (*buffer == ' ')
+			buffer++;
+		while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ',' )
 		{
-			if (header[pos] == ';' && is_q == -1) {
+			if (buffer[pos] == ';' && is_q == -1) {
 				is_q = pos;
-				accept_params = setAcceptParams(header + pos + 1);
+				accept_params = setAcceptParams(buffer + pos + 1);
 			}
-			if (header[pos] == '(')
-				while (header[pos] && header[pos] != ')')
+			if (buffer[pos] == '(')
+				while (buffer[pos] && buffer[pos] != ')')
 					pos++;
 			else
 				pos++;
 		}
 		if (is_q == -1)
 			is_q = pos;
-		list.push_back(std::make_pair<std::string, std::list<std::pair<std::string, std::string> > >(std::string(header, is_q), accept_params));
-		header += pos ;
-		if (*header == ',')
-			header++;
+		list.push_back(std::make_pair<std::string, std::list<std::pair<std::string, std::string> > >(std::string(buffer, is_q), accept_params));
+		buffer += pos ;
+		if (*buffer == ',')
+			buffer++;
 		quality = std::string();
 		is_q = -1;
 		pos = 0;
@@ -183,43 +180,42 @@ std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> >
 	return (list);
 }
 
-int Request::setRequestField(char *header) {
-	if (*header == ' ' || *header == '	')
+int Request::setRequestField(char *buffer) {
+	if (*buffer == ' ' || *buffer == '	')
 	{
 		_header.setMethod(BAD_REQUEST);
 		return (1);
 	}
-	char *check_key = strchr(header, ':');
+	char *check_key = strchr(buffer, ':');
 	if (!check_key)
 		return (1);
-	int pos = check_key - header;
-	std::string keyword(header, pos);
+	int pos = check_key - buffer;
+	std::string keyword(buffer, pos);
 	pos++;
 	for (int i = 0; keyword[i]; i++)
 		keyword[i] = std::tolower(keyword[i]);
 	if (keyword == "host")
-		setHostField(header + pos);
+		setHostField(buffer + pos);
 	else
-		_header.insertHeaderField(keyword, setListField(header + pos));
-		//_params[keyword] = setListField(header + pos);
+		_header.insertHeaderField(keyword, setListField(buffer + pos));
 	return (1);
 }
 
-void Request::parseRequest(char *header) {
-	header += this->setRequestLine(header);
-	if (_header.getMethod() == BAD_REQUEST || !*header)
+void Request::parseRequest(char *buffer) {
+	buffer += this->setRequestLine(buffer);
+	if (_header.getMethod() == BAD_REQUEST || !*buffer)
 		return;
-	header++;
-	while (*header && *header != '\n')
+	buffer++;
+	while (*buffer && *buffer != '\n')
 	{
-		setRequestField(header);
-		header = strchr(header, '\n');
-		if (header == NULL || _header.getMethod() == BAD_REQUEST)
+		setRequestField(buffer);
+		buffer = strchr(buffer, '\n');
+		if (buffer == NULL || _header.getMethod() == BAD_REQUEST)
 		{
 			_header.setMethod(BAD_REQUEST);
 			break;
 		}
-		header++;
+		buffer++;
 	}
 
 /*
