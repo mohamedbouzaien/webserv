@@ -39,6 +39,8 @@ int Request::setRequestLine(char *buffer) {
 	i += pos;
 	while (buffer[i] == ' ')
 		i++;
+	if (buffer[i] != '/')
+		_header.setMethod(BAD_REQUEST);
 	pos = getWordEnd(&buffer[i]);
 	_header.setPath(std::string(&buffer[i], pos));
 	i += pos;
