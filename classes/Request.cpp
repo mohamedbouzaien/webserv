@@ -217,23 +217,13 @@ void Request::parseRequest(char *buffer) {
 		}
 		buffer++;
 	}
+	printHeader();
+}
 
-/*
-	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator it = _params.begin();
-	std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > >::iterator ite = _params.end();
+//Printer
 
-	std::cout << "PARAMS:" << std::endl;
-	for (;it != ite;it++) {
-		std::cout << it->first << ": " << std::endl;
-		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > l = it->second;
-		for (std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > >::iterator lit = l.begin(); lit != l.end(); lit++)
-		{
-			std::cout << "     " << lit->first << ": " << std::endl;
-			std::list<std::pair<std::string, std::string> > accept_params = lit->second;
-			for(std::list<std::pair<std::string, std::string> >::iterator nit = accept_params.begin(); nit != accept_params.end(); nit++)
-				std::cout << "           " << nit->first << " = " << nit->second << std::endl;
-		}
-	}*/
+void Request::printHeader() {
+	_header.show();
 }
 
 //Setters

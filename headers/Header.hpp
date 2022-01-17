@@ -21,6 +21,8 @@ class Header {
 		virtual ~Header();
 		Header &operator=(const Header &other);
 
+		//Printer
+		void show();
 		//Setters
 		void setMethod(int method);
 		void setPath(std::string path);

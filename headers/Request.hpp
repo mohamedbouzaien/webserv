@@ -19,6 +19,9 @@ class Request {
 		std::list<std::pair<std::string, std::string> > setAcceptParams(char *header);
 		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > setListField(char *header);
 		void parseRequest(char *header);
+
+		//Printer
+		void printHeader();
 		//Setters
 		void setHeader(Header header);
 		//Getters
