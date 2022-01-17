@@ -1,19 +1,9 @@
 #pragma once
-#include <iostream>
-#include <list>
-#include <map>
-#define BAD_REQUEST 0
-#define GET 1
-#define POST 2
-#define DELETE 3
+#include "Header.hpp"
 
 class Request {
 	private:
-		int _method;
-		std::string _path;
-		std::string _protocol;
-		std::pair<std::string, std::string> _host;
-		std::map<std::string, std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > > _params;
+		Header _header;
 
 	public:
 		Request();
@@ -30,13 +20,7 @@ class Request {
 		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > setListField(char *header);
 		void parseRequest(char *header);
 		//Setters
-		void setMethod(int method);
-		void setPath(std::string path);
-		void setProtocol(std::string protocol);
-		void setHost(std::pair<std::string, std::string> host);
+		void setHeader(Header header);
 		//Getters
-		int  getMethod() const ;
-		std::string getPath() const ;
-		std::string getProtocol() const ;
-		std::pair<std::string, std::string> getHost() const ;
+		Header  getHeader() const ;
 };
