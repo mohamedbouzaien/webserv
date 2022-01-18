@@ -34,13 +34,48 @@ void Config::next_word(std::fstream &file, std::string &word) const
     check_comment(file, word);
 }
 
+bool Config::ft_isdigit(const char c) const
+{
+    if (c >= '0' && c <= '9')
+        return true;
+    return false;
+}
+
+int	Config::ft_atoi(const char *str) const
+{
+	unsigned int	nb;
+	int				sgn;
+	int				i;
+
+	i = 0;
+	nb = 0;
+	sgn = 1;
+	while (str[i] && (str[i] == '\t' || str[i] == '\n' || str[i] == '\r'
+		|| str[i] == '\f' || str[i] == ' ' || str[i] == '\v'))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			sgn *= -1;
+		i++;
+	}
+	while (str[i] && ft_isdigit(str[i]))
+	{
+		nb = nb * 10 + (str[i] - '0');
+		i++;
+	}
+	return ((int)((int)(nb) * sgn));
+}
+
 /*******************\
 |* server_name pvs *|
 \*******************/
 
-void Config::parse_names(args_t &args, Server_t &server){
-    (void)args;
-    (void)server;
+void Config::parse_names(args_t &args, Server_t &server, std::fstream &file){
+    if (args.size() <= 1)
+        throw_close(CONF_ERR_NONAME, file);
+    for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
+        server.add_name(*it);
 }
 
 
@@ -51,39 +86,47 @@ void Config::parse_names(args_t &args, Server_t &server){
 bool Config::is_valid_ip(std::string &ip){
     if (ip == "*")
         return true;
+    if (ip.find('.') == std::string::npos)
+        return false;
     for (std::string::iterator it = ip.begin(); it != ip.end(); ++it)
-        if (!(*it >= '0' && *it <= '9') || *it != '.')
+        if (!ft_isdigit(*it) && *it != '.')
             return false;
     return true;
 }
 
 bool Config::is_valid_port(std::string &port){
     for (std::string::iterator it = port.begin(); it != port.end(); ++it)
-        if (!(*it >= '0' && *it <= '9'))
+        if (!ft_isdigit(*it))
             return false;
     return true;
 }
 
 void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
-    std::string ip = "*";
+    std::string  ip = "*";
     in_port_t   port = 80;
 
     if (args.size() != 2)
         throw_close(CONF_ERR_LIST_NARG, file);
-    if (args[1].find(':'))
+    if (args[1].find(':') != std::string::npos)
     {
-
+        size_t pos = args[1].find(':');
+        std::string port_s(args[1], pos + 1, args[1].size());
+        args[1].resize(pos);
+        if (!is_valid_ip(args[1]) || !is_valid_port(port_s))
+            throw_close(CONF_ERR_LIST_VARG, file);
+        ip = args[1];
+        port = ft_atoi(port_s.c_str());
     }
     else
     {
         if (is_valid_ip(args[1]))
             ip = args[1];
         else if (is_valid_port(args[1]))
-            (void)port; // la faudra mettre un atoi une connerie du genre mais flm vrmt
+            port = ft_atoi(args[1].c_str());
         else
             throw_close(CONF_ERR_LIST_VARG, file);
     }
-    server.add_listen(std::make_pair(args[1], port));
+    server.add_listen(std::make_pair(ip, port));
 }
 
 /*****************\
@@ -91,7 +134,7 @@ void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
 \*****************/
 
 /* Parse one directive and give it it's argument */
-void Config::parse_directive(std::fstream &file, std::string &word, Server_t serv)
+void Config::parse_directive(std::fstream &file, std::string &word, Server_t &serv)
 {
     args_t args;
     size_t pos = word.find(';', 0);
@@ -119,11 +162,10 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t ser
 
     if (args[0] == "listen")
         parse_listen(args, serv, file);
-    // TODO Dispatcher les directives vers la fonctions qui leur correspond
-    std::cout << std::endl << "  directive: ";
-    for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
-        std::cout << *it << " | ";
-    std::cout << std::endl;
+    else if (args[0] == "server_name")
+        parse_names(args, serv, file);
+    else
+        throw_close(CONF_ERR_WRG_DIR, file);
 }
 
 
@@ -173,7 +215,17 @@ void Config::parse_server(std::fstream &file, std::string &word)
         file.close();
         throw (ParseErrException(CONF_ERR_NO_BRKT));
     }
+    if (serv.names_empty()) // add empty name if now name has been provided
+        serv.add_name("");
     _servers.push_back(serv);
+}
+
+// Print all servers ----------- testing
+void Config::print_servers()
+{
+    std::cout << "All servers:\n";
+    for (std::vector<Server_t>::iterator it = _servers.begin(); it != _servers.end(); ++it)
+        it->print();
 }
 
 /********************\
@@ -194,6 +246,8 @@ Config::Config(const char * path): _servers(std::vector<Server_t>())
             parse_server(file, word);
     }
     file.close();
+
+    print_servers();
 }
 
 Config::Config(const Config &copy)

@@ -20,13 +20,18 @@ class Server_t
         Server_t  &operator=(const Server_t &other);
         virtual ~Server_t();
 
-        void add_name(const std::string name);
-        void add_listen(const std::pair<std::string, in_port_t> listen_pair);
+        void add_name(const std::string &name);
+        void add_listen(const listen_pair_t &listen_pair);
 
         bool has_name(const std::string name) const;
-        bool has_listen(const std::pair<std::string, in_port_t> listen_pair) const;
+        bool has_listen(const listen_pair_t listen_pair) const;
 
-        bool listen_empty();
+        bool listen_empty() const;
+        bool names_empty() const;
+
+
+        //testing
+        void print();
 };
 
 
