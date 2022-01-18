@@ -64,12 +64,12 @@ bool Config::is_valid_port(std::string &port){
     return true;
 }
 
-void Config::parse_listen(args_t &args, Server_t &server){
+void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
     std::string ip = "*";
     in_port_t   port = 80;
 
     if (args.size() != 2)
-        throw(CONF_ERR_LIST_NARG); //Il faudrait peut etre close le fd ici mais CA ME LES BRISE on va sans doute le passer en variable d'objet hein
+        throw_close(CONF_ERR_LIST_NARG, file);
     if (args[1].find(':'))
     {
 
@@ -81,7 +81,7 @@ void Config::parse_listen(args_t &args, Server_t &server){
         else if (is_valid_port(args[1]))
             (void)port; // la faudra mettre un atoi une connerie du genre mais flm vrmt
         else
-            throw (CONF_ERR_LIST_VARG); // Com 2 au dessus bis.
+            throw_close(CONF_ERR_LIST_VARG, file);
     }
     server.add_listen(std::make_pair(args[1], port));
 }
@@ -100,7 +100,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t ser
         if (word.find('}', 0) != std::string::npos)
         {
             file.close();
-            throw ParseErrException(CONF_ERR_UNEX_BRKT);
+            throw_close(CONF_ERR_UNEX_BRKT, file);
         }
         //std::cout << "param: " << word << " | ";
         args.push_back(word);
@@ -118,7 +118,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t ser
     }
 
     if (args[0] == "listen")
-        parse_listen(args, serv);
+        parse_listen(args, serv, file);
     // TODO Dispatcher les directives vers la fonctions qui leur correspond
     std::cout << std::endl << "  directive: ";
     for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
@@ -210,6 +210,12 @@ Config	&Config::operator=(const Config &other)
 	//to do
     (void)other;
 	return *this;
+}
+
+
+void Config::throw_close(const char *s, std::fstream &f){
+    f.close();
+    throw(ParseErrException(s));
 }
 
 const char* Config::FileOpenException::what() const throw()
