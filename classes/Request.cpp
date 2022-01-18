@@ -183,16 +183,18 @@ std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> >
 }
 
 int Request::setRequestField(char *buffer) {
-	if (*buffer == ' ' || *buffer == '	')
+	int pos = 0;
+	while (buffer[pos] && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ':')
+		pos++;
+	std::string keyword(buffer, pos);
+	if (buffer[pos] != ':')
 	{
-		_header.setMethod(BAD_REQUEST);
+		while (buffer[pos] == ' ')
+			pos++;
+		if (buffer[pos] != '\r' && buffer[pos] != '\n')
+			_header.setMethod(BAD_REQUEST);
 		return (1);
 	}
-	char *check_key = strchr(buffer, ':');
-	if (!check_key)
-		return (1);
-	int pos = check_key - buffer;
-	std::string keyword(buffer, pos);
 	pos++;
 	for (int i = 0; keyword[i]; i++)
 		keyword[i] = std::tolower(keyword[i]);

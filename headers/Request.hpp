@@ -13,12 +13,12 @@ class Request {
 
 		int  getLine(const char *s) const;
 		int getWordEnd(const char *s) const; 
-		int setRequestLine(char *header);
-		int setRequestField(char *header);
-		int setHostField(char *header);
-		std::list<std::pair<std::string, std::string> > setAcceptParams(char *header);
-		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > setListField(char *header);
-		void parseRequest(char *header);
+		int setRequestLine(char *buffer);
+		int setRequestField(char *buffer);
+		int setHostField(char *buffer);
+		std::list<std::pair<std::string, std::string> > setAcceptParams(char *buffer);
+		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > setListField(char *buffer);
+		void parseRequest(char *buffer);
 
 		//Printer
 		void printHeader();

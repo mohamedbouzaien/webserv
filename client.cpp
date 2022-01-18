@@ -16,7 +16,7 @@ int main(int ac, char **av) {
 		exit(1);
 	}
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(SERVER_PORT);
+	servaddr.sin_port = htons(80);
 	if (inet_pton(AF_INET, av[1], &servaddr.sin_addr) <= 0) {
 		std::cout << "Cant convert arg to IP address" << std::endl;
 		exit(1);
@@ -25,7 +25,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "GET e/ HTTP/1.1\n host: e:80  \n\n";
+	std::string request = "GET /e HTTP/1.1\re\nhost: e:80\r\nLOl: e\r\n\n";
 	send(sockfd, request.c_str(), request.size(), 0);
 	char response[MAXLINE];
 	memset(response, 0, MAXLINE);
