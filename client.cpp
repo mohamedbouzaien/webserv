@@ -25,7 +25,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "GET /e HTTP/1.1\re\nhost: e:80\r\nLOl: e\r\n\n";
+	std::string request = "GET /e HTTP/1.1\r\nhost: e\nLOl: e = \re\n\n";
 	send(sockfd, request.c_str(), request.size(), 0);
 	char response[MAXLINE];
 	memset(response, 0, MAXLINE);
