@@ -4,7 +4,7 @@ OBJ_DIR			= objs/
 SRC_DIR			= classes/
 
 
-SRCS			= Connector.cpp Listener.cpp
+SRCS			= Connector.cpp Listener.cpp Request.cpp Header.cpp
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
 OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
