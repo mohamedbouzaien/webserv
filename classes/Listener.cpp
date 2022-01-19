@@ -6,11 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 15:47:08 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 12:29:37 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/16 14:25:28 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Listener.hpp"
+# include <sys/ioctl.h>
+# include <unistd.h>
 
 Listener::Listener()
 {
@@ -62,6 +64,15 @@ void	Listener::execute()
 	this->_address.sin_family = AF_INET;
 	this->_address.sin_addr.s_addr = INADDR_ANY;
 	this->_address.sin_port = htons(PORT);
+	int	on, rc;
+	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
+				(char *)&on, sizeof(on));
+	if (rc < 0)
+	{
+		perror("setsockopt() failed");
+		close(_fd);
+		exit(-1);
+	}
 	if (bind(_fd, (struct sockaddr*)&_address, sizeof(sockaddr)) < 0)
 		throw Listener::PortBindingFailedException();
 	if (listen(this->_fd, 10) < 0)

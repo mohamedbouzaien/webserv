@@ -13,7 +13,7 @@ OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
 
 CC				= g++
 RM				= rm -f
-CFLAGS			= -g -Wall -Wextra -Werror -o
+CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -o
 
 NAME			= webserv
 
