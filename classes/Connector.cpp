@@ -6,11 +6,12 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:14:00 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/19 19:35:38 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Connector.hpp"
+#include "../headers/Request.hpp"
 
 Connector::Connector(Listener &listener): _listener(listener)
 {
@@ -57,7 +58,7 @@ int    Connector::handle()
 		throw Connector::RecvFailedException();
 	if (bytesRead == 0)
 		return (-1);
-	std::cout << "The message was: " << buffer;
+	std::cout << "The message was: " << buffer << std::endl;
 
 	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	send(_client_socket, hello.c_str(), hello.size(), 0);

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 18:42:47 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/19 19:36:30 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include "headers/Poller.hpp"
 
 # include <string.h>
+#include "headers/Request.hpp"
 
 int main()
 {
