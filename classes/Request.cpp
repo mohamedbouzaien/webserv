@@ -217,10 +217,8 @@ int Request::setRequestField(char *buffer) {
 
 void Request::parseRequest(char *buffer) {
 	buffer += this->setRequestLine(buffer);
-	if (_header.getMethod() == BAD_REQUEST || !*buffer) {
-		std::cout << "BAD REQUEST AT FIRST LINE" << std::endl;
+	if (_header.getMethod() == BAD_REQUEST || !*buffer)
 		return;
-	}
 	buffer++;
 	while (*buffer && *buffer != '\n')
 	{
@@ -228,13 +226,11 @@ void Request::parseRequest(char *buffer) {
 		buffer = strchr(buffer, '\n');
 		if (buffer == NULL || _header.getMethod() == BAD_REQUEST)
 		{
-			std::cout << "BAD REQUEST" << std::endl;
 			_header.setMethod(BAD_REQUEST);
 			break;
 		}
 		buffer++;
 	}
-	printHeader();
 }
 
 //Printer
