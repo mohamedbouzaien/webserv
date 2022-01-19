@@ -67,9 +67,25 @@ int	Config::ft_atoi(const char *str) const
 	return ((int)((int)(nb) * sgn));
 }
 
-/*******************\
-|* server_name pvs *|
-\*******************/
+/****************\
+|* location pvs *|
+\****************/
+
+void Config::parse_location(args_t &args, Server_t &server, std::fstream &file, std::string word){
+    (void) server;
+    (void) word;
+    if (args.size() != 2)
+        throw_close(CONF_ERR_LOC_NARG, file);
+    Location_t loc(args[1]);
+    while (0){
+    }
+}
+
+
+
+/*************************\
+|* server_name directive *|
+\*************************/
 
 void Config::parse_names(args_t &args, Server_t &server, std::fstream &file){
     if (args.size() <= 1)
@@ -79,9 +95,9 @@ void Config::parse_names(args_t &args, Server_t &server, std::fstream &file){
 }
 
 
-/**************\
-|* listen pvs *|
-\**************/
+/********************\
+|* listen directive *|
+\********************/
 
 bool Config::is_valid_ip(std::string &ip){
     if (ip == "*")
@@ -129,28 +145,30 @@ void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
     server.add_listen(std::make_pair(ip, port));
 }
 
-/*****************\
-|* directive pvs *|
-\*****************/
+/**********************\
+|* directive dispatch *|
+\**********************/
 
 /* Parse one directive and give it it's argument */
-void Config::parse_directive(std::fstream &file, std::string &word, Server_t &serv)
+void Config::parse_directive(std::fstream &file, std::string &word, Server_t &context)
 {
     args_t args;
     size_t pos = word.find(';', 0);
     while (pos == std::string::npos && file.good())
     {
         if (word.find('}', 0) != std::string::npos)
-        {
-            file.close();
-            throw_close(CONF_ERR_UNEX_BRKT, file);
-        }
-        //std::cout << "param: " << word << " | ";
+            throw_close(CONF_ERR_UNEX_CBRKT, file);
+        std::cout << "param: " << word << " | ";
         args.push_back(word);
         next_word(file, word);
         pos = word.find(';', 0);
+        std::cout << (pos != std::string::npos);
+        if (pos == std::string::npos)
+            pos = word.find('{', 0);
     }
-    if (word == ";")
+    if (pos == word.find('{', 0) && args[0] != "location")
+        throw_close(CONF_ERR_UNEX_OBRKT, file);
+    if (word == ";" || word == "{")
         next_word(file, word);
     else
     {
@@ -159,11 +177,12 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t &se
         if (word.empty())
             next_word(file, word);
     }
-
-    if (args[0] == "listen")
-        parse_listen(args, serv, file);
+    if (args[0] == "location")
+        parse_location(args, context, file, word);
+    else if (args[0] == "listen")
+        parse_listen(args, context, file);
     else if (args[0] == "server_name")
-        parse_names(args, serv, file);
+        parse_names(args, context, file);
     else
         throw_close(CONF_ERR_WRG_DIR, file);
 }
@@ -206,10 +225,12 @@ void Config::parse_server(std::fstream &file, std::string &word)
 {
     check_server(file, word);
     Server_t serv;
-    std::cout << "server {";
+
+std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-    std::cout << "}" << std::endl;
+std::cout << "}" << std::endl;
+
     if (!file.good())
     {
         file.close();

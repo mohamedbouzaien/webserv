@@ -6,7 +6,10 @@
 # include <set>
 # include <map>
 
-class Server_t
+# include "Context_t.hpp"
+# include "Location_t.hpp"
+
+class Server_t : public Context_t
 {
     private:
         typedef std::pair<std::string, in_port_t> listen_pair_t;

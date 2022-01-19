@@ -4,16 +4,24 @@
 # include <vector>
 # include <fstream>
 
-# include "../headers/Server_t.hpp"
+# include "Server_t.hpp"
+# include "Location_t.hpp"
+# include "Context_t.hpp"
 
 # define CONF_ERR_HEAD "Error in conf: "
 
 # define CONF_ERR_NO_SERV CONF_ERR_HEAD "expected server{...} directive"
 # define CONF_ERR_NO_BRKT CONF_ERR_HEAD "expected closing bracket }"
-# define CONF_ERR_UNEX_BRKT CONF_ERR_HEAD "unexpected closing bracket }"
+# define CONF_ERR_UNEX_CBRKT CONF_ERR_HEAD "unexpected closing bracket }"
+# define CONF_ERR_UNEX_OBRKT CONF_ERR_HEAD "expected opening bracket {"
+
 # define CONF_ERR_LIST_NARG CONF_ERR_HEAD "wrong number of args on listen directive"
 # define CONF_ERR_LIST_VARG CONF_ERR_HEAD "wrong argument value on listen directive"
+
 # define CONF_ERR_NONAME CONF_ERR_HEAD "no argument provided to server_name directive"
+
+# define CONF_ERR_LOC_NARG CONF_ERR_HEAD "wrong number of args on location context"
+
 # define CONF_ERR_WRG_DIR CONF_ERR_HEAD "unrecognized directive"
 
 class Config
@@ -25,13 +33,17 @@ class Config
         typedef std::vector<std::string> args_t;
 
 /* Private functions used for parsing */
-
         void check_comment(std::fstream &file, std::string &word) const;
         void next_word(std::fstream &file, std::string &word) const;
         int	 ft_atoi(const char *str) const;
         bool ft_isdigit(const char c) const;
 
+/* General directive parser/dispatcher */
         void parse_directive(std::fstream &file, std::string &word, Server_t &serv);
+
+        // location context
+        void test_nul(std::fstream &file, args_t &args, Context_t &poto);
+        void parse_location(args_t &args, Server_t &server, std::fstream &f, std::string word);
 
         // listen directive
         bool is_valid_ip(std::string &ip);

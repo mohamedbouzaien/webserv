@@ -7,7 +7,9 @@ SRC_DIR			= classes/
 SRCS			= Connector.cpp\
 				  Listener.cpp\
 				  Config.cpp\
-				  Server_t.cpp
+				  Context_t.cpp\
+				  Server_t.cpp\
+				  Location_t.cpp
 
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
