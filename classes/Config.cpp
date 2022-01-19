@@ -71,8 +71,8 @@ int	Config::ft_atoi(const char *str) const
 |* location pvs *|
 \****************/
 
-void Config::parse_location(args_t &args, Server_t &server, std::fstream &file, std::string word){
-    (void) server;
+void Config::parse_location(args_t &args, Context_t &context, std::fstream &file, std::string word){
+    (void) context;
     (void) word;
     if (args.size() != 2)
         throw_close(CONF_ERR_LOC_NARG, file);
@@ -149,8 +149,23 @@ void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
 |* directive dispatch *|
 \**********************/
 
+void Config::parse_location_directive(std::fstream &file, args_t &args, Location_t &location)
+{
+    (void)location;
+    (void)file;
+    (void)args;
+}
+
+void Config::parse_server_directive(std::fstream &file, args_t &args, Server_t &serv)
+{
+    if (args[0] == "listen")
+        parse_listen(args, serv, file);
+    else if (args[0] == "server_name")
+        parse_names(args, serv, file);
+}
+
 /* Parse one directive and give it it's argument */
-void Config::parse_directive(std::fstream &file, std::string &word, Server_t &context)
+void Config::parse_directive(std::fstream &file, std::string &word, Context_t &context)
 {
     args_t args;
     size_t pos = word.find(';', 0);
@@ -177,12 +192,13 @@ void Config::parse_directive(std::fstream &file, std::string &word, Server_t &co
         if (word.empty())
             next_word(file, word);
     }
+    //TODO Add general directives appliable to both types here
     if (args[0] == "location")
         parse_location(args, context, file, word);
-    else if (args[0] == "listen")
-        parse_listen(args, context, file);
-    else if (args[0] == "server_name")
-        parse_names(args, context, file);
+    else if (dynamic_cast<Server_t*>(&context))
+        parse_server_directive(file, args, *dynamic_cast<Server_t*>(&context));
+    else if (dynamic_cast<Location_t*>(&context))
+        parse_location_directive(file, args, *dynamic_cast<Location_t*>(&context));
     else
         throw_close(CONF_ERR_WRG_DIR, file);
 }

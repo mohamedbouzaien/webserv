@@ -39,11 +39,12 @@ class Config
         bool ft_isdigit(const char c) const;
 
 /* General directive parser/dispatcher */
-        void parse_directive(std::fstream &file, std::string &word, Server_t &serv);
+        void parse_directive(std::fstream &file, std::string &word, Context_t &context);
+        void parse_server_directive(std::fstream &file, args_t &args, Server_t &serv);
+        void parse_location_directive(std::fstream &file, args_t &args, Location_t &location);
 
         // location context
-        void test_nul(std::fstream &file, args_t &args, Context_t &poto);
-        void parse_location(args_t &args, Server_t &server, std::fstream &f, std::string word);
+        void parse_location(args_t &args, Context_t &context, std::fstream &f, std::string word);
 
         // listen directive
         bool is_valid_ip(std::string &ip);
