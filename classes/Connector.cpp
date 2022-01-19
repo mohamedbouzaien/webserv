@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 10:46:37 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/19 19:35:38 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,21 @@
 
 Connector::Connector(Listener &listener): _listener(listener)
 {
-
+	_client_socket = 0;
 }
 
-Connector::Connector(Connector &copy)
+Connector::Connector(Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
 {
-	(void)copy;
+	
 }
 
 Connector	&Connector::operator=(Connector &other)
 {
-	//to do
-	return (other);
+	if (this == &other)
+		return (*this);
+	this->_listener = other._listener;
+	this->_client_socket = other._client_socket;
+	return (*this);
 }
 
 const char* Connector::ConnectionFailedException::what() const throw()
@@ -47,14 +50,27 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-void    Connector::handle()
+int    Connector::handle()
 {
 	char buffer[30000];
-	int	bytesRead = read(_client_socket, buffer, 30000);
+	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
 	if (bytesRead < 0)
 		throw Connector::RecvFailedException();
+	if (bytesRead == 0)
+		return (-1);
 	std::cout << "The message was: " << buffer << std::endl;
+
 	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	send(_client_socket, hello.c_str(), hello.size(), 0);
-	close(_client_socket);
+	return (0);
+}
+
+void	Connector::setClientSocket(int client_socket)
+{
+	this->_client_socket = client_socket;
+}
+
+int		Connector::getClientSocket()	const
+{
+	return (this->_client_socket);
 }

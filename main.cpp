@@ -6,12 +6,15 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 15:40:10 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/19 19:36:30 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include<iostream>
 # include "headers/Connector.hpp"
+# include "headers/Poller.hpp"
+
+# include <string.h>
 #include "headers/Request.hpp"
 
 int main()
@@ -20,11 +23,11 @@ int main()
 	{
 		Listener listener;
 		listener.execute();
+		Poller		poller(listener);
 		while (true)
 		{
-			Connector	connector(listener);
-			connector.accept_c();
-			connector.handle();
+			poller.start();
+			poller.handle();
 		}
 		
 	}
