@@ -4,7 +4,8 @@
 class Request {
 	private:
 		Header _header;
-
+		std::string _query_string;
+		std::string _body;
 	public:
 		Request();
 		Request (const Request &other);
@@ -21,7 +22,7 @@ class Request {
 		void parseRequest(char *buffer);
 
 		//Printer
-		void printHeader();
+		void printRequest();
 		//Setters
 		void setHeader(Header header);
 		//Getters

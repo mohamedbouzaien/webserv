@@ -23,10 +23,8 @@ int	Request::getWordEnd(const char *s) const {
 }
 
 int Request::setRequestLine(char *buffer) {
-
-	int i = 0;
-	int pos = getWordEnd(&buffer[i]);
-	std::string keyword(&buffer[i], pos);
+	int pos = getWordEnd(buffer);
+	std::string keyword(buffer, pos);
 
 	if (keyword == "GET")
 		_header.setMethod(GET);
@@ -36,28 +34,37 @@ int Request::setRequestLine(char *buffer) {
 		_header.setMethod(DELETE);
 	else
 		_header.setMethod(BAD_REQUEST);
-	i += pos;
-	while (buffer[i] == ' ')
-		i++;
-	if (buffer[i] != '/')
+	buffer += pos;
+	while (*buffer == ' ')
+		buffer++;
+	if (*buffer != '/')
 		_header.setMethod(BAD_REQUEST);
-	pos = getWordEnd(&buffer[i]);
-	_header.setPath(std::string(&buffer[i], pos));
-	i += pos;
-	while (buffer[i] == ' ')
-		i++;
-	pos = getWordEnd(&buffer[i]);
+	pos = 0;
+	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
+		pos++;
+	//pos = getWordEnd(buffer);
+	_header.setPath(std::string(buffer, pos));
+	buffer += pos;
+	if (*buffer == '?') {
+		buffer++;
+		pos = getWordEnd(buffer);
+		_query_string = std::string(buffer, pos);
+		buffer += pos;
+	}
+	while (*buffer == ' ')
+		buffer++;
+	pos = getWordEnd(buffer);
 	if (pos == 0)
 		_header.setMethod(BAD_REQUEST);
-	_header.setProtocol(std::string(&buffer[i], pos));
-	i += pos;
-	while (buffer[i] == ' ')
-		i++;
-	if (((buffer[i] != '\r' && buffer[i] != '\n') || (buffer[i] == '\r' && buffer[i + 1] != '\n')) || ! _header.getPath().size() || ! _header.getProtocol().size())
+	_header.setProtocol(std::string(buffer, pos));
+	buffer += pos;
+	while (*buffer == ' ')
+		buffer++;
+	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *buffer != '\n')) || ! _header.getPath().size() || ! _header.getProtocol().size())
 		_header.setMethod(BAD_REQUEST);
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	return (i);
+	while (*buffer && *buffer != '\n')
+		buffer++;
+	return (1);
 }
 
 int Request::setHostField(char *buffer) {
@@ -216,7 +223,8 @@ int Request::setRequestField(char *buffer) {
 }
 
 void Request::parseRequest(char *buffer) {
-	buffer += this->setRequestLine(buffer);
+	this->setRequestLine(buffer);
+	buffer = strchr(buffer, '\n');
 	if (_header.getMethod() == BAD_REQUEST || !*buffer)
 		return;
 	buffer++;
@@ -235,7 +243,8 @@ void Request::parseRequest(char *buffer) {
 
 //Printer
 
-void Request::printHeader() {
+void Request::printRequest() {
+	std::cout << "Query_string : " << _query_string << std::endl;
 	_header.show();
 }
 
