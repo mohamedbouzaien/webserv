@@ -4,7 +4,7 @@
 # include <netinet/in.h>
 # include <string>
 # include <set>
-# include <map>
+# include <vector>
 
 # include "Context_t.hpp"
 # include "Location_t.hpp"
@@ -16,6 +16,7 @@ class Server_t : public Context_t
 
         std::set<std::string> _names;
         std::set<listen_pair_t> _listen;
+        std::vector<Location_t> _locations;
 
     public:
         Server_t();
@@ -25,6 +26,7 @@ class Server_t : public Context_t
 
         void add_name(const std::string &name);
         void add_listen(const listen_pair_t &listen_pair);
+        void add_location(const Location_t &loc);
 
         bool has_name(const std::string name) const;
         bool has_listen(const listen_pair_t listen_pair) const;

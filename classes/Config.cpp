@@ -67,18 +67,30 @@ int	Config::ft_atoi(const char *str) const
 	return ((int)((int)(nb) * sgn));
 }
 
-/****************\
-|* location pvs *|
-\****************/
+/**********************\
+|* location main loop *|
+\**********************/
 
-void Config::parse_location(args_t &args, Context_t &context, std::fstream &file, std::string word){
-    (void) context;
-    (void) word;
+void Config::parse_location(args_t &args, Server_t &serv, std::fstream &file, std::string &word){
     if (args.size() != 2)
         throw_close(CONF_ERR_LOC_NARG, file);
     Location_t loc(args[1]);
-    while (0){
-    }
+
+std::cout << "location {";
+    while (word[0] != '}' && file.good())
+        parse_directive(file, word, loc);
+std::cout << "}(loc)" << std::endl;
+
+    if (word == "}")
+        next_word(file, word);
+    else
+        word.erase(0, 1);
+    /*
+    if (loc.names_empty()) // add empty name if now name has been provided
+        loc.add_name("");
+    */
+    loc.print();
+    serv.add_location(loc);
 }
 
 
@@ -193,10 +205,13 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
             next_word(file, word);
     }
     //TODO Add general directives appliable to both types here
-    if (args[0] == "location")
-        parse_location(args, context, file, word);
-    else if (dynamic_cast<Server_t*>(&context))
-        parse_server_directive(file, args, *dynamic_cast<Server_t*>(&context));
+    if (args[0] == "general directives")
+        (void)context;
+    if (dynamic_cast<Server_t*>(&context))
+        if (args[0] == "location")
+            parse_location(args, *dynamic_cast<Server_t*>(&context), file, word);
+        else
+            parse_server_directive(file, args, *dynamic_cast<Server_t*>(&context));
     else if (dynamic_cast<Location_t*>(&context))
         parse_location_directive(file, args, *dynamic_cast<Location_t*>(&context));
     else
@@ -248,11 +263,9 @@ std::cout << "server {";
 std::cout << "}" << std::endl;
 
     if (!file.good())
-    {
-        file.close();
-        throw (ParseErrException(CONF_ERR_NO_BRKT));
-    }
-    if (serv.names_empty()) // add empty name if now name has been provided
+        throw_close(CONF_ERR_NO_BRKT, file);
+
+    if (serv.names_empty()) // add empty name if no name has been provided
         serv.add_name("");
     _servers.push_back(serv);
 }

@@ -44,7 +44,7 @@ class Config
         void parse_location_directive(std::fstream &file, args_t &args, Location_t &location);
 
         // location context
-        void parse_location(args_t &args, Context_t &context, std::fstream &f, std::string word);
+        void parse_location(args_t &args, Server_t &serv, std::fstream &f, std::string &word);
 
         // listen directive
         bool is_valid_ip(std::string &ip);

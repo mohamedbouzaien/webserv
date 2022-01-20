@@ -9,6 +9,8 @@
 # define IS_ROOT  0
 # define IS_ALIAS 1
 
+class Location_t;
+
 class Context_t
 {
     protected:
@@ -16,7 +18,6 @@ class Context_t
 
         std::string _root;
         std::string _alias;
-
 
     public:
         Context_t();
