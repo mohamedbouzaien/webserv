@@ -39,6 +39,7 @@ int Request::setRequestLine(char *buffer) {
 		buffer++;
 	if (*buffer != '/')
 		_header.setMethod(BAD_REQUEST);
+
 	pos = 0;
 	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
@@ -60,7 +61,7 @@ int Request::setRequestLine(char *buffer) {
 	buffer += pos;
 	while (*buffer == ' ')
 		buffer++;
-	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *buffer != '\n')) || ! _header.getPath().size() || ! _header.getProtocol().size())
+	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _header.getPath().size() || ! _header.getProtocol().size())
 		_header.setMethod(BAD_REQUEST);
 	while (*buffer && *buffer != '\n')
 		buffer++;

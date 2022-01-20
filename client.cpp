@@ -27,7 +27,7 @@ int main(int ac, char **av) {
 	}
 
 	std::cout << "ok" << std::endl;
-	std::string request = "GET /?name=truc&title=chose HTTP/1.1\n\nid=bigjoe&user=mario";
+	std::string request = "GET / HTTP/1.1\n\nid=bigjoe&user=mario";
 
 	std::cout << "ok" << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);
