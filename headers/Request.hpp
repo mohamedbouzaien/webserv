@@ -16,6 +16,7 @@ class Request {
 		~Request();
 		Request &operator=(const Request &other);
 
+		void clear();
 		int getWordEnd(const char *s) const; 
 		int setRequestLine(char *buffer);
 		int setRequestField(char *buffer);

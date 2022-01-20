@@ -18,7 +18,17 @@ Request &Request::operator=(const Request &other) {
 		_host = other._host;
 		_header_fields = other._header_fields;
 	}
-	return (*this);	return (*this);
+	return (*this);
+}
+
+void Request::clear() {
+	_method = 0;
+	_path.clear();
+	_query_string.clear();
+	_protocol.clear();
+	_host.first.clear();
+	_host.second.clear();
+	_header_fields.clear();
 }
 
 int	Request::getWordEnd(const char *s) const {
