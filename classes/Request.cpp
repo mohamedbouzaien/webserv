@@ -239,6 +239,11 @@ void Request::parseRequest(char *buffer) {
 		}
 		buffer++;
 	}
+	if (*buffer == '\n')
+	{
+		buffer++;
+		_body = std::string(buffer, strlen(buffer));
+	}
 }
 
 //Printer
@@ -246,6 +251,7 @@ void Request::parseRequest(char *buffer) {
 void Request::printRequest() {
 	std::cout << "Query_string : " << _query_string << std::endl;
 	_header.show();
+	std::cout << "Body : " << _body << std::endl;
 }
 
 //Setters
