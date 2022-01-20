@@ -26,10 +26,7 @@ int main(int ac, char **av) {
 		exit(1);
 	}
 
-	std::cout << "ok" << std::endl;
-	std::string request = "GET / HTTP/1.1\n\nid=bigjoe&user=mario";
-
-	std::cout << "ok" << std::endl;
+	std::string request = "GET / HTTP/1.1\nhost: e\n\nid=bigjoe&user=mario";
 	send(sockfd, request.c_str(), request.size(), 0);
 	char response[MAXLINE];
 	memset(response, 0, MAXLINE);
