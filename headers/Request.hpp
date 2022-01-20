@@ -4,6 +4,7 @@
 class Request {
 	private:
 		Header _header;
+		std::map<std::string, std::string> _hf;
 		std::string _query_string;
 		std::string _body;
 	public:
@@ -12,13 +13,10 @@ class Request {
 		~Request();
 		Request &operator=(const Request &other);
 
-		int  getLine(const char *s) const;
 		int getWordEnd(const char *s) const; 
 		int setRequestLine(char *buffer);
 		int setRequestField(char *buffer);
 		int setHostField(char *buffer);
-		std::list<std::pair<std::string, std::string> > setAcceptParams(char *buffer);
-		std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > setListField(char *buffer);
 		void parseRequest(char *buffer);
 
 		//Printer
@@ -27,4 +25,8 @@ class Request {
 		void setHeader(Header header);
 		//Getters
 		Header  getHeader() const ;
+
+
+		//REWORK
+		void setHeaderField(std::string, char *);
 };

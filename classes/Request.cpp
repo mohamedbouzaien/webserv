@@ -43,7 +43,6 @@ int Request::setRequestLine(char *buffer) {
 	pos = 0;
 	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
-	//pos = getWordEnd(buffer);
 	_header.setPath(std::string(buffer, pos));
 	buffer += pos;
 	if (*buffer == '?') {
@@ -101,103 +100,20 @@ int Request::setHostField(char *buffer) {
 	return (_header.getMethod());
 }
 
-std::list<std::pair<std::string, std::string> > Request::setAcceptParams(char *buffer) {
-	std::list<std::pair<std::string, std::string> > accept_params;
+void Request::setHeaderField(std::string keyword, char *buffer) {
+	while (*buffer == ' ')
+		buffer++;
 	int pos = 0;
-	std::string keyword;
-
-	while (*buffer && *buffer != '\r' && *buffer != '\n' && *buffer != ',')
-	{
-		//get keyword
-		//skip spaces
-		while (*buffer == ' ')
-			buffer++;
-		if (*buffer == ',' || *buffer == '=')
-			return (accept_params);
-		//get keyword len
-		while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ' ' && buffer[pos] != '=') {
-			if (buffer[pos] == '(')
-				while (buffer[pos] && buffer[pos] != ')')
-					pos++;
-			else
-				pos++;
-		}
-		keyword = std::string(buffer, pos);
-		buffer += pos;
-		if(*buffer == '\r' && *(buffer + 1) != '\n')
-			break;
-		//get value
-		//skip "  =   "
-		while (*buffer == ' ')
-			buffer++;
-		if (*buffer == '=')
-			buffer++;
-		while (*buffer == ' ')
-			buffer++;
-		pos = 0;
-		// get value lenght
-		while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ';' && buffer[pos] != ',')
-		{
-			if (buffer[pos] == '(')
-				while (buffer[pos] && buffer[pos] != ')')
-					pos++;
-			else
-				pos++;
-		}
-		//create pair key - value
-		accept_params.push_back(std::make_pair<std::string, std::string>(keyword, std::string(buffer, pos)));
-		buffer += pos ;
-		if(*buffer == '\r' && *(buffer + 1) != '\n')
-			break;
-		if (*buffer == ';')
-			buffer++;
-		pos = 0;
-	}
-	if(*buffer == '\r' && *(buffer + 1) != '\n')
+	while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n')
+		pos++;
+	if (buffer[pos] == '\r' && buffer[pos + 1] != '\n') {
 		_header.setMethod(BAD_REQUEST);
-	return (accept_params);
-}
-
-std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > Request::setListField(char *buffer) {
-
-	std::list<std::pair<std::string, std::list<std::pair<std::string, std::string> > > > list;
-	std::list<std::pair<std::string, std::string> > accept_params;
-
-	int pos = 0;
-	int is_q = -1;
-	std::string quality;
-
-	while ((((*buffer != '\r' && *buffer != '\n'))))
-	{
-		while (*buffer == ' ')
-			buffer++;
-		while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ',' )
-		{
-			if (buffer[pos] == ';' && is_q == -1) {
-				is_q = pos;
-				accept_params = setAcceptParams(buffer + pos + 1);
-			}
-			if (buffer[pos] == '(')
-				while (buffer[pos] && buffer[pos] != ')')
-					pos++;
-			else
-				pos++;
-		}
-		if (is_q == -1)
-			is_q = pos;
-		list.push_back(std::make_pair<std::string, std::list<std::pair<std::string, std::string> > >(std::string(buffer, is_q), accept_params));
-		buffer += pos ;
-		if(*buffer == '\r' && *(buffer + 1) != '\n')
-			break;
-		if (*buffer == ',')
-			buffer++;
-		quality = std::string();
-		is_q = -1;
-		pos = 0;
+		return ;
 	}
-	if(*buffer == '\r' && *(buffer + 1) != '\n')
-		_header.setMethod(BAD_REQUEST);
-	return (list);
+	pos--;
+	while (buffer[pos] == ' ')
+		pos--;
+	_hf[keyword] = std::string(buffer, pos + 1);
 }
 
 int Request::setRequestField(char *buffer) {
@@ -219,7 +135,7 @@ int Request::setRequestField(char *buffer) {
 	if (keyword == "host")
 		setHostField(buffer + pos);
 	else
-		_header.insertHeaderField(keyword, setListField(buffer + pos));
+		setHeaderField(keyword, buffer + pos);
 	return (1);
 }
 
@@ -251,7 +167,10 @@ void Request::parseRequest(char *buffer) {
 
 void Request::printRequest() {
 	std::cout << "Query_string : " << _query_string << std::endl;
-	_header.show();
+	std::map<std::string, std::string>::iterator it = _hf.begin();
+	std::map<std::string, std::string>::iterator ite = _hf.end();
+	for (; it != ite; it++)
+		std::cout << it->first << " : " << it->second << std::endl;
 	std::cout << "Body : " << _body << std::endl;
 }
 
