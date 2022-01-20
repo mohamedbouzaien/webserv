@@ -137,8 +137,8 @@ int Request::setRequestField(char *buffer) {
 	}
 	pos++;
 	for (int i = 0; keyword[i]; i++)
-		keyword[i] = std::tolower(keyword[i]);
-	if (keyword == "host")
+		keyword[i] = std::toupper(keyword[i]);
+	if (keyword == "HOST")
 		setHostField(buffer + pos);
 	else
 		setHeaderField(keyword, buffer + pos);
