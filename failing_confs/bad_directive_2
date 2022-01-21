@@ -1,0 +1,5 @@
+server{
+    location 2{
+        poupi po;
+    }
+}
