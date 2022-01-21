@@ -1,0 +1,6 @@
+
+root super; #instruction outside of server scope
+
+server{
+    root sup{er  ; 
+

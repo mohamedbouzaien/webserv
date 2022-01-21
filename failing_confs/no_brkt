@@ -1,0 +1,7 @@
+
+
+server{
+    root super;
+
+#Didn't close server
+

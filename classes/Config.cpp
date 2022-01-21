@@ -189,7 +189,6 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         args.push_back(word);
         next_word(file, word);
         pos = word.find(';', 0);
-        std::cout << (pos != std::string::npos);
         if (pos == std::string::npos)
             pos = word.find('{', 0);
     }

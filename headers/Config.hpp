@@ -13,7 +13,7 @@
 # define CONF_ERR_NO_SERV CONF_ERR_HEAD "expected server{...} directive"
 # define CONF_ERR_NO_BRKT CONF_ERR_HEAD "expected closing bracket }"
 # define CONF_ERR_UNEX_CBRKT CONF_ERR_HEAD "unexpected closing bracket }"
-# define CONF_ERR_UNEX_OBRKT CONF_ERR_HEAD "expected opening bracket {"
+# define CONF_ERR_UNEX_OBRKT CONF_ERR_HEAD "unexpected opening bracket {"
 
 # define CONF_ERR_LIST_NARG CONF_ERR_HEAD "wrong number of args on listen directive"
 # define CONF_ERR_LIST_VARG CONF_ERR_HEAD "wrong argument value on listen directive"
