@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/20 16:49:25 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/21 09:15:16 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ int    Connector::handle()
 	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
+	memset(buffer, 0, 30000);
 	return (0);
 }
 

@@ -182,8 +182,8 @@ void Request::parseRequest(char *buffer) {
 //Printer
 
 void Request::printRequest() {
-		std::cout << "<----- HEADER ----->" << std::endl;
-		std::cout << "Method: " << _method << ", Path: " << _path << ", Protocol: " << _protocol << std::endl;
+	std::cout << "<----- HEADER ----->" << std::endl;
+	std::cout << "Method: " << _method << ", Path: " << _path << ", Protocol: " << _protocol << std::endl;
 	std::cout << "Query_string : ";
 	if (_query_string.size())
 		std::cout << _query_string << std::endl;
@@ -200,6 +200,7 @@ void Request::printRequest() {
 	for (; it != ite; it++)
 		std::cout << it->first << " : " << it->second << std::endl;
 	std::cout << "Body : " << _body << std::endl;
+	std::cout << "<------ END ------>" << std::endl;
 }
 
 //Setters
