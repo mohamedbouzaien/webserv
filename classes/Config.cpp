@@ -166,6 +166,7 @@ void Config::parse_location_directive(std::fstream &file, args_t &args, Location
     (void)location;
     (void)file;
     (void)args;
+    throw_close(CONF_ERR_WRG_DIR, file);
 }
 
 void Config::parse_server_directive(std::fstream &file, args_t &args, Server_t &serv)
@@ -174,6 +175,8 @@ void Config::parse_server_directive(std::fstream &file, args_t &args, Server_t &
         parse_listen(args, serv, file);
     else if (args[0] == "server_name")
         parse_names(args, serv, file);
+    else
+        throw_close(CONF_ERR_WRG_DIR, file);
 }
 
 /* Parse one directive and give it it's argument */
@@ -185,7 +188,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
     {
         if (word.find('}', 0) != std::string::npos)
             throw_close(CONF_ERR_UNEX_CBRKT, file);
-        std::cout << "param: " << word << " | ";
+       // std::cout << "param: " << word << " | ";
         args.push_back(word);
         next_word(file, word);
         pos = word.find(';', 0);
