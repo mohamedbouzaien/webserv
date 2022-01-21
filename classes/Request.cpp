@@ -43,23 +43,23 @@ int Request::setRequestLine(char *buffer) {
 	std::string keyword(buffer, pos);
 
 	if (keyword == "GET")
-		_method = (GET);
+		_method = GET;
 	else if (keyword == "POST")
-		_method = (POST);
+		_method = POST;
 	else if (keyword == "DELETE")
-		_method = (DELETE);
+		_method = DELETE;
 	else
-		_method = (BAD_REQUEST);
+		_method = BAD_REQUEST;
 	buffer += pos;
 	while (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
-		_method = (BAD_REQUEST);
+		_method = BAD_REQUEST;
 
 	pos = 0;
 	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
-	_path = (std::string(buffer, pos));
+	_path = std::string(buffer, pos);
 	buffer += pos;
 	if (*buffer == '?') {
 		buffer++;
@@ -71,13 +71,13 @@ int Request::setRequestLine(char *buffer) {
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
-		_method = (BAD_REQUEST);
-	_protocol = (std::string(buffer, pos));
+		_method = BAD_REQUEST;
+	_protocol = std::string(buffer, pos);
 	buffer += pos;
 	while (*buffer == ' ')
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
-		_method = (BAD_REQUEST);
+		_method = BAD_REQUEST;
 	while (*buffer && *buffer != '\n')
 		buffer++;
 	return (1);
@@ -91,8 +91,8 @@ int Request::setHostField(char *buffer) {
 
 	if (_host.first.size())
 	{
-		_method = (BAD_REQUEST);
-		return (BAD_REQUEST);
+		_method = BAD_REQUEST;
+		return BAD_REQUEST;
 	}
 	while (*buffer == ' ')
 		buffer++;
@@ -108,11 +108,11 @@ int Request::setHostField(char *buffer) {
 		host_name = std::string(buffer, pos);
 		buffer += pos;
 	}
-	_host = (std::make_pair(host_name, host_port));
+	_host = std::make_pair(host_name, host_port);
 	while (*buffer == ' ')
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
-		_method = (BAD_REQUEST);
+		_method = BAD_REQUEST;
 	return (_method);
 }
 
@@ -123,7 +123,7 @@ void Request::setHeaderField(std::string keyword, char *buffer) {
 	while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
 	if (buffer[pos] == '\r' && buffer[pos + 1] != '\n') {
-		_method = (BAD_REQUEST);
+		_method = BAD_REQUEST;
 		return ;
 	}
 	pos--;
@@ -142,7 +142,7 @@ int Request::setRequestField(char *buffer) {
 		while (buffer[pos] == ' ')
 			pos++;
 		if ((buffer[pos] != '\r' && buffer[pos] != '\n') || (buffer[pos] == '\r' && buffer[pos + 1] != '\n'))
-			_method = (BAD_REQUEST);
+			_method = BAD_REQUEST;
 		return (1);
 	}
 	pos++;
@@ -167,7 +167,7 @@ void Request::parseRequest(char *buffer) {
 		buffer = strchr(buffer, '\n');
 		if (buffer == NULL || _method == BAD_REQUEST)
 		{
-			_method = (BAD_REQUEST);
+			_method = BAD_REQUEST;
 			break;
 		}
 		buffer++;
@@ -241,4 +241,8 @@ std::string Request::getProtocol() const {
 
 std::pair<std::string, std::string> Request::getHost() const {
 	return (_host);
+}
+
+std::map<std::string, std::string> Request::getHeaderFields() const {
+	return (_header_fields);
 }

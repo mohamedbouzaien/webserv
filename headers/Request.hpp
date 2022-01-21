@@ -1,5 +1,10 @@
 #pragma once
-#include "Header.hpp"
+#include <iostream>
+#include <map>
+#define GET 1
+#define POST 2
+#define DELETE 3
+#define BAD_REQUEST 4
 
 class Request {
 	private:
@@ -37,4 +42,5 @@ class Request {
 		std::string getPath() const ;
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;
+		std::map<std::string, std::string> getHeaderFields() const;
 };
