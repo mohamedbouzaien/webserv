@@ -203,6 +203,36 @@ void Request::printRequest() {
 	std::cout << "<------ END ------>" << std::endl;
 }
 
+void Request::convertToCgiEnv() {
+	//SERVER VAR NEED TO BE COMPLETED W/ CONF_FILE VALUE
+	_cgi_env[0] = (std::string("SERVER_SOFTWARE=webserv/1.0")).c_str();
+	_cgi_env[1] = (std::string("SERVER_NAME=localhost")).c_str();
+	_cgi_env[2] = (std::string("GATEWAY_INTERFACE=CGI/1.1")).c_str();
+	// REQUEST VAR
+	_cgi_env[3] = (std::string("SERVER_PROTOCOL=") + _protocol).c_str();
+	_cgi_env[4] = (std::string("SERVER_PORT=") + _host.second).c_str();
+	_cgi_env[5] = (std::string("REQUEST_METHOD=") + "GET").c_str();
+	_cgi_env[6] = (std::string("PATH_INFO=") + "test.php").c_str();
+	_cgi_env[7] = (std::string("PATH_TRANSLATED=") + "/Users/adriencastelbou/Desktop/42/webserv").c_str();
+	_cgi_env[8] = (std::string("SCRIPT_NAME=") + _query_string).c_str();
+	_cgi_env[9] = (std::string("QUERY_STRING=") + _query_string).c_str();
+	_cgi_env[10] = (std::string("REMOTE_HOST=") + _header_fields["X-FORWARDED-HOST"]).c_str();
+	_cgi_env[11] = (std::string("REMOTE_ADDR=") + _header_fields["X-HTTP-FORWARDED-FOR"]).c_str();
+	_cgi_env[12] = (std::string("AUTH_TYPE=")).c_str();
+	_cgi_env[13] = (std::string("REMOTE_USER=")).c_str();
+	_cgi_env[14] = (std::string("REMOTE_IDENT=")).c_str();
+	_cgi_env[15] = (std::string("CONTENT_TYPE=") + _header_fields["CONTENT_TYPE"]).c_str();
+	_cgi_env[16] = (std::string("CONTENT_LENGHT=") + _header_fields["CONTENT_LENGTH"]).c_str();
+
+	//FROM CLIENT VAR
+	_cgi_env[17] = (std::string("HTTP_ACCEPT=") + _header_fields["ACCEPT"]).c_str();
+	_cgi_env[18] = (std::string("HTTP_ACCEPT_LANGUAGE=") + _header_fields["ACCEPT-LANGUAGE"]).c_str();
+	_cgi_env[19] = (std::string("HTTP_USER_AGENTT=") + _header_fields["USER-AGENT"]).c_str();
+	_cgi_env[20] = (std::string("HTTP_COOKIE=")).c_str();
+	_cgi_env[21] = (std::string("HTTP_REFERER=")).c_str();
+	_cgi_env[22] = NULL;
+}
+
 //Setters
 
 void Request::setMethod(int method) {
