@@ -92,6 +92,12 @@ void Server_t::print(){
 
     std::cout << "  root: " << _root << "\n";
 
+    std::cout << "  index:\n";
+    for (std::list<std::string>::iterator it = _index.begin();
+            it != _index.end(); ++it)
+        std::cout << "   -" << *it << '\n';
+
+
     if  (_locations.size())
         std::cout << "  locations: \n";
     for (std::vector<Location_t>::iterator it = _locations.begin();

@@ -104,6 +104,12 @@ void Config::parse_root(args_t &args, Context_t &context, std::fstream &file){
     context.set_root(args[1]);
 }
 
+void Config::parse_index(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() <= 1)
+        throw_close(CONF_ERR_IDX_NARG, file);
+    for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
+        context.add_index(*it);
+}
 
 /*************************\
 |* server_name directive *|
@@ -193,6 +199,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
 {
     if (args[0] == "root")
         parse_root(args, context, file);
+    else if (args[0] == "index")
+        parse_index(args, context, file);
     else
         return false;
     return true;
@@ -286,8 +294,13 @@ std::cout << "}" << std::endl;
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
 
+    //TODO Add serv.init_not_set()
+    // to set varaiables that haven't been set already
     for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
+    {
         it->inherit(serv);
+        //TODO Add it->init_not_set()
+    }
 
     if (serv.names_empty()) // add empty name if no name has been provided
         serv.add_name("");
