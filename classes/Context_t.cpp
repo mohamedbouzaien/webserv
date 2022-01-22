@@ -31,6 +31,20 @@ Context_t	&Context_t::operator=(const Context_t &other)
 	return *this;
 }
 
+// Inheritance -----------------------------
+
+#include <iostream>
+void Context_t::inherit(Context_t &parent) {
+    if (!_is_set[IS_ROOT])
+        _root = parent._root;
+    if (!_is_set[IS_INDEX])
+        _index = parent._index;
+    if (!_is_set[IS_AUTO_INDEX])
+        _auto_index = parent._auto_index;
+    if (!_is_set[IS_MAX_BODY_SIZE])
+        _client_max_body_size = parent._client_max_body_size;
+}
+
 // Setters ---------------------------------
 void Context_t::set_root(const std::string s) {
     _is_set[IS_ROOT] = true;

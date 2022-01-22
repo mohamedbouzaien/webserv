@@ -86,13 +86,23 @@ std::cout << "}(loc)" << std::endl;
     else
         word.erase(0, 1);
     /*
-    if (loc.names_empty()) // add empty name if now name has been provided
+    if (loc.names_empty()) // add empty name if no name has been provided
         loc.add_name("");
     */
     loc.print();
     serv.add_location(loc);
 }
 
+
+/******************\
+|* root directive *|
+\******************/
+
+void Config::parse_root(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 2)
+        throw_close(CONF_ERR_ROOT_NARG, file);
+    context.set_root(args[1]);
+}
 
 
 /*************************\
@@ -179,6 +189,15 @@ void Config::parse_server_directive(std::fstream &file, args_t &args, Server_t &
         throw_close(CONF_ERR_WRG_DIR, file);
 }
 
+bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t &context)
+{
+    if (args[0] == "root")
+        parse_root(args, context, file);
+    else
+        return false;
+    return true;
+}
+
 /* Parse one directive and give it it's argument */
 void Config::parse_directive(std::fstream &file, std::string &word, Context_t &context)
 {
@@ -207,8 +226,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
             next_word(file, word);
     }
     //TODO Add general directives appliable to both types here
-    if (args[0] == "general directives")
-        (void)context;
+    if (parse_common_directive(file, args, context))
+        return;
     if (dynamic_cast<Server_t*>(&context))
         if (args[0] == "location")
             parse_location(args, *dynamic_cast<Server_t*>(&context), file, word);
@@ -266,6 +285,9 @@ std::cout << "}" << std::endl;
 
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
+
+    for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
+        it->inherit(serv);
 
     if (serv.names_empty()) // add empty name if no name has been provided
         serv.add_name("");

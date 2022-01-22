@@ -20,6 +20,8 @@
 
 # define CONF_ERR_NONAME CONF_ERR_HEAD "no argument provided to server_name directive"
 
+# define CONF_ERR_ROOT_NARG CONF_ERR_HEAD "root directive can only take one argument"
+
 # define CONF_ERR_LOC_NARG CONF_ERR_HEAD "wrong number of args on location context"
 
 # define CONF_ERR_WRG_DIR CONF_ERR_HEAD "unrecognized directive"
@@ -42,10 +44,15 @@ class Config
         void parse_directive(std::fstream &file, std::string &word, Context_t &context);
         void parse_server_directive(std::fstream &file, args_t &args, Server_t &serv);
         void parse_location_directive(std::fstream &file, args_t &args, Location_t &location);
+        bool parse_common_directive(std::fstream &file, args_t &args, Context_t &context);
 
         // location context
         void parse_location(args_t &args, Server_t &serv, std::fstream &f, std::string &word);
 
+        // *** Common Directives ***
+        void parse_root(args_t &args, Context_t &context, std::fstream &file);
+
+        // *** Server Directives ***
         // listen directive
         bool is_valid_ip(std::string &ip);
         bool is_valid_port(std::string &port);
