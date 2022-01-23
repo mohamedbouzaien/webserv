@@ -220,6 +220,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_root(args, context, file);
     else if (args[0] == "index")
         parse_index(args, context, file);
+    else if (args[0] == "auto_index")
+        parse_auto_index(args, context, file);
     else
         return false;
     return true;

@@ -26,6 +26,7 @@ void Location_t::print(){
     std::cout << "  Location content:\n";
     std::cout << "    uri: " << _uri << "\n";
     std::cout << "    root: " << _root << "\n";
+    std::cout << "    _auto_index: " << _auto_index << '\n';
 
     std::cout << "    index:\n";
     for (std::list<std::string>::iterator it = _index.begin();

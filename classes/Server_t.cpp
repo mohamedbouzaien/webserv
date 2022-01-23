@@ -97,6 +97,8 @@ void Server_t::print(){
             it != _index.end(); ++it)
         std::cout << "   -" << *it << '\n';
 
+    std::cout << "  _auto_index: " << _auto_index << '\n';
+
 
     if  (_locations.size())
         std::cout << "  locations: \n";
