@@ -24,7 +24,10 @@
 
 # define CONF_ERR_LOC_NARG CONF_ERR_HEAD "wrong number of args on location context"
 
-# define CONF_ERR_IDX_NARG CONF_ERR_HEAD "wrong number of args on location context"
+# define CONF_ERR_IDX_NARG CONF_ERR_HEAD "wrong number of args on index directive"
+
+# define CONF_ERR_AUTO_IDX_NARG CONF_ERR_HEAD "wrong number of args on auto_index directive"
+# define CONF_ERR_AUTO_IDX_VARG CONF_ERR_HEAD "wrong arg value on auto_index directive"
 
 # define CONF_ERR_WRG_DIR CONF_ERR_HEAD "unrecognized directive"
 
@@ -54,6 +57,7 @@ class Config
         // *** Common Directives ***
         void parse_root(args_t &args, Context_t &context, std::fstream &file);
         void parse_index(args_t &args, Context_t &context, std::fstream &file);
+        void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Server Directives ***
         // listen directive

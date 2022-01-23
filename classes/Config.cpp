@@ -104,11 +104,30 @@ void Config::parse_root(args_t &args, Context_t &context, std::fstream &file){
     context.set_root(args[1]);
 }
 
+/*******************\
+|* index directive *|
+\*******************/
+
 void Config::parse_index(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() <= 1)
         throw_close(CONF_ERR_IDX_NARG, file);
     for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
         context.add_index(*it);
+}
+
+/************************\
+|* auto_index directive *|
+\************************/
+
+void Config::parse_auto_index(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 2)
+        throw_close(CONF_ERR_AUTO_IDX_NARG, file);
+    if (args[1] == "on")
+        context.set_auto_index(true);
+    else if (args[1] == "off")
+        context.set_auto_index(false);
+    else
+        throw_close(CONF_ERR_AUTO_IDX_VARG, file);
 }
 
 /*************************\
