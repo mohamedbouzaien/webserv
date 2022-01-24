@@ -98,6 +98,7 @@ void Server_t::print(){
         std::cout << "   -" << *it << '\n';
 
     std::cout << "  _auto_index: " << _auto_index << '\n';
+    std::cout << "  _client_max_body_size: " << _client_max_body_size << '\n';
 
 
     if  (_locations.size())

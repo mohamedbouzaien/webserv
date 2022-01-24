@@ -41,11 +41,11 @@ bool Config::ft_isdigit(const char c) const
     return false;
 }
 
-int	Config::ft_atoi(const char *str) const
+long Config::ft_atoi(const char *str) const
 {
-	unsigned int	nb;
-	int				sgn;
-	int				i;
+	unsigned long	nb;
+	long			sgn;
+	long			i;
 
 	i = 0;
 	nb = 0;
@@ -64,7 +64,7 @@ int	Config::ft_atoi(const char *str) const
 		nb = nb * 10 + (str[i] - '0');
 		i++;
 	}
-	return ((int)((int)(nb) * sgn));
+	return ((long)((long)(nb) * sgn));
 }
 
 /**********************\
@@ -130,6 +130,19 @@ void Config::parse_auto_index(args_t &args, Context_t &context, std::fstream &fi
         throw_close(CONF_ERR_AUTO_IDX_VARG, file);
 }
 
+
+/**********************************\
+|* client_max_body_size directive *|
+\**********************************/
+
+void Config::parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 2)
+        throw_close(CONF_ERR_MAXSZ_NARG, file);
+    for (std::string::iterator it = args[1].begin(); it < args[1].end(); ++it)
+        if (!ft_isdigit(*it))
+            throw_close(CONF_ERR_AUTO_IDX_VARG, file);
+    context.set_client_max_body_size(ft_atoi(args[1].c_str()));
+}
 /*************************\
 |* server_name directive *|
 \*************************/
@@ -222,6 +235,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_index(args, context, file);
     else if (args[0] == "auto_index")
         parse_auto_index(args, context, file);
+    else if (args[0] == "client_max_body_size")
+        parse_client_max_body_size(args, context, file);
     else
         return false;
     return true;

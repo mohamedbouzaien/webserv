@@ -29,6 +29,9 @@
 # define CONF_ERR_AUTO_IDX_NARG CONF_ERR_HEAD "wrong number of args on auto_index directive"
 # define CONF_ERR_AUTO_IDX_VARG CONF_ERR_HEAD "wrong arg value on auto_index directive"
 
+# define CONF_ERR_MAXSZ_NARG CONF_ERR_HEAD "wrong number of args on client_max_body_size directive"
+# define CONF_ERR_MAXSZ_VARG CONF_ERR_HEAD "wrong arg value on client_max_body_size directive"
+
 # define CONF_ERR_WRG_DIR CONF_ERR_HEAD "unrecognized directive"
 
 class Config
@@ -42,7 +45,7 @@ class Config
 /* Private functions used for parsing */
         void check_comment(std::fstream &file, std::string &word) const;
         void next_word(std::fstream &file, std::string &word) const;
-        int	 ft_atoi(const char *str) const;
+        long ft_atoi(const char *str) const;
         bool ft_isdigit(const char c) const;
 
 /* General directive parser/dispatcher */
@@ -58,6 +61,7 @@ class Config
         void parse_root(args_t &args, Context_t &context, std::fstream &file);
         void parse_index(args_t &args, Context_t &context, std::fstream &file);
         void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
+        void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Server Directives ***
         // listen directive
