@@ -1,15 +1,15 @@
 #pragma once
 #include <iostream>
 #include <map>
-#define GET 1
-#define POST 2
-#define DELETE 3
-#define BAD_REQUEST 4
+#define GET "GET"
+#define POST "POST"
+#define DELETE "DELETE"
+#define BAD_REQUEST "BAD REQUEST"
 #define CGI_ENV_SIZE 22
 
 class Request {
 	private:
-		int _method;
+		std::string _method;
 		std::string _path;
 		std::string _query_string;
 		std::string _protocol;
@@ -37,13 +37,13 @@ class Request {
 		void setCgiEnvVar(const char *var, int pos);
 
 				//Setters
-		void setMethod(int method);
+		void setMethod(std::string method);
 		void setPath(std::string path);
 		void setProtocol(std::string protocol);
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
 		//Getters
-		int  getMethod() const ;
+		std::string getMethod() const ;
 		std::string getPath() const ;
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;

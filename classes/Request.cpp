@@ -37,7 +37,7 @@ Request &Request::operator=(const Request &other) {
 }
 
 void Request::clear() {
-	_method = 0;
+	_method.clear();
 	_path.clear();
 	_query_string.clear();
 	_protocol.clear();
@@ -107,7 +107,7 @@ int Request::setHostField(char *buffer) {
 	if (_host.first.size())
 	{
 		_method = BAD_REQUEST;
-		return BAD_REQUEST;
+		return (0);
 	}
 	while (*buffer == ' ')
 		buffer++;
@@ -128,7 +128,7 @@ int Request::setHostField(char *buffer) {
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
 		_method = BAD_REQUEST;
-	return (_method);
+	return (1);
 }
 
 void Request::setHeaderField(std::string keyword, char *buffer) {
@@ -242,10 +242,10 @@ void Request::convertToCgiEnv() {
 	// REQUEST VAR
 	setCgiEnvVar((std::string("SERVER_PROTOCOL=") + _protocol).c_str(), 3);
 	setCgiEnvVar((std::string("SERVER_PORT=") + _host.second).c_str(), 4);
-	setCgiEnvVar((std::string("REQUEST_METHOD=") + "GET").c_str(), 5);
-	setCgiEnvVar((std::string("PATH_INFO=") + "test.php").c_str(), 6);
+	setCgiEnvVar((std::string("REQUEST_METHOD=") + _method).c_str(), 5);
+	setCgiEnvVar((std::string("PATH_INFO=")).c_str(), 6);
 	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "/Users/adriencastelbou/Desktop/42/webserv").c_str(), 7);
-	setCgiEnvVar((std::string("SCRIPT_NAME=") + _query_string).c_str(), 8);
+	setCgiEnvVar((std::string("SCRIPT_NAME=") + _path).c_str(), 8);
 	setCgiEnvVar((std::string("QUERY_STRING=") + _query_string).c_str(), 9);
 	setCgiEnvVar((std::string("REMOTE_HOST=") + _header_fields["X-FORWARDED-HOST"]).c_str(), 10);
 	setCgiEnvVar((std::string("REMOTE_ADDR=") + _header_fields["X-HTTP-FORWARDED-FOR"]).c_str(), 11);
@@ -266,7 +266,7 @@ void Request::convertToCgiEnv() {
 
 //Setters
 
-void Request::setMethod(int method) {
+void Request::setMethod(std::string method) {
 	_method = method;
 }
 
@@ -288,7 +288,7 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 
 //Getters
 
-int Request::getMethod() const {
+std::string Request::getMethod() const {
 	return (_method);
 }
 
