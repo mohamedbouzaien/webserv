@@ -5,6 +5,7 @@
 #define POST 2
 #define DELETE 3
 #define BAD_REQUEST 4
+#define CGI_ENV_SIZE 22
 
 class Request {
 	private:
@@ -15,7 +16,7 @@ class Request {
 		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::string> _header_fields;
 		std::string _body;
-		const char *_cgi_env[23];
+		char **_cgi_env;
 
 	public:
 		Request();
@@ -33,6 +34,7 @@ class Request {
 		//Printer
 		void printRequest();
 		void convertToCgiEnv();
+		void setCgiEnvVar(const char *var, int pos);
 
 				//Setters
 		void setMethod(int method);
@@ -46,4 +48,11 @@ class Request {
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
+		//EXCEPTIONS
+
+		class MallocFailedException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
 };
