@@ -32,6 +32,9 @@
 # define CONF_ERR_MAXSZ_NARG CONF_ERR_HEAD "wrong number of args on client_max_body_size directive"
 # define CONF_ERR_MAXSZ_VARG CONF_ERR_HEAD "wrong arg value on client_max_body_size directive"
 
+# define CONF_ERR_ERPAGE_NARG CONF_ERR_HEAD "wrong number of args on error_page directive"
+# define CONF_ERR_ERPAGE_VARG CONF_ERR_HEAD "wrong value of args on error_page directive"
+
 # define CONF_ERR_WRG_DIR CONF_ERR_HEAD "unrecognized directive"
 
 class Config
@@ -62,6 +65,7 @@ class Config
         void parse_index(args_t &args, Context_t &context, std::fstream &file);
         void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
         void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
+        void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Server Directives ***
         // listen directive

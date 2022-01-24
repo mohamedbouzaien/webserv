@@ -5,7 +5,8 @@ Context_t::Context_t():
     _root("html"),
     _index(std::list<std::string>()),
     _auto_index(false),
-    _client_max_body_size(1000000)
+    _client_max_body_size(1000000),
+    _error_pages(std::map<std::string, std::string>())
 {
 }
 
@@ -14,7 +15,8 @@ Context_t::Context_t(const Context_t &copy):
     _root(copy._root),
     _index(copy._index),
     _auto_index(copy._auto_index),
-    _client_max_body_size(copy._client_max_body_size)
+    _client_max_body_size(copy._client_max_body_size),
+    _error_pages(copy._error_pages)
 {
 }
 
@@ -28,6 +30,7 @@ Context_t	&Context_t::operator=(const Context_t &other)
     _index                  = other._index;
     _auto_index             = other._auto_index;
     _client_max_body_size   = other._client_max_body_size;
+    _error_pages            = other._error_pages;
 	return *this;
 }
 
@@ -43,6 +46,8 @@ void Context_t::inherit(Context_t &parent) {
         _auto_index = parent._auto_index;
     if (!_is_set[IS_MAX_BODY_SIZE])
         _client_max_body_size = parent._client_max_body_size;
+    if (!_is_set[IS_ERROR_PAGES])
+        _error_pages = parent._error_pages;
 }
 
 // Setters ---------------------------------
@@ -66,6 +71,11 @@ void Context_t::set_client_max_body_size(const unsigned long n) {
     _client_max_body_size = n;
 }
 
+void Context_t::add_error_page(std::string & error, std::string & page) {
+    _is_set[IS_ERROR_PAGES] = true;
+    _error_pages.insert(std::make_pair(error, page));
+}
+
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
 {
@@ -87,19 +97,7 @@ unsigned long Context_t::get_client_max_body_size()
     return _client_max_body_size;
 }
 
-// Is_set functions --------------------------
-bool Context_t::is_set_root() const {
-    return _is_set[IS_ROOT];
-}
-
-bool Context_t::is_set_index() const {
-    return _is_set[IS_INDEX];
-}
-
-bool Context_t::is_set_auto_index() const {
-    return _is_set[IS_AUTO_INDEX];
-}
-
-bool Context_t::is_set_client_max_body_size() const {
-    return _is_set[IS_MAX_BODY_SIZE];
+std::map<std::string, std::string> Context_t::get_error_page()
+{
+    return _error_pages;
 }

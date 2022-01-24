@@ -138,10 +138,29 @@ void Config::parse_auto_index(args_t &args, Context_t &context, std::fstream &fi
 void Config::parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() != 2)
         throw_close(CONF_ERR_MAXSZ_NARG, file);
-    for (std::string::iterator it = args[1].begin(); it < args[1].end(); ++it)
+    for (std::string::iterator it = args[1].begin(); it != args[1].end(); ++it)
         if (!ft_isdigit(*it))
             throw_close(CONF_ERR_AUTO_IDX_VARG, file);
     context.set_client_max_body_size(ft_atoi(args[1].c_str()));
+}
+
+
+/************************\
+|* error_page directive *|
+\************************/
+
+void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() < 3)
+        throw_close(CONF_ERR_ERPAGE_NARG, file);
+    for (args_t::iterator it = ++args.begin(); it != --args.end(); ++it)
+    {
+        for (std::string::iterator str_it = it->begin(); str_it != it->end(); ++str_it)
+            if (!ft_isdigit(*str_it)) {
+                std::cout << "FDP:" << *it << '\n';
+                throw_close(CONF_ERR_ERPAGE_VARG, file);
+            }
+        context.add_error_page(*it, args.back());
+    }
 }
 /*************************\
 |* server_name directive *|
@@ -237,6 +256,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_auto_index(args, context, file);
     else if (args[0] == "client_max_body_size")
         parse_client_max_body_size(args, context, file);
+    else if (args[0] == "error_page")
+        parse_error_page(args, context, file);
     else
         return false;
     return true;
