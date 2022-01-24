@@ -6,12 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/24 10:22:42 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/24 14:44:28 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Connector.hpp"
 #include "../headers/Request.hpp"
+#include "../headers/Cgi.hpp"
 
 Connector::Connector(Listener &listener): _listener(listener)
 {
@@ -63,6 +64,9 @@ int    Connector::handle()
 	request.parseRequest(buffer);
 	request.convertToCgiEnv();
 	request.printRequest();
+	std::string s("/usr/local/Cellar/php/8.1.1/bin/php-cgi");
+	Cgi cgi((char *)s.c_str());
+	cgi.runCgi(request);
 	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();

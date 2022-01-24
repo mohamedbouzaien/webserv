@@ -1,7 +1,11 @@
+<?php
+http_response_code(404);
+?>
 <html>
 <body>
 <?php
-echo var_export($_SERVER)
+echo 'Bonjour I am ' . htmlspecialchars($_GET["name"]) . ' and I am a ' . htmlspecialchars($_GET["job"]) . "!\n" ;
+//print_r($_SERVER);
 ?>
 </body>
 </html>

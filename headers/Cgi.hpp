@@ -1,20 +1,25 @@
 #pragma once
 #include "Request.hpp"
-
+#include <unistd.h>
 class Cgi {
 	private:
-		Request *_request;
-
+		char **_cgi_path;
 	public:
-		Cgi(Request *);
+		Cgi(char *path);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
+		void runGetMethod(Request &request) const;
+		void runCgi(Request &request) const;
 		//Setter
-		void setRequest(Request *request);
+		void setCgiPath(char *path);
 
 		//Getter
-		Request *getRequest() const;
-
+		char *getCgiPath() const;
+		class MallocFailedException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
 };

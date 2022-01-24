@@ -261,7 +261,9 @@ void Request::convertToCgiEnv() {
 	setCgiEnvVar((std::string("HTTP_USER_AGENTT=") + _header_fields["USER-AGENT"]).c_str(), 19);
 	setCgiEnvVar((std::string("HTTP_COOKIE=")).c_str(), 20);
 	setCgiEnvVar((std::string("HTTP_REFERER=")).c_str(), 21);
-	_cgi_env[22] = NULL;
+	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 22);
+	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("/Users/adriencastelbou/Desktop/42/webserv") + _path).c_str(), 23);
+	_cgi_env[24] = NULL;
 }
 
 //Setters
