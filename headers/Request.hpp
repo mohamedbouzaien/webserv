@@ -48,6 +48,7 @@ class Request {
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
+		char **getCgiEnv() const ;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception

@@ -307,3 +307,7 @@ std::pair<std::string, std::string> Request::getHost() const {
 std::map<std::string, std::string> Request::getHeaderFields() const {
 	return (_header_fields);
 }
+
+char **Request::getCgiEnv() const {
+	return (_cgi_env);
+}
