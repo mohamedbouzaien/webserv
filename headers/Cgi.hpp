@@ -13,12 +13,8 @@ class Cgi {
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
-		void runGetMethod(Request &request) const;
 		void runCgi(Request &request) const;
-		//Setter
 		void setCgiPath(char *path);
-
-		//Getter
 		char *getCgiPath() const;
 		class MallocFailedException : public std::exception
 		{
