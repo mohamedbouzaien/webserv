@@ -5,21 +5,13 @@ const char* Cgi::MallocFailedException::what() const throw() {
 }
 
 
-Cgi::Cgi(char *path) {
-	if (!(_cgi_path = static_cast<char **>(malloc(sizeof(char *) * (1 + 1)))))
-		throw Cgi::MallocFailedException();
-	_cgi_path[0] = path;
-	_cgi_path[1] = NULL;
-}
+Cgi::Cgi(char *path) : _cgi_path(path) {}
 
 Cgi::Cgi(const Cgi &other) {
 	*this = other;
 }
 
-Cgi::~Cgi() {
-	free(_cgi_path);
-	_cgi_path = NULL;
-}
+Cgi::~Cgi() {}
 
 Cgi &Cgi::operator=(const Cgi &other) {
 	if (this != &other)
@@ -36,7 +28,7 @@ void Cgi::runGetMethod(Request &request) const {
 	}
 	if (pid == 0) // Child
 	{
-		execve(_cgi_path[0], _cgi_path, request.getCgiEnv());
+		execve(_cgi_path, NULL, request.getCgiEnv());
 		exit(1);
 	}
 	else
@@ -51,11 +43,11 @@ void Cgi::runCgi(Request &request) const {
 //Setter
 
 void Cgi::setCgiPath(char *path) {
-	*_cgi_path = path;
+	_cgi_path = path;
 }
 
 //Getter
 
 char *Cgi::getCgiPath() const {
-	return (*_cgi_path);
+	return (_cgi_path);
 }

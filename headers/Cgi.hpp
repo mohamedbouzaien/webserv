@@ -3,7 +3,7 @@
 #include <unistd.h>
 class Cgi {
 	private:
-		char **_cgi_path;
+		char *_cgi_path;
 	public:
 		Cgi(char *path);
 		Cgi(const Cgi &other);
