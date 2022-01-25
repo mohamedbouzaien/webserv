@@ -20,9 +20,11 @@ Cgi &Cgi::operator=(const Cgi &other) {
 }
 
 void Cgi::runCgi(Request &request) const {
+	int body_size;
 	int pid;
 	int pfd[2];
 
+	body_size = atoi(request.getHeaderFields()["CONTENT-LENGTH"].c_str());
 	if (pipe(pfd) < 0) {
 		std::cout << "Pipe error" << std::endl;
 		return ;
@@ -42,7 +44,7 @@ void Cgi::runCgi(Request &request) const {
 		close(pfd[SIDE_IN]);
 		dup2(pfd[SIDE_OUT], STDOUT_FILENO);
 		close(pfd[SIDE_OUT]);
-		write(1, request.getBody().c_str(), request.getBody().size());
+		write(1, request.getBody().c_str(), body_size);
 		wait(NULL);
 	}
 }

@@ -253,7 +253,7 @@ void Request::convertToCgiEnv() {
 	setCgiEnvVar((std::string("REMOTE_USER=")).c_str(), 13);
 	setCgiEnvVar((std::string("REMOTE_IDENT=")).c_str(), 14);
 	setCgiEnvVar((std::string("CONTENT_TYPE=") + _header_fields["CONTENT-TYPE"]).c_str(), 15);
-	setCgiEnvVar((std::string("CONTENT_LENGTH=") + std::to_string(_body.size())).c_str(), 16);
+	setCgiEnvVar((std::string("CONTENT_LENGTH=") +  _header_fields["CONTENT-LENGTH"]).c_str(), 16);
 
 	//FROM CLIENT VAR
 	setCgiEnvVar((std::string("HTTP_ACCEPT=") + _header_fields["ACCEPT"]).c_str(), 17);
