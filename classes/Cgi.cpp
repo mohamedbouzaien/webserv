@@ -19,25 +19,32 @@ Cgi &Cgi::operator=(const Cgi &other) {
 	return (*this);
 }
 
-void Cgi::runGetMethod(Request &request) const {
+void Cgi::runCgi(Request &request) const {
 	int pid;
+	int pfd[2];
 
+	if (pipe(pfd) < 0) {
+		std::cout << "Pipe error" << std::endl;
+		return ;
+	}
 	if ((pid = fork()) < 0) {
 		std::cout << "Fork error" << std::endl;
 		return ;
 	}
-	if (pid == 0) // Child
-	{
+	if (pid == 0) {
+		close(pfd[SIDE_OUT]);
+		dup2(pfd[SIDE_IN], STDIN_FILENO);
+		close(pfd[SIDE_IN]);
 		execve(_cgi_path, NULL, request.getCgiEnv());
 		exit(1);
 	}
-	else
+	else {
+		close(pfd[SIDE_IN]);
+		dup2(pfd[SIDE_OUT], STDOUT_FILENO);
+		close(pfd[SIDE_OUT]);
+		write(1, request.getBody().c_str(), request.getBody().size());
 		wait(NULL);
-}
-
-void Cgi::runCgi(Request &request) const {
-	if (request.getMethod() == GET)
-		runGetMethod(request);
+	}
 }
 
 //Setter

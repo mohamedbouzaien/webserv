@@ -42,6 +42,7 @@ class Request {
 		void setProtocol(std::string protocol);
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
+		void setBody(std::string body);
 		//Getters
 		std::string getMethod() const ;
 		std::string getPath() const ;
@@ -49,6 +50,7 @@ class Request {
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
 		char **getCgiEnv() const ;
+		std::string getBody() const;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception

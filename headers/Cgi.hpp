@@ -1,6 +1,9 @@
 #pragma once
 #include "Request.hpp"
 #include <unistd.h>
+#define SIDE_IN 0
+#define SIDE_OUT 1
+
 class Cgi {
 	private:
 		char *_cgi_path;

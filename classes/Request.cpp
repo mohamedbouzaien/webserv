@@ -247,13 +247,13 @@ void Request::convertToCgiEnv() {
 	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "/Users/adriencastelbou/Desktop/42/webserv").c_str(), 7);
 	setCgiEnvVar((std::string("SCRIPT_NAME=") + _path).c_str(), 8);
 	setCgiEnvVar((std::string("QUERY_STRING=") + _query_string).c_str(), 9);
-	setCgiEnvVar((std::string("REMOTE_HOST=") + _header_fields["X-FORWARDED-HOST"]).c_str(), 10);
+	setCgiEnvVar((std::string("REMOTE_HOST=") + "127.0.0.1").c_str(), 10);
 	setCgiEnvVar((std::string("REMOTE_ADDR=") + _header_fields["X-HTTP-FORWARDED-FOR"]).c_str(), 11);
 	setCgiEnvVar((std::string("AUTH_TYPE=")).c_str(), 12);
 	setCgiEnvVar((std::string("REMOTE_USER=")).c_str(), 13);
 	setCgiEnvVar((std::string("REMOTE_IDENT=")).c_str(), 14);
-	setCgiEnvVar((std::string("CONTENT_TYPE=") + _header_fields["CONTENT_TYPE"]).c_str(), 15);
-	setCgiEnvVar((std::string("CONTENT_LENGHT=") + _header_fields["CONTENT_LENGTH"]).c_str(), 16);
+	setCgiEnvVar((std::string("CONTENT_TYPE=") + _header_fields["CONTENT-TYPE"]).c_str(), 15);
+	setCgiEnvVar((std::string("CONTENT_LENGTH=") + std::to_string(_body.size())).c_str(), 16);
 
 	//FROM CLIENT VAR
 	setCgiEnvVar((std::string("HTTP_ACCEPT=") + _header_fields["ACCEPT"]).c_str(), 17);
@@ -288,6 +288,10 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 	_header_fields = header_fields;
 }
 
+void Request::setBody(std::string body) {
+	_body = body;
+}
+
 //Getters
 
 std::string Request::getMethod() const {
@@ -312,4 +316,8 @@ std::map<std::string, std::string> Request::getHeaderFields() const {
 
 char **Request::getCgiEnv() const {
 	return (_cgi_env);
+}
+
+std::string Request::getBody() const {
+	return (_body);
 }
