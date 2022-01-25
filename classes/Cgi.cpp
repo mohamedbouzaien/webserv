@@ -20,10 +20,12 @@ Cgi &Cgi::operator=(const Cgi &other) {
 }
 
 void Cgi::runCgi(Request &request) const {
+
 	int body_size;
 	int pid;
 	int pfd[2];
 
+	int stdin_cp = dup(STDIN_FILENO);
 	body_size = atoi(request.getHeaderFields()["CONTENT-LENGTH"].c_str());
 	if (pipe(pfd) < 0) {
 		std::cout << "Pipe error" << std::endl;
@@ -42,11 +44,11 @@ void Cgi::runCgi(Request &request) const {
 	}
 	else {
 		close(pfd[SIDE_IN]);
-		dup2(pfd[SIDE_OUT], STDOUT_FILENO);
+		write(pfd[SIDE_OUT], request.getBody().c_str(), body_size);
 		close(pfd[SIDE_OUT]);
-		write(1, request.getBody().c_str(), body_size);
 		wait(NULL);
 	}
+	dup2(STDIN_FILENO, stdin_cp);
 }
 
 //Setter
