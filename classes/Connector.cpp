@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/21 09:15:16 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/26 00:09:33 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,17 +52,19 @@ void    Connector::accept_c()
 
 int    Connector::handle()
 {
-	Request request;
+	Request		request;
+	Response	response;
 	char buffer[30000];
 	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
 	if (bytesRead < 0)
 		throw Connector::RecvFailedException();
 	if (bytesRead == 0)
 		return (-1);
-	std::cout << "The message was: " << buffer << std::endl;
+	//std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
-	request.printRequest();
-	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+	//request.printRequest();
+	response.prepare(request);
+	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
 	memset(buffer, 0, 30000);

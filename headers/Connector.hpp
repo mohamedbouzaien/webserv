@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:01:38 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/25 22:31:13 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define CONNECTOR_HPP
 
 # include "Listener.hpp"
+# include "Response.hpp"
 # include <sys/socket.h>
 # include <unistd.h>
 
