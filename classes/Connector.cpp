@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 16:07:56 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/26 16:09:31 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int    Connector::handle()
 	std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
 	request.printRequest();
-	std::string s("/usr/local/Cellar/php/8.1.1/bin/php-cgi");
+	std::string s("etc/php-cgi");
 	Cgi cgi((char *)s.c_str(), request);
 	cgi.runCgi(request);
 	char *output = cgi.getOutput();
