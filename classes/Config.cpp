@@ -12,25 +12,32 @@
 /* Checks if current word contains a comment,
  * extracts next word if the whole word is comment
  */
-void Config::check_comment(std::fstream &file, std::string &word) const
+void Config::check_comment(std::fstream &file, std::string &word)
 {
     size_t pos = word.find('#', 0);
     if (pos != std::string::npos)
     {
         word.resize(pos);
-        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        _line.clear();
         if (word.empty())
-        {
-            file >> word;
-            check_comment(file, word);
-        }
+            next_word(file, word);
     }
 }
 
 /* Get next word, and calls function above */
-void Config::next_word(std::fstream &file, std::string &word) const
+void Config::next_word(std::fstream &file, std::string &word)
 {
-    file >> word;
+    while ((!_line.size() || _line.find_first_not_of(" \t\n\r\f\v") == std::string::npos))
+    {
+        getline(file, _line);
+        ++_line_number;
+        if (!file.good())
+            return;
+    }
+    size_t start = _line.find_first_not_of(" \t\n\r\f\v");
+    size_t end = _line.find_first_of(" \t\n\r\f\v", start);
+    word = _line.substr(start, end - start);
+    _line.erase(0, end);
     check_comment(file, word);
 }
 
@@ -155,10 +162,8 @@ void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &fi
     for (args_t::iterator it = ++args.begin(); it != --args.end(); ++it)
     {
         for (std::string::iterator str_it = it->begin(); str_it != it->end(); ++str_it)
-            if (!ft_isdigit(*str_it)) {
-                std::cout << "FDP:" << *it << '\n';
+            if (!ft_isdigit(*str_it))
                 throw_close(CONF_ERR_ERPAGE_VARG, file);
-            }
         context.add_error_page(*it, args.back());
     }
 }
@@ -313,7 +318,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
 /* Checks server directive call validity
  * (when not in server{}, it's the only callable directive)
  */
-void Config::check_server(std::fstream &file, std::string &word) const
+void Config::check_server(std::fstream &file, std::string &word)
 {
     if (word == "server")
     {
@@ -321,18 +326,12 @@ void Config::check_server(std::fstream &file, std::string &word) const
         if (word[0] == '{')
             word.erase(1);
         else
-        {
-            file.close();
-            throw (ParseErrException(CONF_ERR_NO_SERV));
-        }
+            throw_close(CONF_ERR_NO_SERV, file);
     }
     else if (!word.compare(0, 7, "server{"))
         word.erase(0, 7);
     else
-    {
-        file.close();
-        throw (ParseErrException(CONF_ERR_NO_SERV));
-    }
+        throw_close(CONF_ERR_NO_SERV, file);
     if (word.empty())
         next_word(file, word);
 }
@@ -377,7 +376,9 @@ void Config::print_servers()
 \********************/
 
 /* Constructor */
-Config::Config(const char * path): _servers(std::vector<Server_t>())
+Config::Config(const char * path): _servers(std::vector<Server_t>()),
+                                   _line(std::string()),
+                                   _line_number(0)
 {
     std::fstream file(path, std::ios_base::in);
     std::string word;
@@ -396,6 +397,7 @@ Config::Config(const char * path): _servers(std::vector<Server_t>())
 
 Config::Config(const Config &copy)
 {
+	//TODO ???
 	(void)copy;
 }
 
@@ -405,15 +407,18 @@ Config::~Config()
 
 Config	&Config::operator=(const Config &other)
 {
-	//to do
+	//TODO ???
     (void)other;
 	return *this;
 }
 
 
-void Config::throw_close(const char *s, std::fstream &f){
+void Config::throw_close(const char *message, std::fstream &f){
     f.close();
-    throw(ParseErrException(s));
+    std::stringstream s;
+    s << CONF_ERR_HEAD << "at line " << _line_number << ": " << message <<std::endl;
+    std::cerr << s.str();
+    throw(ParseErrException());
 }
 
 const char* Config::FileOpenException::what() const throw()
@@ -421,8 +426,7 @@ const char* Config::FileOpenException::what() const throw()
 	return ("Configuration file couldn't be open");
 }
 
-Config::ParseErrException::ParseErrException(const char *s): _s(s) {}
 const char* Config::ParseErrException::what() const throw()
 {
-	return (_s);
+	return ("Error reading configuration file");
 }
