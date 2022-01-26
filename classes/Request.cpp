@@ -5,22 +5,13 @@ const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Request::Request() {
-	if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (CGI_ENV_SIZE + 1)))))
-		throw Request::MallocFailedException();
-	for(int i = 0; i < CGI_ENV_SIZE; i++)
-		_cgi_env[i] = NULL;
-}
+Request::Request() {}
 
 Request::Request(const Request &other) {
 	*this = other;
 }
 
-Request::~Request() {
-	for (int i = 0; _cgi_env[i] != NULL; i++)
-		free(_cgi_env[i]);
-	free(_cgi_env);
-}
+Request::~Request() {}
 
 Request &Request::operator=(const Request &other) {
 	if (this != &other)
@@ -216,54 +207,6 @@ void Request::printRequest() {
 		std::cout << it->first << " : " << it->second << std::endl;
 	std::cout << "<------ BODY ----->" << std::endl;
 	std::cout << "Body : " << _body << std::endl;
-	std::cout << "<------ CGI_ENV ------>" << std::endl;
-	for (int i = 0; _cgi_env[i] != NULL; i++)
-		std::cout << _cgi_env[i] << std::endl;
-	std::cout << "<------ END ------>" << std::endl;
-}
-
-void Request::setCgiEnvVar(const char *var, int pos) {
-	if (_cgi_env[pos])
-		free(_cgi_env[pos]);
-	if (!(_cgi_env[pos] = static_cast<char *>(malloc(sizeof(char *) * (strlen(var) + 1)))))
-		throw Request::MallocFailedException();
-	strcpy(_cgi_env[pos], var);
-
-}
-
-void Request::convertToCgiEnv() {
-	//SERVER VAR NEED TO BE COMPLETED W/ CONF_FILE VALUE
-	
-	setCgiEnvVar(std::string("SERVER_SOFTWARE=webserv/1.0").c_str(), 0);
-
-	setCgiEnvVar(std::string("SERVER_NAME=localhost").c_str(), 1);
-
-	setCgiEnvVar(std::string("GATEWAY_INTERFACE=CGI/1.1").c_str(), 2);
-	// REQUEST VAR
-	setCgiEnvVar((std::string("SERVER_PROTOCOL=") + _protocol).c_str(), 3);
-	setCgiEnvVar((std::string("SERVER_PORT=") + _host.second).c_str(), 4);
-	setCgiEnvVar((std::string("REQUEST_METHOD=") + _method).c_str(), 5);
-	setCgiEnvVar((std::string("PATH_INFO=")).c_str(), 6);
-	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "/Users/adriencastelbou/Desktop/42/webserv").c_str(), 7);
-	setCgiEnvVar((std::string("SCRIPT_NAME=") + _path).c_str(), 8);
-	setCgiEnvVar((std::string("QUERY_STRING=") + _query_string).c_str(), 9);
-	setCgiEnvVar((std::string("REMOTE_HOST=") + "127.0.0.1").c_str(), 10);
-	setCgiEnvVar((std::string("REMOTE_ADDR=") + _header_fields["X-HTTP-FORWARDED-FOR"]).c_str(), 11);
-	setCgiEnvVar((std::string("AUTH_TYPE=")).c_str(), 12);
-	setCgiEnvVar((std::string("REMOTE_USER=")).c_str(), 13);
-	setCgiEnvVar((std::string("REMOTE_IDENT=")).c_str(), 14);
-	setCgiEnvVar((std::string("CONTENT_TYPE=") + _header_fields["CONTENT-TYPE"]).c_str(), 15);
-	setCgiEnvVar((std::string("CONTENT_LENGTH=") +  _header_fields["CONTENT-LENGTH"]).c_str(), 16);
-
-	//FROM CLIENT VAR
-	setCgiEnvVar((std::string("HTTP_ACCEPT=") + _header_fields["ACCEPT"]).c_str(), 17);
-	setCgiEnvVar((std::string("HTTP_ACCEPT_LANGUAGE=") + _header_fields["ACCEPT-LANGUAGE"]).c_str(), 18);
-	setCgiEnvVar((std::string("HTTP_USER_AGENTT=") + _header_fields["USER-AGENT"]).c_str(), 19);
-	setCgiEnvVar((std::string("HTTP_COOKIE=")).c_str(), 20);
-	setCgiEnvVar((std::string("HTTP_REFERER=")).c_str(), 21);
-	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 22);
-	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("/Users/adriencastelbou/Desktop/42/webserv") + _path).c_str(), 23);
-	_cgi_env[24] = NULL;
 }
 
 //Setters
@@ -314,8 +257,8 @@ std::map<std::string, std::string> Request::getHeaderFields() const {
 	return (_header_fields);
 }
 
-char **Request::getCgiEnv() const {
-	return (_cgi_env);
+std::string Request::getQueryString() const {
+	return (_query_string);
 }
 
 std::string Request::getBody() const {

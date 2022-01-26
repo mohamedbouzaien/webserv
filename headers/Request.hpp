@@ -16,7 +16,6 @@ class Request {
 		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::string> _header_fields;
 		std::string _body;
-		char **_cgi_env;
 
 	public:
 		Request();
@@ -33,8 +32,6 @@ class Request {
 		void setHeaderField(std::string, char *);
 		//Printer
 		void printRequest();
-		void convertToCgiEnv();
-		void setCgiEnvVar(const char *var, int pos);
 
 				//Setters
 		void setMethod(std::string method);
@@ -46,10 +43,10 @@ class Request {
 		//Getters
 		std::string getMethod() const ;
 		std::string getPath() const ;
+		std::string getQueryString() const ;
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
-		char **getCgiEnv() const ;
 		std::string getBody() const;
 		//EXCEPTIONS
 
