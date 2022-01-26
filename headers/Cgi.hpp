@@ -7,6 +7,10 @@
 class Cgi {
 	private:
 		char *_cgi_path;
+		char _buffer[CGI_BUFFER_SIZE];
+		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
+		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
+
 	public:
 		Cgi(char *path);
 		Cgi(const Cgi &other);

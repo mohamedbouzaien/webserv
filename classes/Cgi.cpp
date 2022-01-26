@@ -5,7 +5,9 @@ const char* Cgi::MallocFailedException::what() const throw() {
 }
 
 
-Cgi::Cgi(char *path) : _cgi_path(path) {}
+Cgi::Cgi(char *path) : _cgi_path(path) {
+	memset((char *)_buffer, 0, CGI_BUFFER_SIZE);
+}
 
 Cgi::Cgi(const Cgi &other) {
 	*this = other;
@@ -23,14 +25,10 @@ void Cgi::runCgi(Request &request) const {
 
 	int body_size;
 	int pid;
-	int pfd1[2]; // PARENT -> CHILD, SEND BODY
-	int pfd2[2]; // CHILD -> PARENT, SEND CGI OUTPUT
-	char buffer[CGI_BUFFER_SIZE];
-
-	memset(buffer, 0, CGI_BUFFER_SIZE);
 	int stdin_cp = dup(STDIN_FILENO);
+
 	body_size = atoi(request.getHeaderFields()["CONTENT-LENGTH"].c_str());
-	if (pipe(pfd1) < 0 || pipe(pfd2)) {
+	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		return ;
 	}
@@ -39,24 +37,24 @@ void Cgi::runCgi(Request &request) const {
 		return ;
 	}
 	if (pid == 0) {
-		close(pfd1[SIDE_OUT]);
-		dup2(pfd1[SIDE_IN], STDIN_FILENO);
-		close(pfd1[SIDE_IN]);
-		dup2(pfd2[SIDE_OUT], STDOUT_FILENO);
-		close(pfd2[SIDE_OUT]);
+		close(_body_pipe[SIDE_OUT]);
+		dup2(_body_pipe[SIDE_IN], STDIN_FILENO);
+		close(_body_pipe[SIDE_IN]);
+		dup2(_output_pipe[SIDE_OUT], STDOUT_FILENO);
+		close(_output_pipe[SIDE_OUT]);
 		execve(_cgi_path, NULL, request.getCgiEnv());
 		exit(1);
 	}
 	else {
-		close(pfd1[SIDE_IN]);
-		write(pfd1[SIDE_OUT], request.getBody().c_str(), body_size);
-		close(pfd1[SIDE_OUT]);
-		close(pfd2[SIDE_OUT]);
+		close(_body_pipe[SIDE_IN]);
+		write(_body_pipe[SIDE_OUT], request.getBody().c_str(), body_size);
+		close(_body_pipe[SIDE_OUT]);
+		close(_output_pipe[SIDE_OUT]);
 		wait(NULL);
-		read(pfd2[SIDE_IN], buffer, CGI_BUFFER_SIZE - 1);
-		close(pfd2[SIDE_IN]);
+		read(_output_pipe[SIDE_IN], (char *)_buffer, CGI_BUFFER_SIZE - 1);
+		close(_output_pipe[SIDE_IN]);
 	}
-	std::cout << "BUFFER:" << std::endl << buffer << std::endl;
+	std::cout << "BUFFER:" << std::endl << _buffer << std::endl;
 	dup2(STDIN_FILENO, stdin_cp);
 }
 
