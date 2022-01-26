@@ -16,7 +16,7 @@ int main(int ac, char **av) {
 		exit(1);
 	}
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(80);
+	servaddr.sin_port = htons(SERVER_PORT);
 	if (inet_pton(AF_INET, av[1], &servaddr.sin_addr) <= 0) {
 		std::cout << "Cant convert arg to IP address" << std::endl;
 		exit(1);

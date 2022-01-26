@@ -88,7 +88,7 @@ void Cgi::setCgiEnv(Request &request) {
 	setCgiEnvVar((std::string("SERVER_PORT=") + request.getHost().second).c_str(), 4);
 	setCgiEnvVar((std::string("REQUEST_METHOD=") + request.getMethod()).c_str(), 5);
 	setCgiEnvVar((std::string("PATH_INFO=")).c_str(), 6);
-	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "/Users/adriencastelbou/Desktop/42/webserv").c_str(), 7);
+	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "www").c_str(), 7);
 	setCgiEnvVar((std::string("SCRIPT_NAME=") + request.getPath()).c_str(), 8);
 	setCgiEnvVar((std::string("QUERY_STRING=") + request.getQueryString()).c_str(), 9);
 	setCgiEnvVar((std::string("REMOTE_HOST=") + "127.0.0.1").c_str(), 10);
@@ -106,7 +106,7 @@ void Cgi::setCgiEnv(Request &request) {
 	setCgiEnvVar((std::string("HTTP_COOKIE=")).c_str(), 20);
 	setCgiEnvVar((std::string("HTTP_REFERER=")).c_str(), 21);
 	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 22);
-	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("/Users/adriencastelbou/Desktop/42/webserv") + request.getPath()).c_str(), 23);
+	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("www") + request.getPath()).c_str(), 23);
 	_cgi_env[24] = NULL;
 }
 

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 16:09:31 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/26 16:28:18 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,16 +63,13 @@ int    Connector::handle()
 	std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
 	request.printRequest();
-	std::string s("etc/php-cgi");
+	std::string s("bin/php-cgi");
 	Cgi cgi((char *)s.c_str(), request);
 	cgi.runCgi(request);
 	char *output = cgi.getOutput();
 	char *body = strstr(output, "\r\n\r\n");
 	body += 4;
-	std::cout << "OUTPUUUT" << std::endl;
-	std::cout << output << std::endl;
 	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output);
-	std::cout << result << std::endl;
 	send(_client_socket, result.c_str(), result.size(), 0);
 	request.clear();
 	memset(buffer, 0, 30000);

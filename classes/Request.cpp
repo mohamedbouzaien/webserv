@@ -167,7 +167,7 @@ void Request::parseRequest(char *buffer) {
 	if (_method == BAD_REQUEST || !*buffer)
 		return;
 	buffer++;
-	while (*buffer && *buffer != '\n')
+	while (*buffer && *buffer != '\n' && *buffer != '\r')
 	{
 		setRequestField(buffer);
 		buffer = strchr(buffer, '\n');
@@ -178,6 +178,8 @@ void Request::parseRequest(char *buffer) {
 		}
 		buffer++;
 	}
+	if (*buffer == '\r')
+		buffer++;
 	if (*buffer == '\n')
 	{
 		buffer++;
