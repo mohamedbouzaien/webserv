@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 14:33:32 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/26 15:34:37 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,14 @@ int    Connector::handle()
 	std::string s("/usr/local/Cellar/php/8.1.1/bin/php-cgi");
 	Cgi cgi((char *)s.c_str(), request);
 	cgi.runCgi(request);
-	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-	send(_client_socket, hello.c_str(), hello.size(), 0);
+	char *output = cgi.getOutput();
+	char *body = strstr(output, "\r\n\r\n");
+	body += 4;
+	std::cout << "OUTPUUUT" << std::endl;
+	std::cout << output << std::endl;
+	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output);
+	std::cout << result << std::endl;
+	send(_client_socket, result.c_str(), result.size(), 0);
 	request.clear();
 	memset(buffer, 0, 30000);
 	return (0);

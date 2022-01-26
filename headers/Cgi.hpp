@@ -7,7 +7,7 @@
 class Cgi {
 	private:
 		char *_cgi_path;
-		char _buffer[CGI_BUFFER_SIZE];
+		char _output[CGI_BUFFER_SIZE];
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
 		int _body_size;
@@ -22,6 +22,7 @@ class Cgi {
 		void runCgi(Request &request) const;
 		void setCgiPath(char *path);
 		char *getCgiPath() const;
+		char *getOutput() const;
 		void setCgiEnv(Request &request);
 		void setCgiEnvVar(const char *var, int pos);
 		class MallocFailedException : public std::exception

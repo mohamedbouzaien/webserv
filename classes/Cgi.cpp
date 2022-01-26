@@ -12,7 +12,7 @@ Cgi::Cgi(char *path, Request &request) : _cgi_path(path) {
 		_cgi_env[i] = NULL;
 	setCgiEnv(request);
 	_body_size = atoi(request.getHeaderFields()["CONTENT-LENGTH"].c_str());
-	memset((char *)_buffer, 0, CGI_BUFFER_SIZE);
+	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 }
 
 Cgi::Cgi(const Cgi &other) {
@@ -59,10 +59,10 @@ void Cgi::runCgi(Request &request) const {
 		close(_body_pipe[SIDE_OUT]);
 		close(_output_pipe[SIDE_OUT]);
 		wait(NULL);
-		read(_output_pipe[SIDE_IN], (char *)_buffer, CGI_BUFFER_SIZE - 1);
+		read(_output_pipe[SIDE_IN], (char *)_output, CGI_BUFFER_SIZE - 1);
 		close(_output_pipe[SIDE_IN]);
 	}
-	std::cout << "BUFFER:" << std::endl << _buffer << std::endl;
+	std::cout << "BUFFER:" << std::endl << _output << std::endl;
 }
 
 void Cgi::setCgiEnvVar(const char *var, int pos) {
@@ -118,6 +118,10 @@ void Cgi::setCgiPath(char *path) {
 
 //Getter
 
-char *Cgi::getCgiPath() const {
+char* Cgi::getOutput() const {
+	return ((char *)_output);
+} 
+
+char* Cgi::getCgiPath() const {
 	return (_cgi_path);
 }
