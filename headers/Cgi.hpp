@@ -3,7 +3,7 @@
 #include <unistd.h>
 #define SIDE_IN 0
 #define SIDE_OUT 1
-
+#define CGI_BUFFER_SIZE 4096
 class Cgi {
 	private:
 		char *_cgi_path;
