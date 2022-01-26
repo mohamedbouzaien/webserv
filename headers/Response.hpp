@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/25 23:54:09 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/26 14:56:26 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,13 @@ class Response
 {
 	private:
 		int									_code;
-		std::map<std::string, std::string>	_header_fields;		
+		std::map<std::string, std::string>	_header;		
 		std::string							_body;
-		bool		endsWith(std::string const &str, std::string const &end);
+		std::map<std::string, std::string>	_mime;
+
+		void		addHeader(std::string key, std::string value);
+		void		initMime();
+		void		handleHeader(std::string path);
 	public:
 		Response();
 		Response(const Response &copy);
