@@ -44,6 +44,9 @@ class Context_t
 // Inheritance -----------------------------
         void inherit(Context_t &parent);
 
+// Unset directives default values ---------
+        void init_not_set();
+
 // Setters ---------------------------------
         void set_root(const std::string s);
         void add_index(const std::string s);

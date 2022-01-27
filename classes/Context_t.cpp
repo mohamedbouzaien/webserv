@@ -51,6 +51,21 @@ void Context_t::inherit(Context_t &parent) {
         _client_max_body_size = parent._client_max_body_size;
     if (!_is_set[IS_ERROR_PAGES])
         _error_pages = parent._error_pages;
+    if (!_is_set[IS_ALLOW_METHOD])
+         _allow_method = parent._allow_method;
+}
+
+// Unset directives default values ---------
+void Context_t::init_not_set()
+{
+    if (!_is_set[IS_INDEX])
+        add_index("index.html");
+    if (!_is_set[IS_ALLOW_METHOD])
+    {
+        allow_get();
+        allow_post();
+        allow_delete();
+    }
 }
 
 // Setters ---------------------------------

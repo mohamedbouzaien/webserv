@@ -96,7 +96,7 @@ std::cout << "}(loc)" << std::endl;
     if (loc.names_empty()) // add empty name if no name has been provided
         loc.add_name("");
     */
-    loc.print();
+    //loc.print();
     serv.add_location(loc);
 }
 
@@ -318,7 +318,6 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         if (word.empty())
             next_word(file, word);
     }
-    //TODO Add general directives appliable to both types here
     if (parse_common_directive(file, args, context))
         return;
     if (dynamic_cast<Server_t*>(&context))
@@ -373,12 +372,11 @@ std::cout << "}" << std::endl;
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
 
-    //TODO Add serv.init_not_set()
-    // to set varaiables that haven't been set already
+    serv.init_not_set(); // to set varaiables that haven't been set already
     for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
     {
         it->inherit(serv);
-        //TODO Add it->init_not_set()
+        //TODO Add it->init_not_set() ? // Not needed because inheritance sets it all ?
     }
 
     if (serv.names_empty()) // add empty name if no name has been provided

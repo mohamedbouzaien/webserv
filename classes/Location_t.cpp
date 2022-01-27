@@ -29,7 +29,7 @@ void Location_t::print(){
     std::cout << "    _auto_index: " << _auto_index << '\n';
     std::cout << "    _client_max_body_size: " << _client_max_body_size << '\n';
 
-    std::cout << "  _allow_methods: ";
+    std::cout << "    _allow_methods: ";
     if (is_allowed_get())
         std::cout << "GET ";
     if (is_allowed_post())
