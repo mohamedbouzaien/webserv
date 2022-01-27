@@ -36,6 +36,9 @@
 # define CONF_ERR_ERPAGE_NARG  "wrong number of args on error_page directive"
 # define CONF_ERR_ERPAGE_VARG  "wrong value of args on error_page directive"
 
+# define CONF_ERR_METH_NARG  "wrong number of args on allow_method directive"
+# define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
+
 # define CONF_ERR_WRG_DIR  "unrecognized directive"
 
 class Config
@@ -69,6 +72,7 @@ class Config
         void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
         void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
         void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
+        void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Server Directives ***
         // listen directive

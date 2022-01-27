@@ -6,7 +6,8 @@ Context_t::Context_t():
     _index(std::list<std::string>()),
     _auto_index(false),
     _client_max_body_size(1000000),
-    _error_pages(std::map<std::string, std::string>())
+    _error_pages(std::map<std::string, std::string>()),
+    _allow_method(std::vector<bool>(IS_BOOL_SIZE, false))
 {
 }
 
@@ -16,7 +17,8 @@ Context_t::Context_t(const Context_t &copy):
     _index(copy._index),
     _auto_index(copy._auto_index),
     _client_max_body_size(copy._client_max_body_size),
-    _error_pages(copy._error_pages)
+    _error_pages(copy._error_pages),
+    _allow_method(copy._allow_method)
 {
 }
 
@@ -31,6 +33,7 @@ Context_t	&Context_t::operator=(const Context_t &other)
     _auto_index             = other._auto_index;
     _client_max_body_size   = other._client_max_body_size;
     _error_pages            = other._error_pages;
+    _allow_method           = other._allow_method;
 	return *this;
 }
 
@@ -76,6 +79,21 @@ void Context_t::add_error_page(std::string & error, std::string & page) {
     _error_pages.insert(std::make_pair(error, page));
 }
 
+void Context_t::allow_get() {
+    _is_set[IS_ALLOW_METHOD] = true;
+    _allow_method[METH_GET] = true;
+}
+
+void Context_t::allow_post() {
+    _is_set[IS_ALLOW_METHOD] = true;
+    _allow_method[METH_POST] = true;
+}
+
+void Context_t::allow_delete() {
+    _is_set[IS_ALLOW_METHOD] = true;
+    _allow_method[METH_DELETE] = true;
+}
+
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
 {
@@ -100,4 +118,19 @@ unsigned long Context_t::get_client_max_body_size()
 std::map<std::string, std::string> Context_t::get_error_page()
 {
     return _error_pages;
+}
+
+bool Context_t::is_allowed_get()
+{
+    return _allow_method[METH_GET];
+}
+
+bool Context_t::is_allowed_post()
+{
+    return _allow_method[METH_POST];
+}
+
+bool Context_t::is_allowed_delete()
+{
+    return _allow_method[METH_DELETE];
 }

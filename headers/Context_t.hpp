@@ -6,13 +6,20 @@
 # include <string>
 # include <map>
 
-# define IS_BOOL_SIZE 5
-
-# define IS_ROOT  0
-# define IS_INDEX  1
-# define IS_AUTO_INDEX  2
+// is_set bool vector correspondance
+# define IS_BOOL_SIZE     6
+# define IS_ROOT          0
+# define IS_INDEX         1
+# define IS_AUTO_INDEX    2
 # define IS_MAX_BODY_SIZE 3
-# define IS_ERROR_PAGES 4
+# define IS_ERROR_PAGES   4
+# define IS_ALLOW_METHOD  5
+
+// allow_method bool vector correspondance
+# define METH_SIZE   3
+# define METH_GET    0
+# define METH_POST   1
+# define METH_DELETE 2
 
 class Location_t;
 
@@ -26,6 +33,7 @@ class Context_t
         bool                   _auto_index;
         unsigned long          _client_max_body_size;
         std::map<std::string, std::string> _error_pages;
+        std::vector<bool>      _allow_method;
 
     public:
         Context_t();
@@ -42,6 +50,9 @@ class Context_t
         void set_auto_index(const bool b);
         void set_client_max_body_size(const unsigned long n);
         void add_error_page(std::string & error, std::string & page);
+        void allow_get();
+        void allow_post();
+        void allow_delete();
 
 // Getters ----------------------------------
         const std::string &get_root();
@@ -49,6 +60,9 @@ class Context_t
         bool get_auto_index();
         unsigned long get_client_max_body_size();
         std::map<std::string, std::string> get_error_page();
+        bool is_allowed_get();
+        bool is_allowed_post();
+        bool is_allowed_delete();
 };
 
 #endif

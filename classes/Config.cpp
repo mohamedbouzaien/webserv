@@ -167,6 +167,27 @@ void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &fi
         context.add_error_page(*it, args.back());
     }
 }
+
+/**************************\
+|* allow_method directive *|
+\**************************/
+
+void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() < 2)
+        throw_close(CONF_ERR_METH_NARG, file);
+    for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
+    {
+        if (*it == "GET")
+            context.allow_get();
+        else if (*it == "POST")
+            context.allow_post();
+        else if (*it == "DELETE")
+            context.allow_delete();
+        else
+            throw_close(CONF_ERR_METH_VARG, file);
+    }
+}
+
 /*************************\
 |* server_name directive *|
 \*************************/
@@ -263,6 +284,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_client_max_body_size(args, context, file);
     else if (args[0] == "error_page")
         parse_error_page(args, context, file);
+    else if (args[0] == "allow_method")
+        parse_allow_method(args, context, file);
     else
         return false;
     return true;

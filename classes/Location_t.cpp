@@ -29,6 +29,15 @@ void Location_t::print(){
     std::cout << "    _auto_index: " << _auto_index << '\n';
     std::cout << "    _client_max_body_size: " << _client_max_body_size << '\n';
 
+    std::cout << "  _allow_methods: ";
+    if (is_allowed_get())
+        std::cout << "GET ";
+    if (is_allowed_post())
+        std::cout << "POST ";
+    if (is_allowed_delete())
+        std::cout << "DELETE ";
+    std::cout << "\n";
+
     std::cout << "    index:\n";
     for (std::list<std::string>::iterator it = _index.begin();
             it != _index.end(); ++it)
