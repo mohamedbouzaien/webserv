@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 15:46:20 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/27 12:44:50 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,9 @@ void		Response::prepare(Request &request)
 
 std::string Response::parse(void)
 {
-	std::string hello = "HTTP/1.1 " + std::to_string(this->_code) + " OK\n" + this->_header.begin()->first + ": " +  this->_header.begin()->second + "\nContent-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
+	std::string hello = "HTTP/1.1 " + std::to_string(this->_code) + " OK\n";
+	for (std::map<std::string, std::string>::iterator it = this->_header.begin(); it != this->_header.end(); it++)
+		hello += it->first + ": " +  it->second + "\n";
+	hello += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
 	return (hello);
 }
