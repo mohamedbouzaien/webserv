@@ -5,9 +5,11 @@ const char* Cgi::MallocFailedException::what() const throw() {
 }
 
 
-Cgi::Cgi(char *path, Request &request) : _cgi_path(path) {
-		if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (CGI_ENV_SIZE + 1)))))
-		throw Cgi::MallocFailedException();
+Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
+		if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (CGI_ENV_SIZE + 1))))) {
+			_status_code = INTERNAL_SERVER_ERROR;
+			throw Cgi::MallocFailedException();
+		}
 	for(int i = 0; i < CGI_ENV_SIZE; i++)
 		_cgi_env[i] = NULL;
 	setCgiEnv(request);
@@ -33,15 +35,17 @@ Cgi &Cgi::operator=(const Cgi &other) {
 	return (*this);
 }
 
-void Cgi::runCgi(Request &request) const {
+void Cgi::runCgi(Request &request) {
 	int pid;
 
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
+		_status_code = INTERNAL_SERVER_ERROR;
 		return ;
 	}
 	if ((pid = fork()) < 0) {
 		std::cout << "Fork error" << std::endl;
+		_status_code = INTERNAL_SERVER_ERROR;
 		return ;
 	}
 	if (pid == 0) {
@@ -58,18 +62,24 @@ void Cgi::runCgi(Request &request) const {
 		write(_body_pipe[SIDE_OUT], request.getBody().c_str(), _body_size);
 		close(_body_pipe[SIDE_OUT]);
 		close(_output_pipe[SIDE_OUT]);
-		wait(NULL);
+		waitpid(pid, &_status_code, 0);
+
+		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) == 0)
+			_status_code = OK;
+		else
+			_status_code = INTERNAL_SERVER_ERROR;
 		read(_output_pipe[SIDE_IN], (char *)_output, CGI_BUFFER_SIZE - 1);
 		close(_output_pipe[SIDE_IN]);
 	}
-	std::cout << "BUFFER:" << std::endl << _output << std::endl;
 }
 
 void Cgi::setCgiEnvVar(const char *var, int pos) {
 	if (_cgi_env[pos])
 		free(_cgi_env[pos]);
-	if (!(_cgi_env[pos] = static_cast<char *>(malloc(sizeof(char *) * (strlen(var) + 1)))))
+	if (!(_cgi_env[pos] = static_cast<char *>(malloc(sizeof(char *) * (strlen(var) + 1))))) {
+		_status_code = INTERNAL_SERVER_ERROR;
 		throw Request::MallocFailedException();
+	}
 	strcpy(_cgi_env[pos], var);
 }
 
@@ -124,4 +134,8 @@ char* Cgi::getOutput() const {
 
 char* Cgi::getCgiPath() const {
 	return (_cgi_path);
+}
+
+int Cgi::getStatusCode() const {
+	return (_status_code);
 }
