@@ -37,9 +37,9 @@ void Server_t::add_listen(const listen_pair_t &listen_pair)
     _listen.insert(listen_pair);
 }
 
-void Server_t::add_location(const Location_t &loc)
+void Server_t::add_location(const Location_t *loc)
 {
-    _locations.push_back(loc);
+    _locations.push_back(*loc);
 }
 
 // Getters ----------------------------------
@@ -118,8 +118,11 @@ void Server_t::print(){
     if  (_locations.size())
         std::cout << "  locations: \n";
     for (std::vector<Location_t>::iterator it = _locations.begin();
-            it != _locations.end(); ++it)
+            it != _locations.end(); ++it){
+        std::cout << "---- Location " << it->get_uri() << " ----\n";
         it->print();
+        std::cout << "---- End of " << it->get_uri() << " ----\n";
+    }
 
 
 }

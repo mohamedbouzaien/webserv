@@ -56,6 +56,7 @@ class Context_t
         void allow_get();
         void allow_post();
         void allow_delete();
+        virtual void add_location(const Location_t*) = 0;
 
 // Getters ----------------------------------
         const std::string &get_root();

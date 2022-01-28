@@ -78,10 +78,18 @@ long Config::ft_atoi(const char *str) const
 |* location main loop *|
 \**********************/
 
-void Config::parse_location(args_t &args, Server_t &serv, std::fstream &file, std::string &word){
+void Config::parse_location(args_t &args, Context_t &context, std::fstream &file, std::string &word)
+{
     if (args.size() != 2)
         throw_close(CONF_ERR_LOC_NARG, file);
     Location_t loc(args[1]);
+
+    if (dynamic_cast<Location_t*>(&context))
+    {
+        Location_t *loc = dynamic_cast<Location_t*>(&context);
+        if (args[1].find(loc->get_uri()))
+            throw_close(CONF_ERR_SUBLOCATION, file);
+    }
 
 std::cout << "location {";
     while (word[0] != '}' && file.good())
@@ -97,7 +105,7 @@ std::cout << "}(loc)" << std::endl;
         loc.add_name("");
     */
     //loc.print();
-    serv.add_location(loc);
+    context.add_location(&loc);
 }
 
 
@@ -318,13 +326,12 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         if (word.empty())
             next_word(file, word);
     }
-    if (parse_common_directive(file, args, context))
+    if (args[0] == "location")
+        parse_location(args, context, file, word);
+    else if (parse_common_directive(file, args, context))
         return;
-    if (dynamic_cast<Server_t*>(&context))
-        if (args[0] == "location")
-            parse_location(args, *dynamic_cast<Server_t*>(&context), file, word);
-        else
-            parse_server_directive(file, args, *dynamic_cast<Server_t*>(&context));
+    else if (dynamic_cast<Server_t*>(&context))
+        parse_server_directive(file, args, *dynamic_cast<Server_t*>(&context));
     else if (dynamic_cast<Location_t*>(&context))
         parse_location_directive(file, args, *dynamic_cast<Location_t*>(&context));
     else
@@ -358,6 +365,15 @@ void Config::check_server(std::fstream &file, std::string &word)
         next_word(file, word);
 }
 
+void Config::recursive_inherit(Location_t &loc)
+{
+    for (std::vector<Location_t>::iterator it = loc.get_locations().begin(); it != loc.get_locations().end(); ++it)
+    {
+        it->inherit(loc);
+        recursive_inherit(*it);
+    }
+}
+
 /* The loop for each server{} scope */
 void Config::parse_server(std::fstream &file, std::string &word)
 {
@@ -375,8 +391,8 @@ std::cout << "}" << std::endl;
     serv.init_not_set(); // to set varaiables that haven't been set already
     for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
     {
-        it->inherit(serv);
-        //TODO Add it->init_not_set() ? // Not needed because inheritance sets it all ?
+        it->inherit(serv); // make every location inherit from serv
+        recursive_inherit(*it); // make every sublocation inherit too
     }
 
     if (serv.names_empty()) // add empty name if no name has been provided
@@ -388,8 +404,11 @@ std::cout << "}" << std::endl;
 void Config::print_servers()
 {
     std::cout << "All servers:\n";
-    for (std::vector<Server_t>::iterator it = _servers.begin(); it != _servers.end(); ++it)
+    int i = 0;
+    for (std::vector<Server_t>::iterator it = _servers.begin(); it != _servers.end(); ++it){
+        std::cout << "-------------- Server " << ++i << " --------------\n";
         it->print();
+    }
 }
 
 /********************\

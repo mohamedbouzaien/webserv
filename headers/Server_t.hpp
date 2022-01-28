@@ -30,7 +30,7 @@ class Server_t : public Context_t
 // Setters ---------------------------------
         void add_name(const std::string &name);
         void add_listen(const listen_pair_t &listen_pair);
-        void add_location(const Location_t &loc);
+        void add_location(const Location_t *loc);
 
 // Getters ----------------------------------
         std::set<std::string>   &get_names();

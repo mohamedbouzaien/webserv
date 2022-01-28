@@ -1,12 +1,14 @@
 #include "../headers/Location_t.hpp"
 
 
-Location_t::Location_t(const std::string uri): _uri(uri)
+Location_t::Location_t(const std::string uri): _uri(uri),
+                                               _locations(std::vector<Location_t>())
 {
 }
 
 Location_t::Location_t(const Location_t &copy): Context_t(copy),
-                                                _uri(copy._uri)
+                                                _uri(copy._uri),
+                                                _locations(copy._locations)
 {
 }
 
@@ -17,9 +19,27 @@ Location_t::~Location_t()
 Location_t	&Location_t::operator=(const Location_t &other)
 {
     _uri = other._uri;
+    _locations = other._locations;
 	return *this;
 }
 
+// Setters ---------------------------------
+
+void Location_t::add_location(const Location_t *loc)
+{
+    _locations.push_back(*loc);
+}
+
+// Getters ----------------------------------
+
+std::vector<Location_t> &Location_t::get_locations(){
+    return _locations;
+}
+
+const std::string &Location_t::get_uri() const
+{
+    return _uri;
+}
 
 #include <iostream>
 void Location_t::print(){
@@ -46,6 +66,14 @@ void Location_t::print(){
     std::cout << "    error_pages:\n";
     for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
+
+
+    for (std::vector<Location_t>::iterator it = _locations.begin();
+            it != _locations.end(); ++it) {
+        std::cout << "---- SubLocation " << it->_uri << "----\n";
+        it->print();
+        std::cout << "---- End of " << it->_uri << "----\n";
+    }
 
     /*
     for (std::set<std::string>::iterator it = _names.begin();

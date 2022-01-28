@@ -39,6 +39,8 @@
 # define CONF_ERR_METH_NARG  "wrong number of args on allow_method directive"
 # define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
 
+# define CONF_ERR_SUBLOCATION  "sublocation is outside of its parent"
+
 # define CONF_ERR_WRG_DIR  "unrecognized directive"
 
 class Config
@@ -63,10 +65,8 @@ class Config
         void parse_location_directive(std::fstream &file, args_t &args, Location_t &location);
         bool parse_common_directive(std::fstream &file, args_t &args, Context_t &context);
 
-        // location context
-        void parse_location(args_t &args, Server_t &serv, std::fstream &f, std::string &word);
-
         // *** Common Directives ***
+        void parse_location(args_t &args, Context_t &context, std::fstream &f, std::string &word);
         void parse_root(args_t &args, Context_t &context, std::fstream &file);
         void parse_index(args_t &args, Context_t &context, std::fstream &file);
         void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
@@ -84,6 +84,7 @@ class Config
         void parse_names(args_t &args, Server_t &server, std::fstream &file);
 
         // server main loop
+        void recursive_inherit(Location_t &loc);
         void check_server(std::fstream &file, std::string &word);
         void parse_server(std::fstream &file, std::string &word);
 
