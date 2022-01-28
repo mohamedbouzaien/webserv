@@ -192,12 +192,15 @@ bool Request::isRequestEnded() const {
 
 	if (_method == BAD_REQUEST)
 		return (true);
-	else if (content_length != _header_fields.end() && atoi(content_length->second.c_str()) > (int)_body.size())
+	else if (content_length != _header_fields.end() && !_body.size())
 		return (false);
 	return (true);
 }
 
 void Request::joinBodyParts(char *buffer) {
+	std::map<std::string, std::string>::const_iterator cl_it = _header_fields.find("CONTENT-LENGTH");
+	if (cl_it == _header_fields.end())
+		return;
 	_body += std::string(buffer);
 }
 

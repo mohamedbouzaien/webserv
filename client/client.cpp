@@ -27,10 +27,16 @@ int main(int ac, char **av) {
 	}
 
 	std::cout << "ok" << std::endl;
-	std::string request = "POST /test.php HTTP/1.1\nhost: e\nContent-Type: application/x-www-form-urlencoded\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\nContent-length: 30\n\na=b";
+	std::string request = "POST /secretary_response.php HTTP/1.1\nhost: e\nContent-Type: application/x-www-form-urlencoded\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\nContent-length: 12\n\n";
 
 	std::cout << "ok" << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);
+	request = "nom=ad&age=1";
+	sleep(1);
+
+	std::cout << "ok" << std::endl;
+	send(sockfd, request.c_str(), request.size(), 0);
+
 	char response[MAXLINE];
 	memset(response, 0, MAXLINE);
 	pollfd pfds[1];
