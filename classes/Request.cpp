@@ -187,30 +187,6 @@ void Request::parseRequest(char *buffer) {
 	}
 }
 
-//Printer
-
-void Request::printRequest() {
-	std::cout << "<----- HEADER ----->" << std::endl;
-	std::cout << "Method: " << _method << ", Path: " << _path << ", Protocol: " << _protocol << std::endl;
-	std::cout << "Query_string : ";
-	if (_query_string.size())
-		std::cout << _query_string << std::endl;
-	else
-		std::cout << "Non Specifield" << std::endl;
-	std::cout << "Host: " << _host.first << ", Port: " ;
-	if (_host.second.size())
-		std::cout << _host.second << std::endl;
-	else
-		std::cout << "Non Specified" << std::endl;
-	std::cout << "Header fields:" << std::endl;
-	std::map<std::string, std::string>::iterator it = _header_fields.begin();
-	std::map<std::string, std::string>::iterator ite = _header_fields.end();
-	for (; it != ite; it++)
-		std::cout << it->first << " : " << it->second << std::endl;
-	std::cout << "<------ BODY ----->" << std::endl;
-	std::cout << "Body : " << _body << std::endl;
-}
-
 //Setters
 
 void Request::setMethod(std::string method) {
@@ -265,4 +241,30 @@ std::string Request::getQueryString() const {
 
 std::string Request::getBody() const {
 	return (_body);
+}
+
+// << OVERLOAD
+
+std::ostream& operator<<(std::ostream& os, const Request& request) {
+	std::cout << "<----- HEADER ----->" << std::endl;
+	std::cout << "Method: " << request._method << ", Path: " << request._path << ", Protocol: " << request._protocol << std::endl;
+	std::cout << "Query_string : ";
+	if (request._query_string.size())
+		std::cout << request._query_string << std::endl;
+	else
+		std::cout << "Non Specifield" << std::endl;
+	std::cout << "Host: " << request._host.first << ", Port: " ;
+	if (request._host.second.size())
+		std::cout << request._host.second << std::endl;
+	else
+		std::cout << "Non Specified" << std::endl;
+	std::cout << "Header fields:" << std::endl;
+	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
+	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();
+	for (; it != ite; it++)
+		std::cout << it->first << " : " << it->second << std::endl;
+	std::cout << "<------ BODY ----->" << std::endl;
+	std::cout << "Body : " << request._body << std::endl;
+	std::cout << "<------ END ----->" << std::endl;
+	return (os);
 }

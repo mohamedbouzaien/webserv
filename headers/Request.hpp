@@ -30,10 +30,8 @@ class Request {
 		int setHostField(char *buffer);
 		void parseRequest(char *buffer);
 		void setHeaderField(std::string, char *);
-		//Printer
-		void printRequest();
 
-				//Setters
+		//Setters
 		void setMethod(std::string method);
 		void setPath(std::string path);
 		void setProtocol(std::string protocol);
@@ -55,4 +53,7 @@ class Request {
 			public:
 				virtual const char* what() const throw();
 		};
+
+		// << Overload
+		friend std::ostream& operator<<(std::ostream& os, const Request& request);
 };
