@@ -31,6 +31,7 @@ void Config::next_word(std::fstream &file, std::string &word)
     {
         getline(file, _line);
         ++_line_number;
+        //std::cout << _line_number << "|" <<  _line << '\n';
         if (!file.good())
             return;
     }
@@ -91,10 +92,10 @@ void Config::parse_location(args_t &args, Context_t &context, std::fstream &file
             throw_close(CONF_ERR_SUBLOCATION, file);
     }
 
-std::cout << "location {";
+//std::cout << "location {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, loc);
-std::cout << "}(loc)" << std::endl;
+//std::cout << "}(loc)" << std::endl;
 
     if (word == "}")
         next_word(file, word);
@@ -200,6 +201,16 @@ void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &
 |* server_name directive *|
 \*************************/
 
+void Config::parse_alias(args_t &args, Location_t &loc, std::fstream &file){
+    if (args.size() != 2)
+        throw_close(CONF_ERR_ALIAS_NARG, file);
+    loc.set_alias(args[1]);
+}
+
+/*************************\
+|* server_name directive *|
+\*************************/
+
 void Config::parse_names(args_t &args, Server_t &server, std::fstream &file){
     if (args.size() <= 1)
         throw_close(CONF_ERR_NONAME, file);
@@ -264,10 +275,10 @@ void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
 
 void Config::parse_location_directive(std::fstream &file, args_t &args, Location_t &location)
 {
-    (void)location;
-    (void)file;
-    (void)args;
-    throw_close(CONF_ERR_WRG_DIR, file);
+    if (args[0] == "alias")
+        parse_alias(args, location, file);
+    else
+        throw_close(CONF_ERR_WRG_DIR, file);
 }
 
 void Config::parse_server_directive(std::fstream &file, args_t &args, Server_t &serv)
@@ -304,6 +315,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
 {
     args_t args;
     size_t pos = word.find(';', 0);
+    _last_dir = _line_number;
     while (pos == std::string::npos && file.good())
     {
         if (word.find('}', 0) != std::string::npos)
@@ -349,6 +361,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
  */
 void Config::check_server(std::fstream &file, std::string &word)
 {
+    _last_dir = _line_number;
     if (word == "server")
     {
         next_word(file, word);
@@ -380,10 +393,10 @@ void Config::parse_server(std::fstream &file, std::string &word)
     check_server(file, word);
     Server_t serv;
 
-std::cout << "server {";
+//std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-std::cout << "}" << std::endl;
+//std::cout << "}" << std::endl;
 
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
@@ -456,7 +469,7 @@ Config	&Config::operator=(const Config &other)
 void Config::throw_close(const char *message, std::fstream &f){
     f.close();
     std::stringstream s;
-    s << CONF_ERR_HEAD << "at line " << _line_number << ": " << message <<std::endl;
+    s << CONF_ERR_HEAD << "at line " << _last_dir << ": " << message <<std::endl;
     std::cerr << s.str();
     throw(ParseErrException());
 }

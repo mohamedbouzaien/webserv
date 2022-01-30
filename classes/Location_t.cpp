@@ -2,13 +2,15 @@
 
 
 Location_t::Location_t(const std::string uri): _uri(uri),
-                                               _locations(std::vector<Location_t>())
+                                               _locations(std::vector<Location_t>()),
+                                               _alias("")
 {
 }
 
 Location_t::Location_t(const Location_t &copy): Context_t(copy),
                                                 _uri(copy._uri),
-                                                _locations(copy._locations)
+                                                _locations(copy._locations),
+                                                _alias(copy._alias)
 {
 }
 
@@ -20,6 +22,7 @@ Location_t	&Location_t::operator=(const Location_t &other)
 {
     _uri = other._uri;
     _locations = other._locations;
+    _alias = other._alias;
 	return *this;
 }
 
@@ -28,6 +31,11 @@ Location_t	&Location_t::operator=(const Location_t &other)
 void Location_t::add_location(const Location_t *loc)
 {
     _locations.push_back(*loc);
+}
+
+void Location_t::set_alias(const std::string &alias)
+{
+    _alias = alias;
 }
 
 // Getters ----------------------------------
@@ -46,6 +54,7 @@ void Location_t::print(){
     std::cout << "  Location content:\n";
     std::cout << "    uri: " << _uri << "\n";
     std::cout << "    root: " << _root << "\n";
+    std::cout << "    alias: " << _alias << "\n";
     std::cout << "    _auto_index: " << _auto_index << '\n';
     std::cout << "    _client_max_body_size: " << _client_max_body_size << '\n';
 

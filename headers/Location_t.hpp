@@ -13,6 +13,7 @@ class Location_t : public Context_t
     private:
         std::string _uri;
         std::vector<Location_t> _locations;
+        std::string _alias;
 
     public:
         Location_t(std::string uri);
@@ -22,10 +23,12 @@ class Location_t : public Context_t
 
 // Setters ---------------------------------
         void add_location(const Location_t *loc);
+        void set_alias(const std::string &alias);
 
 // Getters ----------------------------------
         std::vector<Location_t> &get_locations();
         const std::string &get_uri() const;
+        const std::string &get_alias() const;
 
         //testing
         void print();

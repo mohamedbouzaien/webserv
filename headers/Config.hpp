@@ -39,6 +39,8 @@
 # define CONF_ERR_METH_NARG  "wrong number of args on allow_method directive"
 # define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
 
+# define CONF_ERR_ALIAS_NARG  "wrong number of args on alias directive"
+
 # define CONF_ERR_SUBLOCATION  "sublocation is outside of its parent"
 
 # define CONF_ERR_WRG_DIR  "unrecognized directive"
@@ -49,6 +51,7 @@ class Config
         std::vector<Server_t> _servers;
         std::string _line;
         unsigned int _line_number;
+        unsigned int _last_dir;
 
 /* Private typedefs */
         typedef std::vector<std::string> args_t;
@@ -73,6 +76,10 @@ class Config
         void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
         void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
+
+        // *** Location Directive(s)
+        void parse_alias(args_t &args, Location_t &loc, std::fstream &file);
+        //TODO IMPLEMENT THIS
 
         // *** Server Directives ***
         // listen directive
