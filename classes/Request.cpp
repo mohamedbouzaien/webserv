@@ -182,9 +182,7 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
-	if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
-		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
-	else if (_header_fields["TRANSFER-ENCODING"] == "chunked")
+	if (_header_fields["TRANSFER-ENCODING"] == "chunked")
 	{
 		std::string r_body(buffer);
 		int chunk_size;
@@ -200,6 +198,9 @@ void Request::parseRequest(char *buffer) {
 			r_body.erase(0, 2);
 		}
 	}
+	else if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
+		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
+
 }
 
 //Setters

@@ -13,7 +13,7 @@ Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
 	for(int i = 0; i < CGI_ENV_SIZE; i++)
 		_cgi_env[i] = NULL;
 	setCgiEnv(request);
-	_body_size = atoi(request.getHeaderFields()["CONTENT-LENGTH"].c_str());
+	_body_size = request.getBody().size();
 	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 }
 
@@ -106,7 +106,7 @@ void Cgi::setCgiEnv(Request &request) {
 	setCgiEnvVar((std::string("REMOTE_USER=")).c_str(), 13);
 	setCgiEnvVar((std::string("REMOTE_IDENT=")).c_str(), 14);
 	setCgiEnvVar((std::string("CONTENT_TYPE=") + header_fields["CONTENT-TYPE"]).c_str(), 15);
-	setCgiEnvVar((std::string("CONTENT_LENGTH=") + header_fields["CONTENT-LENGTH"]).c_str(), 16);
+	setCgiEnvVar((std::string("CONTENT_LENGTH=") + std::to_string(request.getBody().size())).c_str(), 16);
 
 	//FROM CLIENT VAR
 	setCgiEnvVar((std::string("HTTP_ACCEPT=") + header_fields["ACCEPT"]).c_str(), 17);
