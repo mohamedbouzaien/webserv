@@ -130,6 +130,19 @@ void Cgi::setStatusCode(std::string buffer) {
 		_status_code = stoi(buffer.erase(0, 8));
 	else 
 		_status_code = OK;
+	if (!(_status_code >= 100 && _status_code <= 103) &&
+			!(_status_code >= 200 && _status_code <= 208) &&
+			_status_code != 210 && _status_code != 226 &&
+			!(_status_code >= 300 && _status_code <= 308) &&
+			_status_code != 310 && 
+			!(_status_code >= 400 && _status_code <= 418) && 
+			!(_status_code >= 421 && _status_code <= 429) &&
+			_status_code != 431 &&
+			!(_status_code >= 449 && _status_code <= 451) &&
+			_status_code != 456 && 
+			!(_status_code >= 500 && _status_code <= 511))
+		_status_code = INTERNAL_SERVER_ERROR;
+	std::cout << "Status: " << _status_code << std::endl;
 }
 
 //Getter
