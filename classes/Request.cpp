@@ -187,23 +187,6 @@ void Request::parseRequest(char *buffer) {
 	}
 }
 
-bool Request::isRequestEnded() const {
-	std::map<std::string, std::string>::const_iterator content_length = _header_fields.find("CONTENT-LENGTH");
-
-	if (_method == BAD_REQUEST)
-		return (true);
-	else if (content_length != _header_fields.end() && !_body.size())
-		return (false);
-	return (true);
-}
-
-void Request::joinBodyParts(char *buffer) {
-	std::map<std::string, std::string>::const_iterator cl_it = _header_fields.find("CONTENT-LENGTH");
-	if (cl_it == _header_fields.end())
-		return;
-	_body += std::string(buffer);
-}
-
 //Setters
 
 void Request::setMethod(std::string method) {

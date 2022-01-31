@@ -30,8 +30,6 @@ class Request {
 		int setHostField(char *buffer);
 		void parseRequest(char *buffer);
 		void setHeaderField(std::string, char *);
-		bool isRequestEnded() const;
-		void joinBodyParts(char *buffer);
 		//Setters
 		void setMethod(std::string method);
 		void setPath(std::string path);

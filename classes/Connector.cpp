@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/28 10:42:12 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/01/31 10:33:54 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,6 @@ int    Connector::handle()
 	std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
 	std::cout << request << std::endl;
-	while (request.isRequestEnded() == false) {
-		memset(buffer, 0, strlen(buffer));
-		bytesRead = recv(_client_socket, buffer, 30000, 0);
-		if (bytesRead < 0)
-			throw Connector::RecvFailedException();
-		if (bytesRead == 0)
-			return (-1);
-		request.joinBodyParts(buffer);
-	}
 	std::string s("bin/php-cgi");
 	Cgi cgi((char *)s.c_str(), request);
 	cgi.runCgi(request);
