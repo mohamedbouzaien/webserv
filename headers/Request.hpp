@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <cstdlib>
 #include <map>
 #define GET "GET"
 #define POST "POST"

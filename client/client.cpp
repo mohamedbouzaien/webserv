@@ -27,14 +27,11 @@ int main(int ac, char **av) {
 	}
 
 	std::cout << "ok" << std::endl;
-	std::string request = "POST /secretary_response.php HTTP/1.1\nhost: e\nContent-Type: application/x-www-form-urlencoded\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\nContent-length: 12\n\n";
+	std::string request = "POST /secretary_response.php HTTP/1.1\nhost: e\nContent-Type: application/x-www-form-urlencoded\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\nContent-Length: 12\n\nnom=ad&age=1";
 
 	std::cout << "ok" << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);
-	request = "nom=ad&age=1";
-	sleep(1);
-
-	std::cout << "ok" << std::endl;
+	//request = "3\r\nnom\r\n6\r\n=ad&ag\r\n3\r\ne=2\r\n0\r\n\r\n";
 	send(sockfd, request.c_str(), request.size(), 0);
 
 	char response[MAXLINE];

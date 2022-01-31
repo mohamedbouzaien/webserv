@@ -181,9 +181,24 @@ void Request::parseRequest(char *buffer) {
 	if (*buffer == '\r')
 		buffer++;
 	if (*buffer == '\n')
-	{
 		buffer++;
-		_body = std::string(buffer, strlen(buffer));
+	if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
+		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
+	else if (_header_fields["TRANSFER-ENCODING"] == "chunked")
+	{
+		std::string r_body(buffer);
+		int chunk_size;
+		while (r_body.find("\r\n")  != std::string::npos) {
+			chunk_size = strtol(r_body.c_str(), &buffer, 16);
+			if (chunk_size == 0)
+				return ;
+			r_body.erase(0, r_body.find("\r\n") + 2);
+			_body += std::string(r_body, 0, chunk_size);
+			r_body.erase(0, chunk_size);
+			if (r_body.find("\r\n") != 0)
+				return ;
+			r_body.erase(0, 2);
+		}
 	}
 }
 
