@@ -27,6 +27,7 @@ class Cgi {
 		char *getCgiPath() const;
 		char *getOutput() const;
 		int getStatusCode() const;
+		void setStatusCode(std::string buffer);
 		void setCgiEnv(Request &request);
 		void setCgiEnvVar(const char *var, int pos);
 		class MallocFailedException : public std::exception

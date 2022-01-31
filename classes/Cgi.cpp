@@ -64,12 +64,11 @@ void Cgi::runCgi(Request &request) {
 		close(_output_pipe[SIDE_OUT]);
 		waitpid(pid, &_status_code, 0);
 
-		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) == 0)
-			_status_code = OK;
-		else
+		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) != 0)
 			_status_code = INTERNAL_SERVER_ERROR;
 		read(_output_pipe[SIDE_IN], (char *)_output, CGI_BUFFER_SIZE - 1);
 		close(_output_pipe[SIDE_IN]);
+		setStatusCode(_output);
 	}
 }
 
@@ -124,6 +123,13 @@ void Cgi::setCgiEnv(Request &request) {
 
 void Cgi::setCgiPath(char *path) {
 	_cgi_path = path;
+}
+
+void Cgi::setStatusCode(std::string buffer) {
+	if (buffer.find("Status:") == 0)
+		_status_code = stoi(buffer.erase(0, 8));
+	else 
+		_status_code = OK;
 }
 
 //Getter
