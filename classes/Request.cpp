@@ -95,6 +95,7 @@ int Request::setHostField(char *buffer) {
 	std::string host_name;
 	std::string host_port;
 
+
 	if (_host.first.size())
 	{
 		_method = BAD_REQUEST;
@@ -110,8 +111,9 @@ int Request::setHostField(char *buffer) {
 	buffer += pos;
 	if (is_port)
 	{
+		buffer++;
 		pos = getWordEnd(buffer);
-		host_name = std::string(buffer, pos);
+		host_port = std::string(buffer, pos);
 		buffer += pos;
 	}
 	_host = std::make_pair(host_name, host_port);
@@ -182,7 +184,7 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
-	if (_header_fields["TRANSFER-ENCODING"] == "chunked")
+	if (_header_fields.find("TRANSFER-ENCODING") != _header_fields.end() && _header_fields["TRANSFER-ENCODING"] == "chunked")
 	{
 		std::string r_body(buffer);
 		int chunk_size;

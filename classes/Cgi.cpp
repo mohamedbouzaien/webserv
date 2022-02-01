@@ -118,7 +118,6 @@ void Cgi::setCgiEnv(Request &request) {
 	std::map<std::string, std::string> hf = request.getHeaderFields();
 	std::map<std::string, std::string>::iterator it = hf.begin();
 	std::map<std::string, std::string>::iterator ite = hf.end();
-	std::cout << i << ", " << size;
 	for (;(i < size && it != ite); i++) {
 		setCgiEnvVar(std::string("HTTP_" + upper_key(it->first) + "=" + it->second).c_str(), i);
 		it++;
