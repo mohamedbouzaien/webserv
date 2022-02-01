@@ -378,7 +378,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
 void Config::check_server(std::fstream &file, std::string &word)
 {
     _last_dir = _line_number;
-    std::cout << "word:" << word << "\n";
+    //std::cout << "word:" << word << "\n";
     if (word == "server")
     {
         next_word(file, word);
@@ -410,10 +410,10 @@ void Config::parse_server(std::fstream &file, std::string &word)
     check_server(file, word);
     Server_t serv;
 
-std::cout << "server {";
+//std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-std::cout << "}" << std::endl;
+//std::cout << "}" << std::endl;
 
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
