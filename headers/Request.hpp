@@ -6,7 +6,6 @@
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
-#define CGI_ENV_SIZE 24
 
 class Request {
 	private:

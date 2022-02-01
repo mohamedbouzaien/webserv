@@ -6,11 +6,12 @@ const char* Cgi::MallocFailedException::what() const throw() {
 
 
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
-		if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (CGI_ENV_SIZE + 1))))) {
+	int size = CGI_ENV_SIZE + request.getHeaderFields().size();
+		if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
 			_status_code = INTERNAL_SERVER_ERROR;
 			throw Cgi::MallocFailedException();
 		}
-	for(int i = 0; i < CGI_ENV_SIZE; i++)
+	for(int i = 0; i < size; i++)
 		_cgi_env[i] = NULL;
 	setCgiEnv(request);
 	_body_size = request.getBody().size();
@@ -109,14 +110,31 @@ void Cgi::setCgiEnv(Request &request) {
 	setCgiEnvVar((std::string("CONTENT_LENGTH=") + std::to_string(request.getBody().size())).c_str(), 16);
 
 	//FROM CLIENT VAR
-	setCgiEnvVar((std::string("HTTP_ACCEPT=") + header_fields["ACCEPT"]).c_str(), 17);
-	setCgiEnvVar((std::string("HTTP_ACCEPT_LANGUAGE=") + header_fields["ACCEPT-LANGUAGE"]).c_str(), 18);
-	setCgiEnvVar((std::string("HTTP_USER_AGENTT=") + header_fields["USER-AGENT"]).c_str(), 19);
-	setCgiEnvVar((std::string("HTTP_COOKIE=")).c_str(), 20);
-	setCgiEnvVar((std::string("HTTP_REFERER=")).c_str(), 21);
-	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 22);
-	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("www") + request.getPath()).c_str(), 23);
-	_cgi_env[24] = NULL;
+	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 17);
+	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("www") + request.getPath()).c_str(), 18);
+	//FROM CLIENT VAR
+	int i = 19;
+	int size = CGI_ENV_SIZE + request.getHeaderFields().size();
+	std::map<std::string, std::string> hf = request.getHeaderFields();
+	std::map<std::string, std::string>::iterator it = hf.begin();
+	std::map<std::string, std::string>::iterator ite = hf.end();
+	std::cout << i << ", " << size;
+	for (;(i < size && it != ite); i++) {
+		setCgiEnvVar(std::string("HTTP_" + upper_key(it->first) + "=" + it->second).c_str(), i);
+		it++;
+	}
+	_cgi_env[i] = NULL;
+}
+
+std::string Cgi::upper_key(std::string key) const {
+	int size = key.size();
+	for (int i = 0; i < size; i++) {
+		if (key[i] == '-')
+			key[i] = '_';
+		else
+			key[i] = std::toupper(key[i]);
+	}
+	return (key);
 }
 
 //Setter
