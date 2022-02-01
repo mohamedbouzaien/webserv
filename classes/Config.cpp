@@ -159,7 +159,7 @@ void Config::parse_client_max_body_size(args_t &args, Context_t &context, std::f
         throw_close(CONF_ERR_MAXSZ_NARG, file);
     for (std::string::iterator it = args[1].begin(); it != args[1].end(); ++it)
         if (!ft_isdigit(*it))
-            throw_close(CONF_ERR_AUTO_IDX_VARG, file);
+            throw_close(CONF_ERR_MAXSZ_VARG, file);
     context.set_client_max_body_size(ft_atoi(args[1].c_str()));
 }
 
@@ -383,7 +383,7 @@ void Config::check_server(std::fstream &file, std::string &word)
     {
         next_word(file, word);
         if (word[0] == '{')
-            word.erase(1);
+            word.erase(0, 1);
         else
             throw_close(CONF_ERR_NO_SERV, file);
     }
