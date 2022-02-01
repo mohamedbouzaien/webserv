@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/27 12:44:50 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/01 21:36:34 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,14 @@
 Response::Response()
 {
 	this->initMime();
+	this->initCodes();
 }
 
 Response::Response(const Response &copy)
 {
 	(void)copy;
 	this->initMime();
+	this->initCodes();
 }
 
 Response	&Response::operator=(const Response &other)
@@ -120,53 +122,85 @@ void		Response::initMime()
 	this->_mime.insert(std::make_pair<std::string, std::string>(".7z", "application/x-7z-compressed"));
 }
 
-void		Response::handleHeader(std::string path)
+void		Response::initCodes()
+{
+	this->_codes.insert(std::make_pair<int, std::string>(100, "Continue"));
+	this->_codes.insert(std::make_pair<int, std::string>(200, "OK"));
+	this->_codes.insert(std::make_pair<int, std::string>(201, "Created"));
+	this->_codes.insert(std::make_pair<int, std::string>(204, "No content"));
+	this->_codes.insert(std::make_pair<int, std::string>(400, "Bad Request"));
+	this->_codes.insert(std::make_pair<int, std::string>(403, "Forbidden"));
+	this->_codes.insert(std::make_pair<int, std::string>(404, "Not Found"));
+	this->_codes.insert(std::make_pair<int, std::string>(405, "Method Not Alloud"));
+	this->_codes.insert(std::make_pair<int, std::string>(413, "Payload Too Large"));
+	this->_codes.insert(std::make_pair<int, std::string>(500, "Internal Server Error"));
+}
+
+void		Response::handleHeader(std::string path, int code)
 {
 	size_t	index = path.find_last_of('.');
 	bool	cond = false;
 
+	this->addHeader(std::to_string(code) + " ", _codes[code]);
 	if (index != std::string::npos)
 	{
-		std::cout << path << std::endl;
+		std::cout << "Fetched => " << path << std::endl;
 		std::map<std::string, std::string>::iterator	it = this->_mime.find(path.substr(index, path.size()));
 		if (it != this->_mime.end())
 		{
-			this->addHeader("Content-Type", it->second);
+			this->addHeader("Content-type: ", it->second);
 			cond = true;
 		}
 	}
 	if (!cond)
 	{
 		this->_mime.erase(this->_mime.find(path.substr(index, path.size()))->first);
-		this->addHeader("Content-Type", "text/plain");
+		this->addHeader("Content-type: ", "text/plain");
 	}
+
+	time_t		rawtime;
+	struct	tm	*timeinfo;
+	char 		buffer[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+	this->addHeader("Date: ", std::string(buffer));
 }
 
-void		Response::prepare(Request &request)
+void		Response::prepare(Request &request, int code)
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
 
 	indata.open(request.getPath().substr(1), std::ifstream::in);
-	if(!indata)
+	if (!indata)
 	{
-		std::cerr << "Error: file could not be opened =>" << request.getPath().substr(1) << std::endl;
+		std::cerr << "File not found => \"" << request.getPath().substr(1) << "\"" << std::endl;
+		Request	error;
+		error.setPath("/error_page/404.html");
+		this->prepare(error, 404);
 	}
 	else
 	{
-		this->handleHeader(request.getPath());
+		if (!indata.is_open())
+		{
+			Request	error;
+			error.setPath("error_page/403.html");
+			this->prepare(error, 403);
+		}
+		this->handleHeader(request.getPath(), code);
 		sstr << indata.rdbuf();
 		this->_body = sstr.str();
-		this->_code = 200;
 		indata.close();
 	}
 }
 
 std::string Response::parse(void)
 {
-	std::string hello = "HTTP/1.1 " + std::to_string(this->_code) + " OK\n";
+	std::string hello = "HTTP/1.1 ";
 	for (std::map<std::string, std::string>::iterator it = this->_header.begin(); it != this->_header.end(); it++)
-		hello += it->first + ": " +  it->second + "\n";
+		hello += it->first +  it->second + "\n";
 	hello += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
 	return (hello);
 }

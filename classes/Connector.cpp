@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 00:09:33 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/29 14:32:45 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int    Connector::handle()
 	//std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
 	//request.printRequest();
-	response.prepare(request);
+	response.prepare(request, 200);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
