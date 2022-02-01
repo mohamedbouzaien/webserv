@@ -341,9 +341,9 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         if (word.empty())
             next_word(file, word);
     }
+    if (args.back().empty()) // "; directly followd by } case
+        args.pop_back();
     /*
-    //if (args.back().empty())
-        //args.pop_back();
     //
     //DEBUG
     std::cout << "args:";
