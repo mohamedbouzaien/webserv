@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/31 10:33:54 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/01 12:39:34 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,13 @@ int    Connector::handle()
 	std::cout << "The message was: " << buffer << std::endl;
 	request.parseRequest(buffer);
 	std::cout << request << std::endl;
-	std::string s("bin/php-cgi");
-	Cgi cgi((char *)s.c_str(), request);
-	cgi.runCgi(request);
-	char *output = cgi.getOutput();
-	char *body = strstr(output, "\r\n\r\n");
-	body += 4;
-	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output);
+	std::string s("bin/php-cgi"); // Path to cgi binary
+	Cgi cgi((char *)s.c_str(), request); // Cgi constr.
+	cgi.runCgi(request); // run Cgi
+	char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+	char *body = strstr(output, "\r\n\r\n"); // get output body
+	body += 4; // skip \r\n\r\n
+	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output); // build test response
 	send(_client_socket, result.c_str(), result.size(), 0);
 	request.clear();
 	memset(buffer, 0, 30000);
