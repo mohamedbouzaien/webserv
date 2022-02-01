@@ -33,7 +33,10 @@ void Config::next_word(std::fstream &file, std::string &word)
         ++_line_number;
         //std::cout << _line_number << "|" <<  _line << '\n';
         if (!file.good())
+        {
+            word = "";
             return;
+        }
     }
     size_t start = _line.find_first_not_of(" \t\n\r\f\v");
     size_t end = _line.find_first_of(" \t\n\r\f\v", start);
@@ -320,7 +323,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
     {
         if (word.find('}', 0) != std::string::npos)
             throw_close(CONF_ERR_UNEX_CBRKT, file);
-       // std::cout << "param: " << word << " | ";
+        //std::cout << "param: " << word << " | ";
         args.push_back(word);
         next_word(file, word);
         pos = word.find(';', 0);
@@ -338,6 +341,19 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         if (word.empty())
             next_word(file, word);
     }
+    /*
+    //if (args.back().empty())
+        //args.pop_back();
+    //
+    //DEBUG
+    std::cout << "args:";
+    for (args_t::iterator it = args.begin(); it != args.end(); ++it)
+        std::cout << *it << "|";
+    std::cout << '\n';
+    std::cout << "word:" << word << "\n";
+    //END DEBUG
+    //
+    */
     if (args[0] == "location")
         parse_location(args, context, file, word);
     else if (parse_common_directive(file, args, context))
@@ -362,6 +378,7 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
 void Config::check_server(std::fstream &file, std::string &word)
 {
     _last_dir = _line_number;
+    std::cout << "word:" << word << "\n";
     if (word == "server")
     {
         next_word(file, word);
@@ -393,10 +410,10 @@ void Config::parse_server(std::fstream &file, std::string &word)
     check_server(file, word);
     Server_t serv;
 
-//std::cout << "server {";
+std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-//std::cout << "}" << std::endl;
+std::cout << "}" << std::endl;
 
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
@@ -440,8 +457,9 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
     while (file.good())
     {
         next_word(file, word);
-        if (!word.empty())
+        if (!word.empty()){
             parse_server(file, word);
+        }
     }
     file.close();
 
