@@ -1,6 +1,10 @@
 #include "../headers/Request.hpp"
 #include <cstring>
 
+const char* Request::MallocFailedException::what() const throw() {
+	return ("Malloc failed");
+}
+
 Request::Request() {}
 
 Request::Request(const Request &other) {
@@ -14,15 +18,17 @@ Request &Request::operator=(const Request &other) {
 	{
 		_method = other._method;
 		_path = other._path;
+		_query_string = other._query_string;
 		_protocol = other._protocol;
 		_host = other._host;
 		_header_fields = other._header_fields;
+		_body = other._body;
 	}
 	return (*this);
 }
 
 void Request::clear() {
-	_method = 0;
+	_method.clear();
 	_path.clear();
 	_query_string.clear();
 	_protocol.clear();
@@ -89,10 +95,11 @@ int Request::setHostField(char *buffer) {
 	std::string host_name;
 	std::string host_port;
 
+
 	if (_host.first.size())
 	{
 		_method = BAD_REQUEST;
-		return BAD_REQUEST;
+		return (0);
 	}
 	while (*buffer == ' ')
 		buffer++;
@@ -104,8 +111,9 @@ int Request::setHostField(char *buffer) {
 	buffer += pos;
 	if (is_port)
 	{
+		buffer++;
 		pos = getWordEnd(buffer);
-		host_name = std::string(buffer, pos);
+		host_port = std::string(buffer, pos);
 		buffer += pos;
 	}
 	_host = std::make_pair(host_name, host_port);
@@ -113,7 +121,7 @@ int Request::setHostField(char *buffer) {
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
 		_method = BAD_REQUEST;
-	return (_method);
+	return (1);
 }
 
 void Request::setHeaderField(std::string keyword, char *buffer) {
@@ -161,7 +169,7 @@ void Request::parseRequest(char *buffer) {
 	if (_method == BAD_REQUEST || !*buffer)
 		return;
 	buffer++;
-	while (*buffer && *buffer != '\n')
+	while (*buffer && *buffer != '\n' && *buffer != '\r')
 	{
 		setRequestField(buffer);
 		buffer = strchr(buffer, '\n');
@@ -172,40 +180,34 @@ void Request::parseRequest(char *buffer) {
 		}
 		buffer++;
 	}
-	if (*buffer == '\n')
-	{
+	if (*buffer == '\r')
 		buffer++;
-		_body = std::string(buffer, strlen(buffer));
+	if (*buffer == '\n')
+		buffer++;
+	if (_header_fields.find("TRANSFER-ENCODING") != _header_fields.end() && _header_fields["TRANSFER-ENCODING"] == "chunked")
+	{
+		std::string r_body(buffer);
+		int chunk_size;
+		while (r_body.find("\r\n")  != std::string::npos) {
+			chunk_size = strtol(r_body.c_str(), &buffer, 16);
+			if (chunk_size == 0)
+				return ;
+			r_body.erase(0, r_body.find("\r\n") + 2);
+			_body += std::string(r_body, 0, chunk_size);
+			r_body.erase(0, chunk_size);
+			if (r_body.find("\r\n") != 0)
+				return ;
+			r_body.erase(0, 2);
+		}
 	}
-}
+	else if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
+		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
 
-//Printer
-
-void Request::printRequest() {
-	std::cout << "<----- HEADER ----->" << std::endl;
-	std::cout << "Method: " << _method << ", Path: " << _path << ", Protocol: " << _protocol << std::endl;
-	std::cout << "Query_string : ";
-	if (_query_string.size())
-		std::cout << _query_string << std::endl;
-	else
-		std::cout << "Non Specifield" << std::endl;
-	std::cout << "Host: " << _host.first << ", Port: " ;
-	if (_host.second.size())
-		std::cout << _host.second << std::endl;
-	else
-		std::cout << "Non Specified" << std::endl;
-	std::cout << "Header fields:" << std::endl;
-	std::map<std::string, std::string>::iterator it = _header_fields.begin();
-	std::map<std::string, std::string>::iterator ite = _header_fields.end();
-	for (; it != ite; it++)
-		std::cout << it->first << " : " << it->second << std::endl;
-	std::cout << "Body : " << _body << std::endl;
-	std::cout << "<------ END ------>" << std::endl;
 }
 
 //Setters
 
-void Request::setMethod(int method) {
+void Request::setMethod(std::string method) {
 	_method = method;
 }
 
@@ -225,9 +227,13 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 	_header_fields = header_fields;
 }
 
+void Request::setBody(std::string body) {
+	_body = body;
+}
+
 //Getters
 
-int Request::getMethod() const {
+std::string Request::getMethod() const {
 	return (_method);
 }
 
@@ -245,4 +251,38 @@ std::pair<std::string, std::string> Request::getHost() const {
 
 std::map<std::string, std::string> Request::getHeaderFields() const {
 	return (_header_fields);
+}
+
+std::string Request::getQueryString() const {
+	return (_query_string);
+}
+
+std::string Request::getBody() const {
+	return (_body);
+}
+
+// << OVERLOAD
+
+std::ostream& operator<<(std::ostream& os, const Request& request) {
+	std::cout << "<----- HEADER ----->" << std::endl;
+	std::cout << "Method: " << request._method << ", Path: " << request._path << ", Protocol: " << request._protocol << std::endl;
+	std::cout << "Query_string : ";
+	if (request._query_string.size())
+		std::cout << request._query_string << std::endl;
+	else
+		std::cout << "Non Specifield" << std::endl;
+	std::cout << "Host: " << request._host.first << ", Port: " ;
+	if (request._host.second.size())
+		std::cout << request._host.second << std::endl;
+	else
+		std::cout << "Non Specified" << std::endl;
+	std::cout << "Header fields:" << std::endl;
+	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
+	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();
+	for (; it != ite; it++)
+		std::cout << it->first << " : " << it->second << std::endl;
+	std::cout << "<------ BODY ----->" << std::endl;
+	std::cout << "Body : " << request._body << std::endl;
+	std::cout << "<------ END ----->" << std::endl;
+	return (os);
 }
