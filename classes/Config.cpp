@@ -132,16 +132,16 @@ void Config::parse_index(args_t &args, Context_t &context, std::fstream &file){
 }
 
 /************************\
-|* auto_index directive *|
+|* autoindex directive *|
 \************************/
 
-void Config::parse_auto_index(args_t &args, Context_t &context, std::fstream &file){
+void Config::parse_autoindex(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() != 2)
         throw_close(CONF_ERR_AUTO_IDX_NARG, file);
     if (args[1] == "on")
-        context.set_auto_index(true);
+        context.set_autoindex(true);
     else if (args[1] == "off")
-        context.set_auto_index(false);
+        context.set_autoindex(false);
     else
         throw_close(CONF_ERR_AUTO_IDX_VARG, file);
 }
@@ -297,8 +297,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_root(args, context, file);
     else if (args[0] == "index")
         parse_index(args, context, file);
-    else if (args[0] == "auto_index")
-        parse_auto_index(args, context, file);
+    else if (args[0] == "autoindex")
+        parse_autoindex(args, context, file);
     else if (args[0] == "client_max_body_size")
         parse_client_max_body_size(args, context, file);
     else if (args[0] == "error_page")

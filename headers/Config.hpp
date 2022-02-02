@@ -27,8 +27,8 @@
 
 # define CONF_ERR_IDX_NARG  "wrong number of args on index directive"
 
-# define CONF_ERR_AUTO_IDX_NARG  "wrong number of args on auto_index directive"
-# define CONF_ERR_AUTO_IDX_VARG  "wrong arg value on auto_index directive"
+# define CONF_ERR_AUTO_IDX_NARG  "wrong number of args on autoindex directive"
+# define CONF_ERR_AUTO_IDX_VARG  "wrong arg value on autoindex directive"
 
 # define CONF_ERR_MAXSZ_NARG  "wrong number of args on client_max_body_size directive"
 # define CONF_ERR_MAXSZ_VARG  "wrong arg value on client_max_body_size directive"
@@ -72,7 +72,7 @@ class Config
         void parse_location(args_t &args, Context_t &context, std::fstream &f, std::string &word);
         void parse_root(args_t &args, Context_t &context, std::fstream &file);
         void parse_index(args_t &args, Context_t &context, std::fstream &file);
-        void parse_auto_index(args_t &args, Context_t &context, std::fstream &file);
+        void parse_autoindex(args_t &args, Context_t &context, std::fstream &file);
         void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
         void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);

@@ -102,7 +102,7 @@ void Server_t::print(){
     for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
 
-    std::cout << "  _auto_index: " << _auto_index << '\n';
+    std::cout << "  _autoindex: " << _autoindex << '\n';
     std::cout << "  _client_max_body_size: " << _client_max_body_size << '\n';
 
     std::cout << "  _allow_methods: ";

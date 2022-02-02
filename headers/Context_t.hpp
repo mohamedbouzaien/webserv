@@ -30,7 +30,7 @@ class Context_t
 
         std::string            _root;
         std::list<std::string> _index;
-        bool                   _auto_index;
+        bool                   _autoindex;
         unsigned long          _client_max_body_size;
         std::map<std::string, std::string> _error_pages;
         std::vector<bool>      _allow_method;
@@ -50,7 +50,7 @@ class Context_t
 // Setters ---------------------------------
         void set_root(const std::string s);
         void add_index(const std::string s);
-        void set_auto_index(const bool b);
+        void set_autoindex(const bool b);
         void set_client_max_body_size(const unsigned long n);
         void add_error_page(std::string & error, std::string & page);
         void allow_get();
@@ -61,7 +61,7 @@ class Context_t
 // Getters ----------------------------------
         const std::string &get_root();
         const std::list<std::string> &get_index();
-        bool get_auto_index();
+        bool get_autoindex();
         unsigned long get_client_max_body_size();
         std::map<std::string, std::string> get_error_page();
         bool is_allowed_get();
