@@ -2,7 +2,7 @@
 
 Context_t::Context_t():
     _is_set(std::vector<bool>(IS_BOOL_SIZE, false)),
-    _root("html"),
+    _root("./html"),
     _index(std::list<std::string>()),
     _auto_index(false),
     _client_max_body_size(1000000),
