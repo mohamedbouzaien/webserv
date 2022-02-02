@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/02 12:54:08 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/02 17:26:03 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,19 +62,9 @@ int    Connector::handle()
 	if (bytesRead == 0)
 		return (-1);
 	request.parseRequest(buffer);
-	response.prepare(request, 200);
+	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
-	/*
-	std::cout << request << std::endl;
-	std::string s("bin/php-cgi"); // Path to cgi binary
-	Cgi cgi((char *)s.c_str(), request); // Cgi constr.
-	cgi.runCgi(request); // run Cgi
-	char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-	char *body = strstr(output, "\r\n\r\n"); // get output body
-	body += 4; // skip \r\n\r\n
-	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output); // build test response
-	send(_client_socket, result.c_str(), result.size(), 0);*/
 	request.clear();
 	memset(buffer, 0, 30000);
 	return (0);

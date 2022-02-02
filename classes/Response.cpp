@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/01 21:36:34 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/02 17:25:44 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,32 +168,51 @@ void		Response::handleHeader(std::string path, int code)
 	this->addHeader("Date: ", std::string(buffer));
 }
 
-void		Response::prepare(Request &request, int code)
+void		Response::retreiveBody(std::string path, int code)
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
 
-	indata.open(request.getPath().substr(1), std::ifstream::in);
+	indata.open(path.substr(1), std::ifstream::in);
 	if (!indata)
 	{
-		std::cerr << "File not found => \"" << request.getPath().substr(1) << "\"" << std::endl;
+		std::cerr << "File not found => \"" << path.substr(1) << "\"" << std::endl;
 		Request	error;
 		error.setPath("/error_page/404.html");
-		this->prepare(error, 404);
+		this->retreiveBody("/error_page/404.html", 404);
 	}
 	else
 	{
 		if (!indata.is_open())
-		{
-			Request	error;
-			error.setPath("error_page/403.html");
-			this->prepare(error, 403);
-		}
-		this->handleHeader(request.getPath(), code);
+			this->retreiveBody("error_page/403.html", 403);
+		this->handleHeader(path, code);
 		sstr << indata.rdbuf();
 		this->_body = sstr.str();
 		indata.close();
 	}
+}
+
+bool 		Response::endsWith(std::string const & value, std::string const & ending)
+{
+    if (ending.size() > value.size()) return false;
+    	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+void		Response::prepare(Request &request)
+{
+	if (endsWith(request.getPath(), ".php"))
+	{
+		std::string s("bin/php-cgi"); // Path to cgi binary
+		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
+		cgi.runCgi(request); // run Cgi
+		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+		char *body = strstr(output, "\r\n\r\n"); // get output body
+		body += 4; // skip \r\n\r\n
+		this->_body = std::string(body);
+	}
+	else
+		retreiveBody(request.getPath(), 200);
+	
 }
 
 std::string Response::parse(void)
