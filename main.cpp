@@ -25,6 +25,7 @@ int main(int ac, char **av) {
         try
         {
             Config conf(conf_path);
+            conf.print_servers(); // Testing, outputs each server's attributes
             Listener listener;
             listener.execute();
             while (true)

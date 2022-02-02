@@ -460,8 +460,6 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
         }
     }
     file.close();
-
-    print_servers();
 }
 
 Config::Config(const Config &copy): _servers(copy._servers),

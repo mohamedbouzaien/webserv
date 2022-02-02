@@ -100,13 +100,15 @@ class Config
 
         std::vector<Server_t> get_servers();
 
-        void print_servers();
 
     public:
         Config(const char * path);
         Config(const Config &copy);
         Config  &operator=(const Config &other);
         virtual ~Config();
+
+        //Testing, outputs each server's attributes
+        void print_servers();
 
        	class FileOpenException : public std::exception
         {
