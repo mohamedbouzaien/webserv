@@ -14,10 +14,8 @@
 # include "headers/Connector.hpp"
 # include "headers/Config.hpp"
 
-//int main(int ac, char **av)
-int nrml(int ac, char **av)
-{
-    const char * conf_path = "./default.conf";
+int main(int ac, char **av) {
+    const char * conf_path = "./tests/default.conf";
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
     else
@@ -27,7 +25,6 @@ int nrml(int ac, char **av)
         try
         {
             Config conf(conf_path);
-            /*
             Listener listener;
             listener.execute();
             while (true)
@@ -36,17 +33,10 @@ int nrml(int ac, char **av)
                 connector.accept_c();
                 connector.handle();
             }
-            */
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << " errno: "<< errno << '\n';
         }
     }
-    return 1;
-}
-
-int main(int ac, char **av) {
-    nrml(ac, av);
-    while (1);
 }

@@ -49,7 +49,7 @@ class Config
 {
     private:
         std::vector<Server_t> _servers;
-        std::string _line;
+        std::string  _line;
         unsigned int _line_number;
         unsigned int _last_dir;
 

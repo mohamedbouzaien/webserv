@@ -54,13 +54,10 @@ bool Config::ft_isdigit(const char c) const
 
 long Config::ft_atoi(const char *str) const
 {
-	unsigned long	nb;
-	long			sgn;
-	long			i;
+	unsigned long	nb = 0;
+	long			sgn = 1;
+	long			i = 0;
 
-	i = 0;
-	nb = 0;
-	sgn = 1;
 	while (str[i] && (str[i] == '\t' || str[i] == '\n' || str[i] == '\r'
 		|| str[i] == '\f' || str[i] == ' ' || str[i] == '\v'))
 		i++;
@@ -448,7 +445,8 @@ void Config::print_servers()
 /* Constructor */
 Config::Config(const char * path): _servers(std::vector<Server_t>()),
                                    _line(std::string()),
-                                   _line_number(0)
+                                   _line_number(0),
+                                   _last_dir(1)
 {
     std::fstream file(path, std::ios_base::in);
     std::string word;
@@ -466,20 +464,18 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
     print_servers();
 }
 
-Config::Config(const Config &copy)
-{
-	//TODO ???
-	(void)copy;
-}
-
+Config::Config(const Config &copy): _servers(copy._servers),
+                                    _line(""),
+                                    _line_number(0),
+                                    _last_dir(0)
+{}
 
 Config::~Config()
 {}
 
 Config	&Config::operator=(const Config &other)
 {
-	//TODO ???
-    (void)other;
+    _servers = other._servers;
 	return *this;
 }
 

@@ -5,7 +5,7 @@ do
     ../../webserv $f &
     pid=$!
     sleep 0.2
-    kill ${pid}
-    wait $! 2> /dev/null #silence kill output
+    kill ${pid} 2> /dev/null
+    wait $! 2> /dev/null 
     echo "---------------------------------"
 done
