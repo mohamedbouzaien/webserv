@@ -38,8 +38,8 @@ class Server_t : public Context_t
         std::vector<Location_t> &get_locations();
 
 // checks --------------------
-        bool has_name(const std::string name) const;
-        bool has_listen(const listen_pair_t listen_pair) const;
+        bool has_name(const std::string &name) const;
+        bool has_listen(const listen_pair_t &listen_pair) const;
 
         bool listen_empty() const;
         bool names_empty() const;

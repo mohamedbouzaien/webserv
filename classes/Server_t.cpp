@@ -55,13 +55,14 @@ std::vector<Location_t> &Server_t::get_locations(){
 
 
 // checks --------------------
-bool Server_t::has_name(const std::string name) const
+bool Server_t::has_name(const std::string &name) const
 {
     return _names.count(name);
 }
 
-bool Server_t::has_listen(const listen_pair_t listen_pair) const
+bool Server_t::has_listen(const listen_pair_t &listen_pair) const
 {
+    //TODO Add "*" support
     return _listen.count(listen_pair);
 }
 
