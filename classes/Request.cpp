@@ -57,7 +57,7 @@ int Request::setRequestLine(char *buffer) {
 	else
 		_method = BAD_REQUEST;
 	buffer += pos;
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
 		_method = BAD_REQUEST;
@@ -73,15 +73,13 @@ int Request::setRequestLine(char *buffer) {
 		_query_string = std::string(buffer, pos);
 		buffer += pos;
 	}
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
 		_method = BAD_REQUEST;
 	_protocol = std::string(buffer, pos);
 	buffer += pos;
-	while (*buffer == ' ')
-		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
 		_method = BAD_REQUEST;
 	while (*buffer && *buffer != '\n')
