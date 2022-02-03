@@ -6,11 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 15:47:08 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/12 12:29:37 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/01/19 19:16:30 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Listener.hpp"
+# include <sys/ioctl.h>
+# include <unistd.h>
 
 Listener::Listener()
 {
@@ -25,8 +27,11 @@ Listener::Listener(Listener &copy) : _fd(copy._fd), _address(copy._address)
 
 Listener	&Listener::operator=(Listener &copy)
 {
-	//to do
-	return (copy);
+	if (this == &copy)
+		return (*this);
+	_fd = copy._fd;
+	_address = copy._address;
+	return (*this);
 }
 
 const char* Listener::CreationFailedException::what() const throw()
@@ -36,7 +41,7 @@ const char* Listener::CreationFailedException::what() const throw()
 
 const char* Listener::PortBindingFailedException::what() const throw()
 {
-	return ("Failed to bind to port 8080");
+	return ("Failed to bind to port ");
 }
 
 const char* Listener::ListeningFailedException::what() const throw()
@@ -62,6 +67,15 @@ void	Listener::execute()
 	this->_address.sin_family = AF_INET;
 	this->_address.sin_addr.s_addr = INADDR_ANY;
 	this->_address.sin_port = htons(PORT);
+	int	on, rc;
+	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
+				(char *)&on, sizeof(on));
+	if (rc < 0)
+	{
+		perror("setsockopt() failed");
+		close(_fd);
+		exit(-1);
+	}
 	if (bind(_fd, (struct sockaddr*)&_address, sizeof(sockaddr)) < 0)
 		throw Listener::PortBindingFailedException();
 	if (listen(this->_fd, 10) < 0)
