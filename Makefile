@@ -3,8 +3,8 @@ HEADERS			= -I headers/
 OBJ_DIR			= objs/
 SRC_DIR			= classes/
 
+SRCS			= Connector.cpp Listener.cpp Poller.cpp Request.cpp Cgi.cpp Config.cpp Context_t.cpp Server_t.cpp Location_t.cpp
 
-SRCS			= Connector.cpp Listener.cpp Poller.cpp Request.cpp Cgi.cpp
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
 OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
