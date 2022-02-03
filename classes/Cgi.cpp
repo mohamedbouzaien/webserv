@@ -38,7 +38,10 @@ Cgi &Cgi::operator=(const Cgi &other) {
 
 void Cgi::runCgi(Request &request) {
 	int pid;
-
+	char *argv[3];
+	argv[0] = _cgi_path;
+	argv[1] = (char *)request.getPath().c_str();
+	argv[2] = NULL;
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		_status_code = INTERNAL_SERVER_ERROR;
@@ -55,7 +58,7 @@ void Cgi::runCgi(Request &request) {
 		close(_body_pipe[SIDE_IN]);
 		dup2(_output_pipe[SIDE_OUT], STDOUT_FILENO);
 		close(_output_pipe[SIDE_OUT]);
-		execve(_cgi_path, NULL, _cgi_env);
+		execve(*argv, argv, _cgi_env);
 		exit(1);
 	}
 	else {
