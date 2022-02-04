@@ -100,8 +100,8 @@ void Cgi::setCgiEnv(Request &request) {
 	setCgiEnvVar((std::string("SERVER_PROTOCOL=") + request.getProtocol()).c_str(), 3);
 	setCgiEnvVar((std::string("SERVER_PORT=") + request.getHost().second).c_str(), 4);
 	setCgiEnvVar((std::string("REQUEST_METHOD=") + request.getMethod()).c_str(), 5);
-	setCgiEnvVar((std::string("PATH_INFO=")).c_str(), 6);
-	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "tests/www").c_str(), 7);
+	setCgiEnvVar((std::string("PATH_INFO=") + std::string("tests/www") + request.getPath()).c_str(), 6);
+	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "tests/www" + request.getPath()).c_str(), 7);
 	setCgiEnvVar((std::string("SCRIPT_NAME=") + request.getPath()).c_str(), 8);
 	setCgiEnvVar((std::string("QUERY_STRING=") + request.getQueryString()).c_str(), 9);
 	setCgiEnvVar((std::string("REMOTE_HOST=") + "127.0.0.1").c_str(), 10);
@@ -114,7 +114,7 @@ void Cgi::setCgiEnv(Request &request) {
 
 	//FROM CLIENT VAR
 	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 17);
-	setCgiEnvVar((std::string("SCRIPT_FILENAME=") + std::string("tests/www") + request.getPath()).c_str(), 18);
+	setCgiEnvVar("", 18);
 	//FROM CLIENT VAR
 	int i = 19;
 	int size = CGI_ENV_SIZE + request.getHeaderFields().size();
