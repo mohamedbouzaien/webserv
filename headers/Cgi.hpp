@@ -3,7 +3,6 @@
 #include <unistd.h>
 #define SIDE_IN 0
 #define SIDE_OUT 1
-#define CGI_ENV_SIZE 19
 #define CGI_BUFFER_SIZE 4096
 #define INTERNAL_SERVER_ERROR 500
 #define OK 200
@@ -30,7 +29,6 @@ class Cgi {
 		int getStatusCode() const;
 		void setStatusCode(std::string buffer);
 		void setCgiEnv(Request &request);
-		void setCgiEnvVar(const char *var, int pos);
 		std::string upper_key(std::string key) const;
 		class MallocFailedException : public std::exception
 		{

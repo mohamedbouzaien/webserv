@@ -6,13 +6,6 @@ const char* Cgi::MallocFailedException::what() const throw() {
 
 
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
-	int size = CGI_ENV_SIZE + request.getHeaderFields().size();
-		if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
-			_status_code = INTERNAL_SERVER_ERROR;
-			throw Cgi::MallocFailedException();
-		}
-	for(int i = 0; i < size; i++)
-		_cgi_env[i] = NULL;
 	setCgiEnv(request);
 	_body_size = request.getBody().size();
 	memset((char *)_output, 0, CGI_BUFFER_SIZE);
@@ -76,56 +69,54 @@ void Cgi::runCgi(Request &request) {
 	}
 }
 
-void Cgi::setCgiEnvVar(const char *var, int pos) {
-	if (_cgi_env[pos])
-		free(_cgi_env[pos]);
-	if (!(_cgi_env[pos] = static_cast<char *>(malloc(sizeof(char *) * (strlen(var) + 1))))) {
-		_status_code = INTERNAL_SERVER_ERROR;
-		throw Request::MallocFailedException();
-	}
-	strcpy(_cgi_env[pos], var);
-}
-
 void Cgi::setCgiEnv(Request &request) {
 	std::map<std::string, std::string> header_fields;
+	std::map<std::string, std::string> mapped_cgi_env;
 	header_fields = request.getHeaderFields();
-	//SERVER VAR NEED TO BE COMPLETED W/ CONF_FILE VALUE
 
-	setCgiEnvVar(std::string("SERVER_SOFTWARE=webserv/1.0").c_str(), 0);
+	mapped_cgi_env["SERVER_SOFTWARE"] = "webserv/1.0";
+	mapped_cgi_env["SERVER_NAME"] = "localhost";
+	mapped_cgi_env["GATEWAY_INTERFACE"] = "CGI/1.1";
 
-	setCgiEnvVar(std::string("SERVER_NAME=localhost").c_str(), 1);
+	mapped_cgi_env["SERVER_PROTOCOL"] = request.getProtocol();
+	mapped_cgi_env["SERVER_PORT"] = request.getHost().second;
 
-	setCgiEnvVar(std::string("GATEWAY_INTERFACE=CGI/1.1").c_str(), 2);
-	// REQUEST VAR
-	setCgiEnvVar((std::string("SERVER_PROTOCOL=") + request.getProtocol()).c_str(), 3);
-	setCgiEnvVar((std::string("SERVER_PORT=") + request.getHost().second).c_str(), 4);
-	setCgiEnvVar((std::string("REQUEST_METHOD=") + request.getMethod()).c_str(), 5);
-	setCgiEnvVar((std::string("PATH_INFO=") + std::string("tests/www") + request.getPath()).c_str(), 6);
-	setCgiEnvVar((std::string("PATH_TRANSLATED=") + "tests/www" + request.getPath()).c_str(), 7);
-	setCgiEnvVar((std::string("SCRIPT_NAME=") + request.getPath()).c_str(), 8);
-	setCgiEnvVar((std::string("QUERY_STRING=") + request.getQueryString()).c_str(), 9);
-	setCgiEnvVar((std::string("REMOTE_HOST=") + "127.0.0.1").c_str(), 10);
-	setCgiEnvVar((std::string("REMOTE_ADDR=") + header_fields["X-HTTP-FORWARDED-FOR"]).c_str(), 11);
-	setCgiEnvVar((std::string("AUTH_TYPE=")).c_str(), 12);
-	setCgiEnvVar((std::string("REMOTE_USER=")).c_str(), 13);
-	setCgiEnvVar((std::string("REMOTE_IDENT=")).c_str(), 14);
-	setCgiEnvVar((std::string("CONTENT_TYPE=") + header_fields["Content-Type"]).c_str(), 15);
-	setCgiEnvVar((std::string("CONTENT_LENGTH=") + std::to_string(request.getBody().size())).c_str(), 16);
+	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
+	mapped_cgi_env["PATH_INFO"] = "tests/www" + request.getPath();
+	mapped_cgi_env["PATH_TRANSLATED"] = "tests/www" + request.getPath();
+	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
+	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
+		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
 
-	//FROM CLIENT VAR
-	setCgiEnvVar((std::string("REDIRECT_STATUS=200").c_str()), 17);
-	setCgiEnvVar("", 18);
-	//FROM CLIENT VAR
-	int i = 19;
-	int size = CGI_ENV_SIZE + request.getHeaderFields().size();
-	std::map<std::string, std::string> hf = request.getHeaderFields();
-	std::map<std::string, std::string>::iterator it = hf.begin();
-	std::map<std::string, std::string>::iterator ite = hf.end();
-	for (;(i < size && it != ite); i++) {
-		setCgiEnvVar(std::string("HTTP_" + upper_key(it->first) + "=" + it->second).c_str(), i);
+	mapped_cgi_env["REMOTE_HOST"] = "127.0.0.1";
+	mapped_cgi_env["REMOTE_ADDR"] = "127.0.0.1";
+	mapped_cgi_env["AUTH_TYPE"] = "";
+	mapped_cgi_env["REMOTE_USER"] = "";
+	mapped_cgi_env["REMOTE_IDENT"] = "";
+
+	if (mapped_cgi_env["REQUEST_METHOD"] == "POST") {
+		mapped_cgi_env["CONTENT_TYPE"] = header_fields["Content-Type"];
+		mapped_cgi_env["CONTENT_LENGTH"] = std::to_string(request.getBody().size());
+	}
+
+	mapped_cgi_env["REDIRECT_STATUS"] = "200";
+
+	std::map<std::string, std::string>::iterator it = header_fields.begin();
+	std::map<std::string, std::string>::iterator ite = header_fields.end();
+	for(;it != ite; it++)
+		mapped_cgi_env["HTTP_" + upper_key(it->first)] = it->second;
+	int size = mapped_cgi_env.size();
+	if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
+			_status_code = INTERNAL_SERVER_ERROR;
+			throw Cgi::MallocFailedException();
+		}
+	it = mapped_cgi_env.begin();
+	ite = mapped_cgi_env.end();
+	for(int i = 0; i < size; i++) {
+		_cgi_env[i] = strdup(std::string(it->first + "=" + it->second).c_str());
 		it++;
 	}
-	_cgi_env[i] = NULL;
+	_cgi_env[size] = NULL;
 }
 
 std::string Cgi::upper_key(std::string key) const {
