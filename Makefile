@@ -6,14 +6,14 @@ SRC_DIR			= classes/
 
 # Files #
 SRCS			= Connector.cpp \
-				  Listener.cpp \
-				  Poller.cpp \
-				  Request.cpp \
-				  Cgi.cpp \
-				  Config.cpp \
-				  Context_t.cpp \
-				  Server_t.cpp \
-				  Location_t.cpp
+                  Listener.cpp \
+                  Poller.cpp \
+                  Request.cpp \
+                  Cgi.cpp \
+                  Config.cpp \
+                  Context_t.cpp \
+                  Server_t.cpp \
+                  Location_t.cpp
 
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
