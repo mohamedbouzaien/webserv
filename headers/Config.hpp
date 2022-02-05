@@ -9,6 +9,8 @@
 # include "Location_t.hpp"
 # include "Context_t.hpp"
 
+# include "default_conf.hpp"
+
 # define CONF_ERR_HEAD "Error in conf: "
 
 # define CONF_ERR_NO_SERV  "expected server{...} directive"

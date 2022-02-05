@@ -3,7 +3,7 @@
 
 Location_t::Location_t(const std::string uri): _uri(uri),
                                                _locations(std::vector<Location_t>()),
-                                               _alias("")
+                                               _alias(DEFAULT_ALIAS)
 {
 }
 

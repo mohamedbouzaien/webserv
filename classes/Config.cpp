@@ -423,9 +423,9 @@ void Config::parse_server(std::fstream &file, std::string &word)
     }
 
     if (serv.names_empty()) // add empty name if no name has been provided
-        serv.add_name("");
+        serv.add_name(DEFAULT_SERV_NAME);
     if (serv.listen_empty())
-        serv.add_listen(std::make_pair("*", 80));
+        serv.add_listen(DEFAULT_LISTEN);
     _servers.push_back(serv);
 }
 

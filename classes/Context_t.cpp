@@ -2,10 +2,10 @@
 
 Context_t::Context_t():
     _is_set(std::vector<bool>(IS_BOOL_SIZE, false)),
-    _root("./html"),
+    _root(DEFAULT_ROOT),
     _index(std::list<std::string>()),
-    _autoindex(false),
-    _client_max_body_size(1000000),
+    _autoindex(DEFAULT_AUTOINDEX),
+    _client_max_body_size(DEFAULT_MAX_BODY_SIZE ),
     _error_pages(std::map<std::string, std::string>()),
     _allow_method(std::vector<bool>(IS_BOOL_SIZE, false))
 {

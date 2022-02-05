@@ -6,6 +6,8 @@
 # include <string>
 # include <map>
 
+# include "default_conf.hpp"
+
 // is_set bool vector correspondance
 # define IS_BOOL_SIZE     6
 # define IS_ROOT          0
