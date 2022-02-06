@@ -451,16 +451,21 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
                                    _last_dir(1)
 {
     std::fstream file(path, std::ios_base::in);
-    std::string word;
+    std::string  word;
+
     if (file.fail())
         throw (FileOpenException());
-    while (file.good())
+    try
     {
-        next_word(file, word);
-        if (!word.empty()){
-            parse_server(file, word);
+        while (file.good())
+        {
+            next_word(file, word);
+            if (!word.empty()){
+                parse_server(file, word);
+            }
         }
     }
+    catch (const ParseErrException &e) {}
     file.close();
 }
 
