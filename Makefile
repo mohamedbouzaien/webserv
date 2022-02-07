@@ -1,38 +1,52 @@
+# Directories #
 HEADERS			= -I headers/
 
 OBJ_DIR			= objs/
 SRC_DIR			= classes/
 
-SRCS			= Connector.cpp Listener.cpp Poller.cpp Request.cpp Cgi.cpp Config.cpp Context_t.cpp Server_t.cpp Location_t.cpp
+# Files #
+SRCS			= Connector.cpp \
+                  Listener.cpp \
+                  Poller.cpp \
+                  Request.cpp \
+                  Cgi.cpp \
+                  Config.cpp \
+                  Context_t.cpp \
+                  Server_t.cpp \
+                  Location_t.cpp
 
 CFIND			= $(SRCS:%=$(SRC_DIR)%)
 OFILE			= $(SRCS:%.cpp=%.o)
 OBJS			= $(addprefix $(OBJ_DIR), $(OFILE))
 
+MAIN            = main.cpp
+OMAIN           = $(addprefix $(OBJ_DIR), $(MAIN:%.cpp=%.o))
 
 
+
+# Compiler #
 CC				= g++
 RM				= rm -f
-CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -o
+CFLAGS			= -g -Wall -Wextra -Werror -std=c++98
 
 NAME			= webserv
 
 
+# Rules #
 all:			$(OBJ_DIR) $(NAME)
 
 $(OBJ_DIR):
 				mkdir -p $(OBJ_DIR)
 
-$(NAME):		$(OBJS)
-				$(CC) $(HEADERS) -c $(CFLAGS) $(OBJ_DIR)main.o main.cpp
-				$(CC) $(CFLAGS) $(NAME) $(HEADERS) $(OBJS) $(OBJ_DIR)main.o
+$(OBJ_DIR)%.o:  $(SRC_DIR)%.cpp 
+				$(CC) $(HEADERS) $(CFLAGS) -c $< -o $@
 
+$(OMAIN): $(MAIN)
+				$(CC) $(HEADERS) $(CFLAGS) -c $< -o $@
+		
 
-$(OBJS): $(CFIND)
-			make $(OFILE)
-
-$(OFILE):
-			$(CC) $(HEADERS) -c $(CFLAGS) $(OBJ_DIR)$@ $(SRC_DIR)$(@:%.o=%.cpp)
+$(NAME):		$(OBJ_DIR) $(OBJS) $(OMAIN)
+				$(CC) $(HEADERS) $(CFLAGS) -o $(NAME)  $(OBJS) $(OMAIN)
 
 clean:
 				$(RM) -r $(OBJ_DIR)
