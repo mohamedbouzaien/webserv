@@ -72,8 +72,10 @@ void Cgi::runCgi(Request &request) {
 void Cgi::setCgiEnv(Request &request) {
 	std::map<std::string, std::string> header_fields;
 	std::map<std::string, std::string> mapped_cgi_env;
-	header_fields = request.getHeaderFields();
+	std::map<std::string, std::string>::iterator it = header_fields.begin();
+	std::map<std::string, std::string>::iterator ite = header_fields.end();
 
+	header_fields = request.getHeaderFields();
 	mapped_cgi_env["SERVER_SOFTWARE"] = "webserv/1.0";
 	mapped_cgi_env["SERVER_NAME"] = "localhost";
 	mapped_cgi_env["GATEWAY_INTERFACE"] = "CGI/1.1";
@@ -90,7 +92,12 @@ void Cgi::setCgiEnv(Request &request) {
 
 	mapped_cgi_env["REMOTE_HOST"] = "127.0.0.1";
 	mapped_cgi_env["REMOTE_ADDR"] = "127.0.0.1";
-	mapped_cgi_env["AUTH_TYPE"] = "";
+	it = header_fields.find("Authorization");
+	if (it != header_fields.end() && it->second.size()) {
+		std::string auth_str = std::string(it->second, it->second.find_first_not_of(" "));
+		mapped_cgi_env["AUTH_TYPE"] = std::string(auth_str, 0, auth_str.find(" "));
+	}
+
 	mapped_cgi_env["REMOTE_USER"] = "";
 	mapped_cgi_env["REMOTE_IDENT"] = "";
 
@@ -101,8 +108,8 @@ void Cgi::setCgiEnv(Request &request) {
 
 	mapped_cgi_env["REDIRECT_STATUS"] = "200";
 
-	std::map<std::string, std::string>::iterator it = header_fields.begin();
-	std::map<std::string, std::string>::iterator ite = header_fields.end();
+	it = header_fields.begin();
+	ite = header_fields.end();
 	for(;it != ite; it++)
 		mapped_cgi_env["HTTP_" + upper_key(it->first)] = it->second;
 	int size = mapped_cgi_env.size();
