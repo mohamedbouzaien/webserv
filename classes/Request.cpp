@@ -57,7 +57,7 @@ int Request::setRequestLine(char *buffer) {
 	else
 		_method = BAD_REQUEST;
 	buffer += pos;
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
 		_method = BAD_REQUEST;
@@ -73,15 +73,13 @@ int Request::setRequestLine(char *buffer) {
 		_query_string = std::string(buffer, pos);
 		buffer += pos;
 	}
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
 		_method = BAD_REQUEST;
 	_protocol = std::string(buffer, pos);
 	buffer += pos;
-	while (*buffer == ' ')
-		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
 		_method = BAD_REQUEST;
 	while (*buffer && *buffer != '\n')
@@ -154,9 +152,7 @@ int Request::setRequestField(char *buffer) {
 		return (1);
 	}
 	pos++;
-	for (int i = 0; keyword[i]; i++)
-		keyword[i] = std::toupper(keyword[i]);
-	if (keyword == "HOST")
+	if (keyword == "Host")
 		setHostField(buffer + pos);
 	else
 		setHeaderField(keyword, buffer + pos);
@@ -184,7 +180,7 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
-	if (_header_fields.find("TRANSFER-ENCODING") != _header_fields.end() && _header_fields["TRANSFER-ENCODING"] == "chunked")
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 	{
 		std::string r_body(buffer);
 		int chunk_size;
@@ -200,8 +196,8 @@ void Request::parseRequest(char *buffer) {
 			r_body.erase(0, 2);
 		}
 	}
-	else if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
-		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
+	else if (_header_fields.find("Content-Length") != _header_fields.end())
+		_body = std::string(buffer, stoi(_header_fields["Content-Length"]));
 
 }
 
