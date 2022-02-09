@@ -145,10 +145,7 @@ int Request::setRequestField(char *buffer) {
 	std::string keyword(buffer, pos);
 	if (buffer[pos] != ':')
 	{
-		while (buffer[pos] == ' ')
-			pos++;
-		if ((buffer[pos] != '\r' && buffer[pos] != '\n') || (buffer[pos] == '\r' && buffer[pos + 1] != '\n'))
-			_method = BAD_REQUEST;
+		_method = BAD_REQUEST;
 		return (1);
 	}
 	pos++;
