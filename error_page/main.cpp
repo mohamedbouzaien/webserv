@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include<sstream>
-#define SIZE 2
-#define START 428
+#define SIZE 1
+#define START 431
 void	replace(std::ifstream *ifs, std::ofstream *ofs, std::string s1, std::string s2)
 {
 	std::string	line;
@@ -35,7 +35,7 @@ std::string replaceAll( std::string s, const std::string &search, const std::str
 
 int	main(int ac, char **av)
 {
-	std::string name[SIZE] = {"Precondition Required", "Too Many Requests"};
+	std::string name[SIZE] = {"Request Header Fields Too Large"};
 	std::ifstream ifs("400.html");
 	std::string str;
    if(ifs) {
@@ -45,9 +45,9 @@ int	main(int ac, char **av)
    }
 	int i = 0;
 	while (i < SIZE) {
-		std::string ofile = std::to_string(421 + i) + ".html";
+		std::string ofile = std::to_string(START + i) + ".html";
 		std::ofstream ofs(ofile.c_str());
-		std::string result = replaceAll(str, "400 - Bad Request", std::to_string(421 + i) + " - " + name[i]);
+		std::string result = replaceAll(str, "400 - Bad Request", std::to_string(START + i) + " - " + name[i]);
 		ofs << result;
 		ofs.close();
 		i++;
