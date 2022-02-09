@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include<sstream>
-#define SIZE 18
-
+#define SIZE 2
+#define START 428
 void	replace(std::ifstream *ifs, std::ofstream *ofs, std::string s1, std::string s2)
 {
 	std::string	line;
@@ -35,7 +35,7 @@ std::string replaceAll( std::string s, const std::string &search, const std::str
 
 int	main(int ac, char **av)
 {
-	std::string name[SIZE] = {"Unauthorized", "Payment Required ", "Forbidden", "Not Found", "Method Not Allowed", "Not Acceptable", "Proxy Authentication Required", "Request Timeout", "Conflict", "Gone", "Length Required", "Precondition Failed", "Payload Too Large", "URI Too Long", "Unsupported Media Type", "Range Not Satisfiable", "Expectation Failed", "I'm a teapot"};
+	std::string name[SIZE] = {"Precondition Required", "Too Many Requests"};
 	std::ifstream ifs("400.html");
 	std::string str;
    if(ifs) {
@@ -45,9 +45,9 @@ int	main(int ac, char **av)
    }
 	int i = 0;
 	while (i < SIZE) {
-		std::string ofile = std::to_string(401 + i) + ".html";
+		std::string ofile = std::to_string(421 + i) + ".html";
 		std::ofstream ofs(ofile.c_str());
-		std::string result = replaceAll(str, "400 - Bad Request", std::to_string(401 + i) + " - " + name[i]);
+		std::string result = replaceAll(str, "400 - Bad Request", std::to_string(421 + i) + " - " + name[i]);
 		ofs << result;
 		ofs.close();
 		i++;
