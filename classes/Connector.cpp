@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 16:05:34 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 18:27:17 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-int    Connector::handle()
+int    Connector::handle(const Server_t &serv_conf)
 {
 	Request		request;
 	Response	response;
@@ -64,7 +64,7 @@ int    Connector::handle()
 	std::cout << buffer << std::endl;
 	request.parseRequest(buffer);
 	std::cout << request << std::endl;
-	response.prepare(request);
+	response.prepare(request, serv_conf);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/08 18:37:40 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 19:22:33 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <time.h>
 
 # include "Request.hpp"
+# include "Config.hpp"
 # include "Cgi.hpp"
 
 #define URI_MAX_LEN 280000
@@ -34,18 +35,19 @@ class Response
 		std::map<std::string, std::string>	_header;		
 		std::string							_body;
 		std::map<std::string, std::string>	_mime;
+		std::vector<std::string>			_allowed_methods;
 
 		void		addHeader(std::string key, std::string value);
 		void		initMime();
 		void		initCodes();
-		void		handleHeader(std::string path, int code);
-		void		retreiveBody(std::string path, int code);
+		void		handleHeader(std::string path, int code, const Server_t &serv_conf);
+		void		retreiveBody(std::string path, int code, const Server_t &serv_conf);
 		bool 		endsWith(std::string const & value, std::string const & ending);
 	public:
 		Response();
 		Response(const Response &copy);
 		Response	&operator=(const Response &other);
 		~Response();
-		void		prepare(Request &request);
+		void		prepare(Request &request, const Server_t &serv_conf);
 		std::string parse(void);
 };

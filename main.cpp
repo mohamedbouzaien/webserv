@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:36:30 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 18:25:04 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int main(int ac, char **av) {
             while (true)
             {
                 poller.start();
-                poller.handle();
+                poller.handle(conf.get_servers()[0]);
             }
 
         }

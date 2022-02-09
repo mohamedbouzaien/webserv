@@ -98,7 +98,7 @@ class Config
         // Exception management + file closing
         void throw_close(const char *s, std::fstream &f);
 
-        std::vector<Server_t> get_servers();
+
 
 
     public:
@@ -109,6 +109,8 @@ class Config
 
         //Testing, outputs each server's attributes
         void print_servers();
+
+        std::vector<Server_t> get_servers();
 
        	class FileOpenException : public std::exception
         {

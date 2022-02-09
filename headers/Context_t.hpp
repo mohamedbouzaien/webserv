@@ -62,11 +62,11 @@ class Context_t
         const std::string &get_root();
         const std::list<std::string> &get_index();
         bool get_autoindex();
-        unsigned long get_client_max_body_size();
+        unsigned long get_client_max_body_size()        const;
         std::map<std::string, std::string> get_error_page();
-        bool is_allowed_get();
-        bool is_allowed_post();
-        bool is_allowed_delete();
+        bool is_allowed_get()   const;
+        bool is_allowed_post()  const;
+        bool is_allowed_delete()        const;
 };
 
 #endif
