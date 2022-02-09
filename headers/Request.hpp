@@ -16,7 +16,7 @@ class Request {
 		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::string> _header_fields;
 		std::string _body;
-
+		int _uri_length;
 	public:
 		Request();
 		Request (const Request &other);
@@ -37,6 +37,7 @@ class Request {
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
 		void setBody(std::string body);
+		void setUriLength(int len);
 		//Getters
 		std::string getMethod() const ;
 		std::string getPath() const ;
@@ -45,6 +46,7 @@ class Request {
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
 		std::string getBody() const;
+		int getUriLength() const;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception

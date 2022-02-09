@@ -145,10 +145,7 @@ int Request::setRequestField(char *buffer) {
 	std::string keyword(buffer, pos);
 	if (buffer[pos] != ':')
 	{
-		while (buffer[pos] == ' ')
-			pos++;
-		if ((buffer[pos] != '\r' && buffer[pos] != '\n') || (buffer[pos] == '\r' && buffer[pos + 1] != '\n'))
-			_method = BAD_REQUEST;
+		_method = BAD_REQUEST;
 		return (1);
 	}
 	pos++;
@@ -162,20 +159,22 @@ int Request::setRequestField(char *buffer) {
 void Request::parseRequest(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
-	if (_method == BAD_REQUEST || !*buffer)
+	_uri_length = _path.size();
+	if (!buffer || !*buffer)
 		return;
 	buffer++;
-	while (*buffer && *buffer != '\n' && *buffer != '\r')
+	while (buffer && *buffer && *buffer != '\n' && *buffer != '\r')
 	{
 		setRequestField(buffer);
 		buffer = strchr(buffer, '\n');
-		if (buffer == NULL || _method == BAD_REQUEST)
+		if (buffer == NULL)
 		{
 			_method = BAD_REQUEST;
 			break;
 		}
 		buffer++;
 	}
+	_uri_length += _host.first.size();
 	if (*buffer == '\r')
 		buffer++;
 	if (*buffer == '\n')
@@ -227,6 +226,10 @@ void Request::setBody(std::string body) {
 	_body = body;
 }
 
+void Request::setUriLength(int len) {
+	_uri_length = len;
+}
+
 //Getters
 
 std::string Request::getMethod() const {
@@ -257,6 +260,10 @@ std::string Request::getBody() const {
 	return (_body);
 }
 
+int Request::getUriLength() const {
+	return (_uri_length);
+}
+
 // << OVERLOAD
 
 std::ostream& operator<<(std::ostream& os, const Request& request) {
@@ -272,6 +279,7 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 		std::cout << request._host.second << std::endl;
 	else
 		std::cout << "Non Specified" << std::endl;
+	std::cout << "URI Length: " << request._uri_length << std::endl;
 	std::cout << "Header fields:" << std::endl;
 	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
 	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();

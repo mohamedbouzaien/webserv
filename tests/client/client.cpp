@@ -27,7 +27,7 @@ int main(int ac, char **av) {
 	}
 
 	std::cout << "ok" << std::endl;
-	std::string request = "GET /index.html HTTP/1.1\nhost: e\nAuthorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l\n\n";
+	std::string request = "GET /index.html HTTP/1.1\nHost: e\nAuthorization : Basic YWxhZGRpbjpvcGVuc2VzYW1l\n\n";
 
 	std::cout << "ok" << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);

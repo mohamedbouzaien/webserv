@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 16:03:42 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 16:06:58 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,12 +179,12 @@ void		Response::retreiveBody(std::string path, int code)
 		std::cerr << "File not found => \"" << path.substr(1) << "\"" << std::endl;
 		Request	error;
 		error.setPath("/error_page/404.html");
-		this->retreiveBody("/error_page/404.html", 404);
+		this->retreiveBody("/error_page/400_error/404.html", 404);
 	}
 	else
 	{
 		if (!indata.is_open())
-			this->retreiveBody("/error_page/403.html", 403);
+			this->retreiveBody("/error_page/400_error/403.html", 403);
 		this->handleHeader(path, code);
 		sstr << indata.rdbuf();
 		this->_body = sstr.str();
@@ -201,10 +201,10 @@ bool 		Response::endsWith(std::string const & value, std::string const & ending)
 void		Response::prepare(Request &request)
 {
 	std::cout << "size : " << request.getPath().size() + request.getHost().first.size() << std::endl;
-	//if ((request.getU) > URI_MAX_LEN)
-	//	this->retreiveBody("/error_page/400.html", 414);
+	if ((request.getUriLength()) > URI_MAX_LEN)
+		this->retreiveBody("/error_page/400_error/414.html", 414);
 	else if (request.getMethod() == BAD_REQUEST)
-		this->retreiveBody("/error_page/400.html", 400);
+		this->retreiveBody("/error_page/400_error/400.html", 400);
 	else if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
