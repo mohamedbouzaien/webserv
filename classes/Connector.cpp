@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/02 17:26:03 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/08 17:01:49 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,9 @@ int    Connector::handle()
 		throw Connector::RecvFailedException();
 	if (bytesRead == 0)
 		return (-1);
+	std::cout << buffer << std::endl;
 	request.parseRequest(buffer);
+	std::cout << request << std::endl;
 	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);

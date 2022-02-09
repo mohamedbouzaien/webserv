@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/02 17:25:44 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 16:03:42 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ void		Response::retreiveBody(std::string path, int code)
 	else
 	{
 		if (!indata.is_open())
-			this->retreiveBody("error_page/403.html", 403);
+			this->retreiveBody("/error_page/403.html", 403);
 		this->handleHeader(path, code);
 		sstr << indata.rdbuf();
 		this->_body = sstr.str();
@@ -200,7 +200,12 @@ bool 		Response::endsWith(std::string const & value, std::string const & ending)
 
 void		Response::prepare(Request &request)
 {
-	if (endsWith(request.getPath(), ".php"))
+	std::cout << "size : " << request.getPath().size() + request.getHost().first.size() << std::endl;
+	//if ((request.getU) > URI_MAX_LEN)
+	//	this->retreiveBody("/error_page/400.html", 414);
+	else if (request.getMethod() == BAD_REQUEST)
+		this->retreiveBody("/error_page/400.html", 400);
+	else if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
 		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
