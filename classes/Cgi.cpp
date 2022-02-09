@@ -8,7 +8,6 @@ const char* Cgi::MallocFailedException::what() const throw() {
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
 	setCgiEnv(request);
 	_body_size = request.getBody().size();
-	_cgi_env = NULL;
 	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 }
 
@@ -31,24 +30,6 @@ Cgi &Cgi::operator=(const Cgi &other) {
 		strcpy(_output, other._output);
 		_body_size = other._body_size;
 		_status_code = other._status_code;
-		if (_cgi_env) {
-			for (int i = 0; _cgi_env[i] != NULL; i++)
-				free(_cgi_env[i]);
-			free(_cgi_env);
-			_cgi_env = NULL;
-		}
-		if (other._cgi_env) {
-			int size = 0;
-			while (other._cgi_env[size])
-				size++;
-			if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
-				_status_code = INTERNAL_SERVER_ERROR;
-				throw Cgi::MallocFailedException();
-			}
-			for (int i = 0; i < size; i++)
-				_cgi_env[i] = strdup(other._cgi_env[i]);
-			_cgi_env[size] = NULL;
-		}
 	}
 	return (*this);
 }
