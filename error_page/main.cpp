@@ -2,7 +2,7 @@
 #include <fstream>
 #include<sstream>
 #define SIZE 1
-#define START 431
+#define START 451
 void	replace(std::ifstream *ifs, std::ofstream *ofs, std::string s1, std::string s2)
 {
 	std::string	line;
@@ -35,7 +35,7 @@ std::string replaceAll( std::string s, const std::string &search, const std::str
 
 int	main(int ac, char **av)
 {
-	std::string name[SIZE] = {"Request Header Fields Too Large"};
+	std::string name[SIZE] = {"Unavailable For Legal Reasons"};
 	std::ifstream ifs("400.html");
 	std::string str;
    if(ifs) {
