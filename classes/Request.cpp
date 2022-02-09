@@ -160,10 +160,10 @@ void Request::parseRequest(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
 	_uri_length = _path.size();
-	if (!*buffer)
+	if (!buffer || !*buffer)
 		return;
 	buffer++;
-	while (*buffer && *buffer != '\n' && *buffer != '\r')
+	while (buffer && *buffer && *buffer != '\n' && *buffer != '\r')
 	{
 		setRequestField(buffer);
 		buffer = strchr(buffer, '\n');
