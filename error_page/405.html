@@ -20,12 +20,12 @@
                 margin: 0;
                 }
 
-                #method_not_allowed {
+                #error {
                 position: relative;
                 height: 100vh;
                 }
 
-                #method_not_allowed .method_not_allowed {
+                #error .error {
                 position: absolute;
                 left: 50%;
                 top: 50%;
@@ -34,21 +34,21 @@
                         transform: translate(-50%, -50%);
                 }
 
-                .method_not_allowed {
+                .error {
                 max-width: 520px;
                 width: 100%;
                 line-height: 1.4;
                 text-align: center;
                 }
 
-                .method_not_allowed .method_not_allowed-405 {
+                .error .error-n {
                 position: relative;
                 height: 200px;
                 margin: 0px auto 20px;
                 z-index: -1;
                 }
 
-                .method_not_allowed .method_not_allowed-405 h1 {
+                .error .error-n h1 {
                 font-family: 'Montserrat', sans-serif;
                 font-size: 236px;
                 font-weight: 200;
@@ -63,7 +63,7 @@
                         transform: translate(-50%, -50%);
                 }
 
-                .method_not_allowed .method_not_allowed-405 h2 {
+                .error .error-n h2 {
                 font-family: 'Montserrat', sans-serif;
                 font-size: 28px;
                 font-weight: 400;
@@ -80,23 +80,23 @@
                 }
 
                 @media only screen and (max-width: 767px) {
-                .method_not_allowed .method_not_allowed-405 h1 {
+                .error .error-n h1 {
                     font-size: 148px;
                 }
                 }
 
                 @media only screen and (max-width: 480px) {
-                .method_not_allowed .method_not_allowed-405 {
+                .error .error-n {
                     height: 148px;
                     margin: 0px auto 10px;
                 }
-                .method_not_allowed .method_not_allowed-405 h1 {
+                .error .error-n h1 {
                     font-size: 86px;
                 }
-                .method_not_allowed .method_not_allowed-405 h2 {
+                .error .error-n h2 {
                     font-size: 16px;
                 }
-                .method_not_allowed a {
+                .error a {
                     padding: 7px 15px;
                     font-size: 14px;
                 }
@@ -111,9 +111,9 @@
 
     <body>
 
-        <div id="method_not_allowed">
-            <div class="method_not_allowed">
-				<div class="method_not_allowed-405">
+        <div id="error">
+            <div class="error">
+				<div class="error-n">
                     <h1>Oops!</h1>
                     <h2>405 - Method Not Allowed</h2>
                 </div>

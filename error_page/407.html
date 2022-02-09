@@ -20,12 +20,12 @@
                 margin: 0;
                 }
 
-                #proxy_authentication_required {
+                #error {
                 position: relative;
                 height: 100vh;
                 }
 
-                #proxy_authentication_required .proxy_authentication_required {
+                #error .error {
                 position: absolute;
                 left: 50%;
                 top: 50%;
@@ -34,21 +34,21 @@
                         transform: translate(-50%, -50%);
                 }
 
-                .proxy_authentication_required {
+                .error {
                 max-width: 520px;
                 width: 100%;
                 line-height: 1.4;
                 text-align: center;
                 }
 
-                .proxy_authentication_required .proxy_authentication_required-407 {
+                .error .error-n {
                 position: relative;
                 height: 200px;
                 margin: 0px auto 20px;
                 z-index: -1;
                 }
 
-                .proxy_authentication_required .proxy_authentication_required-407 h1 {
+                .error .error-n h1 {
                 font-family: 'Montserrat', sans-serif;
                 font-size: 236px;
                 font-weight: 200;
@@ -63,7 +63,7 @@
                         transform: translate(-50%, -50%);
                 }
 
-                .proxy_authentication_required .proxy_authentication_required-407 h2 {
+                .error .error-n h2 {
                 font-family: 'Montserrat', sans-serif;
                 font-size: 28px;
                 font-weight: 400;
@@ -80,24 +80,23 @@
                 }
 
                 @media only screen and (max-width: 767px) {
-                .proxy_authentication_required .proxy_authentication_required-407 h1 {
+                .error .error-n h1 {
                     font-size: 148px;
                 }
                 }
 
                 @media only screen and (max-width: 480px) {
-                .proxy_authentication_required .proxy_authentication_required-407 {
+                .error .error-n {
                     height: 148px;
-margin: 0px auto 10px;
+                    margin: 0px auto 10px;
                 }
-
-            .proxy_authentication_required .proxy_authentication_required-407 h1 {
+                .error .error-n h1 {
                     font-size: 86px;
                 }
-                .proxy_authentication_required .proxy_authentication_required-407 h2 {
+                .error .error-n h2 {
                     font-size: 16px;
                 }
-                .proxy_authentication_required a {
+                .error a {
                     padding: 7px 15px;
                     font-size: 14px;
                 }
@@ -112,13 +111,12 @@ margin: 0px auto 10px;
 
     <body>
 
-        <div id="proxy_authentication_required">
-            <div class="proxy_authentication_required">
-				<div class="proxy_authentication_required-407">
+        <div id="error">
+            <div class="error">
+				<div class="error-n">
                     <h1>Oops!</h1>
                     <h2>407 - Proxy Authentication Required</h2>
                 </div>
-
             </div>
         </div>
 
