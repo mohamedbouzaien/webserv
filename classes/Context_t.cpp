@@ -114,6 +114,12 @@ void Context_t::allow_delete() {
     _allow_method[METH_DELETE] = true;
 }
 
+void  Context_t::set_cgi(std::string &path, std::string &type) {
+    _is_set[IS_CGI] = true;
+    _cgi.first = path;
+    _cgi.second = type;
+}
+
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
 {
@@ -153,4 +159,14 @@ bool Context_t::is_allowed_post()
 bool Context_t::is_allowed_delete()
 {
     return _allow_method[METH_DELETE];
+}
+
+const std::string &Context_t::get_cgi_path()
+{
+    return _cgi.first;
+}
+
+const std::string &Context_t::get_cgi_type()
+{
+    return _cgi.second;
 }

@@ -60,6 +60,8 @@ class Context_t
         void allow_get();
         void allow_post();
         void allow_delete();
+        void set_cgi(std::string &path, std::string &type);
+
         virtual void add_location(const Location_t*) = 0;
 
 // Getters ----------------------------------
@@ -71,6 +73,8 @@ class Context_t
         bool is_allowed_get();
         bool is_allowed_post();
         bool is_allowed_delete();
+        const std::string &get_cgi_path();
+        const std::string &get_cgi_type();
 };
 
 #endif
