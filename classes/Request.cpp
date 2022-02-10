@@ -179,25 +179,6 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
-	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
-	{
-		std::string r_body(buffer);
-		int chunk_size;
-		while (r_body.find("\r\n")  != std::string::npos) {
-			chunk_size = strtol(r_body.c_str(), &buffer, 16);
-			if (chunk_size == 0)
-				return ;
-			r_body.erase(0, r_body.find("\r\n") + 2);
-			_body += std::string(r_body, 0, chunk_size);
-			r_body.erase(0, chunk_size);
-			if (r_body.find("\r\n") != 0)
-				return ;
-			r_body.erase(0, 2);
-		}
-	}
-	else if (_header_fields.find("Content-Length") != _header_fields.end())
-		_body = std::string(buffer, stoi(_header_fields["Content-Length"]));
-
 }
 
 //Setters
@@ -223,7 +204,25 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 }
 
 void Request::setBody(std::string body) {
-	_body = body;
+	char *end;
+
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
+	{
+		int chunk_size;
+		while (body.find("\r\n") != std::string::npos) {
+			chunk_size = strtol(body.c_str(), &end, 16);
+			if (chunk_size == 0)
+				return ;
+			body.erase(0, body.find("\r\n") + 2);
+			_body += std::string(body, 0, chunk_size);
+			body.erase(0, chunk_size);
+			if (body.find("\r\n") != 0)
+				return ;
+			body.erase(0, 2);
+		}
+	}
+	else if (_header_fields.find("Content-Length") != _header_fields.end())
+		_body += std::string(body.c_str(), stoi(_header_fields["Content-Length"]) - _body.size());
 }
 
 void Request::setUriLength(int len) {
