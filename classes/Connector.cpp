@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 16:43:13 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/10 10:03:46 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,17 +51,28 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
+#define BUFFER_SIZE 30
+
 int    Connector::handle()
 {
 	Request request;
-	char buffer[30000];
-	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
-	if (bytesRead < 0)
-		throw Connector::RecvFailedException();
-	if (bytesRead == 0)
-		return (-1);
-	std::cout << "The message was: " << buffer << std::endl;
-	request.parseRequest(buffer);
+	std::string s_buffer;
+	char buffer[BUFFER_SIZE + 1];
+	int	bytesRead;
+	
+	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
+	while (s_buffer.find("\r\n\r\n") == std::string::npos) {
+		memset(buffer, 0, BUFFER_SIZE + 1);
+		bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+		s_buffer += buffer;
+		if (bytesRead < 0)
+			throw Connector::RecvFailedException();
+		if (bytesRead == 0)
+			return (-1);
+	}
+
+	std::cout << "The message was: " << s_buffer << std::endl;
+	request.parseRequest((char *)s_buffer.c_str());
 	std::cout << request << std::endl;
 	std::string s("bin/php-cgi"); // Path to cgi binary
 	Cgi cgi((char *)s.c_str(), request); // Cgi constr.
@@ -72,7 +83,8 @@ int    Connector::handle()
 	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output); // build test response
 	send(_client_socket, result.c_str(), result.size(), 0);
 	request.clear();
-	memset(buffer, 0, 30000);
+	memset(buffer, 0, BUFFER_SIZE + 1);
+	std::cout << "\033[1;31m---- Exchange Ended ----\033[0m\n";
 	return (0);
 }
 
