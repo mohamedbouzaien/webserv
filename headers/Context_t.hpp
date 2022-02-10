@@ -9,13 +9,14 @@
 # include "default_conf.hpp"
 
 // is_set bool vector correspondance
-# define IS_BOOL_SIZE     6
+# define IS_BOOL_SIZE     7
 # define IS_ROOT          0
 # define IS_INDEX         1
 # define IS_AUTO_INDEX    2
 # define IS_MAX_BODY_SIZE 3
 # define IS_ERROR_PAGES   4
 # define IS_ALLOW_METHOD  5
+# define IS_CGI           6
 
 // allow_method bool vector correspondance
 # define METH_SIZE   3
@@ -36,6 +37,7 @@ class Context_t
         unsigned long          _client_max_body_size;
         std::map<std::string, std::string> _error_pages;
         std::vector<bool>      _allow_method;
+        std::pair<std::string, std::string> _cgi;
 
     public:
         Context_t();

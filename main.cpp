@@ -35,7 +35,7 @@ int main(int ac, char **av) {
             Listener listener;
             listener.execute();
             Poller		poller(listener);
-            while (true)
+            while (false)
             {
                 poller.start();
                 poller.handle();
