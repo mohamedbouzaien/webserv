@@ -67,6 +67,8 @@ void Location_t::print(){
         std::cout << "DELETE ";
     std::cout << "\n";
 
+    std::cout << "    _cgi path/type: " << get_cgi_path() << "/" << get_cgi_type() << '\n';
+
     std::cout << "    index:\n";
     for (std::list<std::string>::iterator it = _index.begin();
             it != _index.end(); ++it)
