@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/10 11:07:08 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/10 14:57:43 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-#define BUFFER_SIZE 30000
+#define BUFFER_SIZE 30
 
 int    Connector::handle()
 {
@@ -74,7 +74,18 @@ int    Connector::handle()
 	request.parseRequest((char *)s_buffer.c_str());
 	s_buffer.erase(0, s_buffer.find("\r\n\r\n") + 4);
 	std::map<std::string, std::string> header_fields = request.getHeaderFields();
-	if (header_fields.find("Content-Length") != header_fields.end()) {
+	if (header_fields.find("Transfer-Encoding") != header_fields.end() && header_fields["Transfer-Encoding"] == "chunked") {
+		while (s_buffer.find("0\r\n\r\n") == std::string::npos) {
+			memset(buffer, 0, BUFFER_SIZE + 1);
+			bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+			s_buffer += buffer;
+			if (bytesRead < 0)
+				throw Connector::RecvFailedException();
+			if (bytesRead == 0)
+				return (-1);
+		}
+	}
+	else if (header_fields.find("Content-Length") != header_fields.end()) {
 		while (s_buffer.size() < (size_t)stoi(header_fields["Content-Length"])) {
 			memset(buffer, 0, BUFFER_SIZE + 1);
 			bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
