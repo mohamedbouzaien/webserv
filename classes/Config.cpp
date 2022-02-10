@@ -317,7 +317,7 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
     else if (args[0] == "allow_method")
         parse_allow_method(args, context, file);
     else if (args[0] == "set_cgi")
-        parse_allow_method(args, context, file);
+        parse_set_cgi(args, context, file);
     else
         return false;
     return true;
