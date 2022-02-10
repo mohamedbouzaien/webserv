@@ -197,6 +197,17 @@ void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &
     }
 }
 
+/*********************\
+|* set_cgi directive *|
+\*********************/
+
+void Config::parse_set_cgi(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 3)
+        throw_close(CONF_ERR_CGI_NARG, file);
+    if (args[2][0] != '.')
+        throw_close(CONF_ERR_CGI_WRG_TYPE, file);
+    context.set_cgi(args[1], args[2]);
+}
 /*************************\
 |* server_name directive *|
 \*************************/
@@ -304,6 +315,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
     else if (args[0] == "error_page")
         parse_error_page(args, context, file);
     else if (args[0] == "allow_method")
+        parse_allow_method(args, context, file);
+    else if (args[0] == "set_cgi")
         parse_allow_method(args, context, file);
     else
         return false;

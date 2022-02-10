@@ -41,6 +41,9 @@
 # define CONF_ERR_METH_NARG  "wrong number of args on allow_method directive"
 # define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
 
+# define CONF_ERR_CGI_NARG     "wrong number of args on set_cgi directive"
+# define CONF_ERR_CGI_WRG_TYPE "wrong cgi type in set_cgi directive (file types start by a dot: .xxx)"
+
 # define CONF_ERR_ALIAS_NARG  "wrong number of args on alias directive"
 
 # define CONF_ERR_SUBLOCATION  "sublocation is outside of its parent"
@@ -78,6 +81,7 @@ class Config
         void parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file);
         void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
+        void parse_set_cgi(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Location Directive(s)
         void parse_alias(args_t &args, Location_t &loc, std::fstream &file);
