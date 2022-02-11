@@ -18,33 +18,20 @@
 # define CONF_ERR_UNEX_CBRKT  "unexpected closing bracket }"
 # define CONF_ERR_UNEX_OBRKT  "unexpected opening bracket {"
 
-# define CONF_ERR_LIST_NARG  "wrong number of args on listen directive"
 # define CONF_ERR_LIST_VARG  "wrong argument value on listen directive"
 
 # define CONF_ERR_NONAME  "no argument provided to server_name directive"
 
-# define CONF_ERR_ROOT_NARG  "root directive can only take one argument"
-
-# define CONF_ERR_LOC_NARG  "wrong number of args on location context"
-
-# define CONF_ERR_IDX_NARG  "wrong number of args on index directive"
-
-# define CONF_ERR_AUTO_IDX_NARG  "wrong number of args on autoindex directive"
 # define CONF_ERR_AUTO_IDX_VARG  "wrong arg value on autoindex directive"
 
-# define CONF_ERR_MAXSZ_NARG  "wrong number of args on client_max_body_size directive"
 # define CONF_ERR_MAXSZ_VARG  "wrong arg value on client_max_body_size directive"
 
-# define CONF_ERR_ERPAGE_NARG  "wrong number of args on error_page directive"
 # define CONF_ERR_ERPAGE_VARG  "wrong value of args on error_page directive"
 
-# define CONF_ERR_METH_NARG  "wrong number of args on allow_method directive"
 # define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
 
-# define CONF_ERR_CGI_NARG     "wrong number of args on set_cgi directive"
 # define CONF_ERR_CGI_WRG_TYPE "wrong cgi type in set_cgi directive (file types start by a dot: .xxx)"
 
-# define CONF_ERR_ALIAS_NARG  "wrong number of args on alias directive"
 
 # define CONF_ERR_SUBLOCATION  "sublocation is outside of its parent"
 
@@ -101,7 +88,8 @@ class Config
         void check_server(std::fstream &file, std::string &word);
         void parse_server(std::fstream &file, std::string &word);
 
-        // Exception management + file closing
+        // Error management + file closing
+        void throw_close_narg(const char *s, std::fstream &f);
         void throw_close(const char *s, std::fstream &f);
 
         std::vector<Server_t> get_servers();
