@@ -3,7 +3,7 @@
 
 Location_t::Location_t(const std::string uri): _uri(uri),
                                                _locations(std::vector<Location_t>()),
-                                               _alias("")
+                                               _alias(DEFAULT_ALIAS)
 {
 }
 
@@ -66,6 +66,9 @@ void Location_t::print(){
     if (is_allowed_delete())
         std::cout << "DELETE ";
     std::cout << "\n";
+
+    std::cout << "    _cgi_path: " << get_cgi_path() << '\n';
+    std::cout << "    _cgi_type: " << get_cgi_type() << '\n';
 
     std::cout << "    index:\n";
     for (std::list<std::string>::iterator it = _index.begin();

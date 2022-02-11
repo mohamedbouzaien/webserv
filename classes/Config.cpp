@@ -82,7 +82,7 @@ long Config::ft_atoi(const char *str) const
 void Config::parse_location(args_t &args, Context_t &context, std::fstream &file, std::string &word)
 {
     if (args.size() != 2)
-        throw_close(CONF_ERR_LOC_NARG, file);
+        throw_close_narg("location", file);
     Location_t loc(args[1]);
 
     if (dynamic_cast<Location_t*>(&context))
@@ -116,7 +116,7 @@ void Config::parse_location(args_t &args, Context_t &context, std::fstream &file
 
 void Config::parse_root(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() != 2)
-        throw_close(CONF_ERR_ROOT_NARG, file);
+        throw_close_narg("root", file);
     context.set_root(args[1]);
 }
 
@@ -126,7 +126,7 @@ void Config::parse_root(args_t &args, Context_t &context, std::fstream &file){
 
 void Config::parse_index(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() <= 1)
-        throw_close(CONF_ERR_IDX_NARG, file);
+        throw_close_narg("index", file);
     for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
         context.add_index(*it);
 }
@@ -137,7 +137,7 @@ void Config::parse_index(args_t &args, Context_t &context, std::fstream &file){
 
 void Config::parse_autoindex(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() != 2)
-        throw_close(CONF_ERR_AUTO_IDX_NARG, file);
+        throw_close_narg("autoindex", file);
     if (args[1] == "on")
         context.set_autoindex(true);
     else if (args[1] == "off")
@@ -153,7 +153,7 @@ void Config::parse_autoindex(args_t &args, Context_t &context, std::fstream &fil
 
 void Config::parse_client_max_body_size(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() != 2)
-        throw_close(CONF_ERR_MAXSZ_NARG, file);
+        throw_close_narg("client_max_body_size", file);
     for (std::string::iterator it = args[1].begin(); it != args[1].end(); ++it)
         if (!ft_isdigit(*it))
             throw_close(CONF_ERR_MAXSZ_VARG, file);
@@ -167,7 +167,7 @@ void Config::parse_client_max_body_size(args_t &args, Context_t &context, std::f
 
 void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() < 3)
-        throw_close(CONF_ERR_ERPAGE_NARG, file);
+        throw_close_narg("error_page", file);
     for (args_t::iterator it = ++args.begin(); it != --args.end(); ++it)
     {
         for (std::string::iterator str_it = it->begin(); str_it != it->end(); ++str_it)
@@ -183,7 +183,7 @@ void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &fi
 
 void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &file){
     if (args.size() < 2)
-        throw_close(CONF_ERR_METH_NARG, file);
+        throw_close_narg("allow_method", file);
     for (args_t::iterator it = ++args.begin(); it != args.end(); ++it)
     {
         if (*it == "GET")
@@ -197,13 +197,24 @@ void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &
     }
 }
 
+/*********************\
+|* set_cgi directive *|
+\*********************/
+
+void Config::parse_set_cgi(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 3)
+        throw_close_narg("set_cgi", file);
+    if (args[2][0] != '.')
+        throw_close(CONF_ERR_CGI_WRG_TYPE, file);
+    context.set_cgi(args[1], args[2]);
+}
 /*************************\
 |* server_name directive *|
 \*************************/
 
 void Config::parse_alias(args_t &args, Location_t &loc, std::fstream &file){
     if (args.size() != 2)
-        throw_close(CONF_ERR_ALIAS_NARG, file);
+        throw_close_narg("alias", file);
     loc.set_alias(args[1]);
 }
 
@@ -246,7 +257,7 @@ void Config::parse_listen(args_t &args, Server_t &server, std::fstream &file){
     in_port_t   port = 80;
 
     if (args.size() != 2)
-        throw_close(CONF_ERR_LIST_NARG, file);
+        throw_close_narg("listen", file);
     if (args[1].find(':') != std::string::npos)
     {
         size_t pos = args[1].find(':');
@@ -305,6 +316,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_error_page(args, context, file);
     else if (args[0] == "allow_method")
         parse_allow_method(args, context, file);
+    else if (args[0] == "set_cgi")
+        parse_set_cgi(args, context, file);
     else
         return false;
     return true;
@@ -423,9 +436,9 @@ void Config::parse_server(std::fstream &file, std::string &word)
     }
 
     if (serv.names_empty()) // add empty name if no name has been provided
-        serv.add_name("");
+        serv.add_name(DEFAULT_SERV_NAME);
     if (serv.listen_empty())
-        serv.add_listen(std::make_pair("*", 80));
+        serv.add_listen(DEFAULT_LISTEN);
     _servers.push_back(serv);
 }
 
@@ -451,16 +464,21 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
                                    _last_dir(1)
 {
     std::fstream file(path, std::ios_base::in);
-    std::string word;
+    std::string  word;
+
     if (file.fail())
         throw (FileOpenException());
-    while (file.good())
+    try
     {
-        next_word(file, word);
-        if (!word.empty()){
-            parse_server(file, word);
+        while (file.good())
+        {
+            next_word(file, word);
+            if (!word.empty()){
+                parse_server(file, word);
+            }
         }
     }
+    catch (const ParseErrException &e) {}
     file.close();
 }
 
@@ -479,11 +497,18 @@ Config	&Config::operator=(const Config &other)
 	return *this;
 }
 
+void Config::throw_close_narg(const char *directive, std::fstream &f){
+    f.close();
+    std::stringstream s;
+    s << CONF_ERR_HEAD << "Invalid number of arguments in \"" << directive << "\" directive. At line: " << _last_dir << std::endl;
+    std::cerr << s.str();
+    throw(ParseErrException());
+}
 
 void Config::throw_close(const char *message, std::fstream &f){
     f.close();
     std::stringstream s;
-    s << CONF_ERR_HEAD << "at line " << _last_dir << ": " << message <<std::endl;
+    s << CONF_ERR_HEAD << message << ". At line: " << _last_dir << std::endl;
     std::cerr << s.str();
     throw(ParseErrException());
 }

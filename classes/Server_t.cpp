@@ -114,6 +114,8 @@ void Server_t::print(){
         std::cout << "DELETE ";
     std::cout << "\n";
 
+    std::cout << "  _cgi_path: " << get_cgi_path() << '\n';
+    std::cout << "  _cgi_type: " << get_cgi_type() << '\n';
 
 
     if  (_locations.size())

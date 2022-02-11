@@ -2,12 +2,13 @@
 
 Context_t::Context_t():
     _is_set(std::vector<bool>(IS_BOOL_SIZE, false)),
-    _root("./html"),
+    _root(DEFAULT_ROOT),
     _index(std::list<std::string>()),
-    _autoindex(false),
-    _client_max_body_size(1000000),
+    _autoindex(DEFAULT_AUTOINDEX),
+    _client_max_body_size(DEFAULT_MAX_BODY_SIZE ),
     _error_pages(std::map<std::string, std::string>()),
-    _allow_method(std::vector<bool>(IS_BOOL_SIZE, false))
+    _allow_method(std::vector<bool>(IS_BOOL_SIZE, false)),
+    _cgi(std::make_pair(DEFAULT_CGI_PATH, DEFAULT_CGI_TYPE))
 {
 }
 
@@ -18,7 +19,8 @@ Context_t::Context_t(const Context_t &copy):
     _autoindex(copy._autoindex),
     _client_max_body_size(copy._client_max_body_size),
     _error_pages(copy._error_pages),
-    _allow_method(copy._allow_method)
+    _allow_method(copy._allow_method),
+    _cgi(copy._cgi)
 {
 }
 
@@ -34,6 +36,7 @@ Context_t	&Context_t::operator=(const Context_t &other)
     _client_max_body_size   = other._client_max_body_size;
     _error_pages            = other._error_pages;
     _allow_method           = other._allow_method;
+    _cgi                    = other._cgi;
 	return *this;
 }
 
@@ -53,6 +56,8 @@ void Context_t::inherit(Context_t &parent) {
         _error_pages = parent._error_pages;
     if (!_is_set[IS_ALLOW_METHOD])
          _allow_method = parent._allow_method;
+    if (!_is_set[IS_CGI])
+         _cgi = parent._cgi;
 }
 
 // Unset directives default values ---------
@@ -109,6 +114,12 @@ void Context_t::allow_delete() {
     _allow_method[METH_DELETE] = true;
 }
 
+void  Context_t::set_cgi(std::string &path, std::string &type) {
+    _is_set[IS_CGI] = true;
+    _cgi.first = path;
+    _cgi.second = type;
+}
+
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
 {
@@ -148,4 +159,14 @@ bool Context_t::is_allowed_post()
 bool Context_t::is_allowed_delete()
 {
     return _allow_method[METH_DELETE];
+}
+
+const std::string &Context_t::get_cgi_path()
+{
+    return _cgi.first;
+}
+
+const std::string &Context_t::get_cgi_type()
+{
+    return _cgi.second;
 }

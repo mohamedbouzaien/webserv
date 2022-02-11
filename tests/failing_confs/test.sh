@@ -1,3 +1,4 @@
+make -C ../..
 for f in *.conf
 do
     echo "Processing $f"
