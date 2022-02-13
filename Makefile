@@ -4,11 +4,13 @@ HEADERS			= -I headers/
 OBJ_DIR			= objs/
 SRC_DIR			= classes/
 
+SRCS			= Connector.cpp Listener.cpp Poller.cpp Request.cpp Response.cpp Cgi.cpp Config.cpp Context_t.cpp Server_t.cpp Location_t.cpp
 # Files #
 SRCS			= Connector.cpp \
                   Listener.cpp \
                   Poller.cpp \
                   Request.cpp \
+                  Response.cpp \
                   Cgi.cpp \
                   Config.cpp \
                   Context_t.cpp \

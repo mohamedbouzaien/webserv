@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:35:07 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:20:31 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 18:26:43 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void        Poller::start(void)
 		throw	Poller::PollFailedException();
 }
 
-void        Poller::handle(void)
+void        Poller::handle(const Server_t &serv_conf)
 {
 	int current_sockets;
 	Connector	connector(_listener);
@@ -73,7 +73,7 @@ void        Poller::handle(void)
 		{	
 			std::cout << "  Descriptor " << _fds[i].fd << " is readable" << std::endl;
 			connector.setClientSocket(_fds[i].fd);
-			if (connector.handle() < 0)
+			if (connector.handle(serv_conf) < 0)
 			{
 				_fds[i].fd = 0;
 				_fds[i].events = 0;

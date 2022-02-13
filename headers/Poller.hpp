@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:22:28 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 18:46:05 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 18:26:03 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <iostream>
 
 # include "Listener.hpp"
+# include "Config.hpp"
 
 class Poller
 {
@@ -37,7 +38,7 @@ class Poller
 				virtual const char* what() const throw();
 		};
 		void    start(void);
-		void    handle(void);
+		void    handle(const Server_t &serv_conf);
 };
 
 #endif

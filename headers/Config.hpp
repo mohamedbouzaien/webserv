@@ -92,7 +92,7 @@ class Config
         void throw_close_narg(const char *s, std::fstream &f);
         void throw_close(const char *s, std::fstream &f);
 
-        std::vector<Server_t> get_servers();
+
 
 
     public:
@@ -103,6 +103,8 @@ class Config
 
         //Testing, outputs each server's attributes
         void print_servers();
+
+        std::vector<Server_t> get_servers();
 
        	class FileOpenException : public std::exception
         {

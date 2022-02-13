@@ -136,7 +136,7 @@ bool Context_t::get_autoindex()
     return _autoindex;
 }
 
-unsigned long Context_t::get_client_max_body_size()
+unsigned long Context_t::get_client_max_body_size() const
 {
     return _client_max_body_size;
 }
@@ -146,17 +146,17 @@ std::map<std::string, std::string> Context_t::get_error_page()
     return _error_pages;
 }
 
-bool Context_t::is_allowed_get()
+bool Context_t::is_allowed_get()    const
 {
     return _allow_method[METH_GET];
 }
 
-bool Context_t::is_allowed_post()
+bool Context_t::is_allowed_post()   const
 {
     return _allow_method[METH_POST];
 }
 
-bool Context_t::is_allowed_delete()
+bool Context_t::is_allowed_delete() const
 {
     return _allow_method[METH_DELETE];
 }

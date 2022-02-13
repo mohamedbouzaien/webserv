@@ -57,7 +57,7 @@ int Request::setRequestLine(char *buffer) {
 	else
 		_method = BAD_REQUEST;
 	buffer += pos;
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
 		_method = BAD_REQUEST;
@@ -73,15 +73,13 @@ int Request::setRequestLine(char *buffer) {
 		_query_string = std::string(buffer, pos);
 		buffer += pos;
 	}
-	while (*buffer == ' ')
+	if (*buffer == ' ')
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
 		_method = BAD_REQUEST;
 	_protocol = std::string(buffer, pos);
 	buffer += pos;
-	while (*buffer == ' ')
-		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
 		_method = BAD_REQUEST;
 	while (*buffer && *buffer != '\n')
@@ -147,16 +145,11 @@ int Request::setRequestField(char *buffer) {
 	std::string keyword(buffer, pos);
 	if (buffer[pos] != ':')
 	{
-		while (buffer[pos] == ' ')
-			pos++;
-		if ((buffer[pos] != '\r' && buffer[pos] != '\n') || (buffer[pos] == '\r' && buffer[pos + 1] != '\n'))
-			_method = BAD_REQUEST;
+		_method = BAD_REQUEST;
 		return (1);
 	}
 	pos++;
-	for (int i = 0; keyword[i]; i++)
-		keyword[i] = std::toupper(keyword[i]);
-	if (keyword == "HOST")
+	if (keyword == "Host")
 		setHostField(buffer + pos);
 	else
 		setHeaderField(keyword, buffer + pos);
@@ -166,25 +159,27 @@ int Request::setRequestField(char *buffer) {
 void Request::parseRequest(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
-	if (_method == BAD_REQUEST || !*buffer)
+	_uri_length = _path.size();
+	if (!buffer || !*buffer)
 		return;
 	buffer++;
-	while (*buffer && *buffer != '\n' && *buffer != '\r')
+	while (buffer && *buffer && *buffer != '\n' && *buffer != '\r')
 	{
 		setRequestField(buffer);
 		buffer = strchr(buffer, '\n');
-		if (buffer == NULL || _method == BAD_REQUEST)
+		if (buffer == NULL)
 		{
 			_method = BAD_REQUEST;
 			break;
 		}
 		buffer++;
 	}
+	_uri_length += _host.first.size();
 	if (*buffer == '\r')
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
-	if (_header_fields.find("TRANSFER-ENCODING") != _header_fields.end() && _header_fields["TRANSFER-ENCODING"] == "chunked")
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 	{
 		std::string r_body(buffer);
 		int chunk_size;
@@ -200,8 +195,8 @@ void Request::parseRequest(char *buffer) {
 			r_body.erase(0, 2);
 		}
 	}
-	else if (_header_fields.find("CONTENT-LENGTH") != _header_fields.end())
-		_body = std::string(buffer, stoi(_header_fields["CONTENT-LENGTH"]));
+	else if (_header_fields.find("Content-Length") != _header_fields.end())
+		_body = std::string(buffer, stoi(_header_fields["Content-Length"]));
 
 }
 
@@ -229,6 +224,10 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 
 void Request::setBody(std::string body) {
 	_body = body;
+}
+
+void Request::setUriLength(int len) {
+	_uri_length = len;
 }
 
 //Getters
@@ -261,6 +260,10 @@ std::string Request::getBody() const {
 	return (_body);
 }
 
+int Request::getUriLength() const {
+	return (_uri_length);
+}
+
 // << OVERLOAD
 
 std::ostream& operator<<(std::ostream& os, const Request& request) {
@@ -276,6 +279,7 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 		std::cout << request._host.second << std::endl;
 	else
 		std::cout << "Non Specified" << std::endl;
+	std::cout << "URI Length: " << request._uri_length << std::endl;
 	std::cout << "Header fields:" << std::endl;
 	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
 	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();
