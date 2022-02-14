@@ -40,6 +40,7 @@ void Cgi::runCgi(Request &request) {
 	argv[0] = const_cast<char *>(_cgi_path.c_str());
 	argv[1] = (char *)request.getPath().c_str();
 	argv[2] = NULL;
+
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		_status_code = INTERNAL_SERVER_ERROR;
