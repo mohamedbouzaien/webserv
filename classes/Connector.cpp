@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/11 17:42:46 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/14 10:52:01 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,48 +60,54 @@ int		Connector::readSocket(std::string &request) {
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
 	request += buffer;
-	std::cout << bytesRead << std::endl;
-	if (bytesRead < 0)
-		throw Connector::RecvFailedException();
-	if (bytesRead == 0)
-		return (-1);
 	return (bytesRead);
+}
+
+int		Connector::recvRequest(std::string &request, std::string patern) {
+	int status;
+
+	while (request.find(patern) == std::string::npos) {
+		status = readSocket(request);
+		if (status <= 0)
+			return (-1);
+		if (status != BUFFER_SIZE)
+			break;
+	}
+	return (1);
+}
+
+int		Connector::recvRequest(std::string &request, size_t len) {
+	int status;
+
+		while (request.size() < len) {
+			status = readSocket(request);
+			if (status <= 0)
+				return (-1);
+			if (status != BUFFER_SIZE)
+				break;
+		}
+	return (1);
 }
 
 int    Connector::handle()
 {
 	Request request;
 	std::string s_buffer;
-
-	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
-	while (s_buffer.find("\r\n\r\n") == std::string::npos) {
-		if (readSocket(s_buffer) == -1)
-			return (-1);
-	}
-	//std::cout << "The Header was: " << s_buffer << std::endl;
+	int status;
+	status = recvRequest(s_buffer, "\r\n\r\n");
+	if (status < 1)
+		return (status);
 	request.parseRequest((char *)s_buffer.c_str());
 	s_buffer.erase(0, s_buffer.find("\r\n\r\n") + 4);
 	std::map<std::string, std::string> header_fields = request.getHeaderFields();
-	if (header_fields.find("Transfer-Encoding") != header_fields.end() && header_fields["Transfer-Encoding"] == "chunked") {
-		while (s_buffer.find("0\r\n\r\n") == std::string::npos) {
-			int status = readSocket(s_buffer);
-			if (status == 0)
-				return (-1);
-			if (status != BUFFER_SIZE)
-				break;
-		}
-	}
-	else if (header_fields.find("Content-Length") != header_fields.end()) {
-		while (s_buffer.size() < (size_t)stoi(header_fields["Content-Length"])) {
-			int status = readSocket(s_buffer);
-			if (status == 0)
-				return (-1);
-			if (status != BUFFER_SIZE)
-				break;
-		}
-	}
+	if (header_fields.find("Transfer-Encoding") != header_fields.end() && header_fields["Transfer-Encoding"] == "chunked")
+		status = recvRequest(s_buffer, "0\r\n\r\n");
+	else if (header_fields.find("Content-Length") != header_fields.end())
+		status = recvRequest(s_buffer, stoi(header_fields["Content-Length"]) );
+
+	if (status < 1)
+		return (status);
 	request.setBody(s_buffer);
-	//std::cout << request << std::endl;
 	std::string s("bin/php-cgi"); // Path to cgi binary
 	Cgi cgi((char *)s.c_str(), request); // Cgi constr.
 	cgi.runCgi(request); // run Cgi
@@ -111,8 +117,7 @@ int    Connector::handle()
 	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output); // build test response
 	send(_client_socket, result.c_str(), result.size(), 0);
 	request.clear();
-	std::cout << "\033[1;31m---- Exchange Ended ----\033[0m\n";
-	return (0);
+	return (1);
 }
 
 void	Connector::setClientSocket(int client_socket)

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/11 17:05:26 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/14 10:24:49 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class Connector
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
 		int			readSocket(std::string &request);
+		int			recvRequest(std::string &request, std::string patern);
+		int			recvRequest(std::string &request, size_t len);
 		Listener	getListener()	const;
 };
 
