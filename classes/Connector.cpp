@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/14 10:52:01 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/14 14:14:17 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-#define BUFFER_SIZE 30000
-
 int		Connector::readSocket(std::string &request) {
 	char buffer[BUFFER_SIZE + 1];
 	int	bytesRead;
@@ -79,13 +77,13 @@ int		Connector::recvRequest(std::string &request, std::string patern) {
 int		Connector::recvRequest(std::string &request, size_t len) {
 	int status;
 
-		while (request.size() < len) {
-			status = readSocket(request);
-			if (status <= 0)
-				return (-1);
-			if (status != BUFFER_SIZE)
-				break;
-		}
+	while (request.size() < len) {
+		status = readSocket(request);
+		if (status <= 0)
+			return (-1);
+		if (status != BUFFER_SIZE)
+			break;
+	}
 	return (1);
 }
 

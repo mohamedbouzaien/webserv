@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/14 10:24:49 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/14 14:13:20 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Listener.hpp"
 # include <sys/socket.h>
 # include <unistd.h>
+#define BUFFER_SIZE 30000
 
 class Connector
 {
