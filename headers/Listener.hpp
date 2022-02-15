@@ -14,8 +14,6 @@
 
 # define SERVER_HPP
 
-# define PORT 80
-
 # include<sys/socket.h>
 # include<netinet/in.h>
 # include<iostream>
@@ -25,11 +23,12 @@ class	Listener
 	private:
 		int			_fd;
 		sockaddr_in _address;
+        in_port_t   _port;
 
 	public:
-		Listener();
+		Listener(in_port_t port);
 		Listener(const Listener &copy);
-		Listener	&operator=(Listener &copy);
+		Listener	&operator=(const Listener &copy);
 		virtual	~Listener() {};
 		int		getFd();
 		sockaddr_in	&getAddress();

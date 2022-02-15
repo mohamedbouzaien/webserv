@@ -14,9 +14,8 @@
 # include <sys/ioctl.h>
 # include <unistd.h>
 
-Listener::Listener()
+Listener::Listener(in_port_t port): _port(port)
 {
-
 
 }
 
@@ -25,7 +24,7 @@ Listener::Listener(const Listener &copy) : _fd(copy._fd), _address(copy._address
 
 }
 
-Listener	&Listener::operator=(Listener &copy)
+Listener	&Listener::operator=(const Listener &copy)
 {
 	if (this == &copy)
 		return (*this);
@@ -66,7 +65,7 @@ void	Listener::execute()
 		throw Listener::CreationFailedException();
 	this->_address.sin_family = AF_INET;
 	this->_address.sin_addr.s_addr = INADDR_ANY;
-	this->_address.sin_port = htons(PORT);
+	this->_address.sin_port = htons(_port);
 	int	on, rc;
 	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
 				(char *)&on, sizeof(on));
