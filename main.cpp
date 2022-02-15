@@ -14,6 +14,7 @@
 # include "headers/Connector.hpp"
 # include "headers/Config.hpp"
 # include "headers/Poller.hpp"
+# include "headers/Lstn_collec.hpp"
 
 # include <string.h>
 #include "headers/Request.hpp"
