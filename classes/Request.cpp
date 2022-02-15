@@ -7,6 +7,8 @@ const char* Request::MallocFailedException::what() const throw() {
 
 Request::Request() {}
 
+Request::Request(int socket) : _client_socket(socket) {}
+
 Request::Request(const Request &other) {
 	*this = other;
 }
@@ -179,6 +181,64 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	if (*buffer == '\n')
 		buffer++;
+}
+
+int		Request::recvSocket(std::string &request) {
+	char buffer[BUFFER_SIZE + 1];
+	int	bytesRead;
+
+	memset(buffer, 0, BUFFER_SIZE + 1);
+	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+	request += buffer;
+	memset(buffer, 0, BUFFER_SIZE + 1);
+	return (bytesRead);
+}
+
+int		Request::readSocket(std::string &request, std::string pattern) {
+	int status;
+
+	while (request.find(pattern) == std::string::npos) {
+		status = recvSocket(request);
+		if (status <= 0)
+			return (-1);
+		if (status != BUFFER_SIZE)
+			break;
+	}
+	return (1);
+}
+
+int		Request::readSocket(std::string &request, size_t len) {
+	int status;
+
+	while (request.size() < len) {
+		status = recvSocket(request);
+		if (status <= 0)
+			return (-1);
+		if (status != BUFFER_SIZE)
+			break;
+	}
+	return (1);
+}
+
+int Request::handle() {
+	std::string s_buffer;
+	int status;
+	int s_buffer_len;
+
+	status = readSocket(s_buffer, "\r\n\r\n");
+	if (status < 1)
+		return (status);
+	parseRequest((char *)s_buffer.c_str());
+	s_buffer_len = s_buffer.size();
+	s_buffer.erase(0, s_buffer.find("\r\n\r\n") + 4);
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked" && s_buffer_len >= BUFFER_SIZE)
+		status = readSocket(s_buffer, "0\r\n\r\n");
+	else if (_header_fields.find("Content-Length") != _header_fields.end() && s_buffer_len >= BUFFER_SIZE)
+		status = readSocket(s_buffer, stoi(_header_fields["Content-Length"]) );
+	if (status < 1)
+		return (status);
+	setBody(s_buffer);
+	return (1);
 }
 
 //Setters

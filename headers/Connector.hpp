@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/14 14:13:20 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/15 15:07:16 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # include "Listener.hpp"
 # include <sys/socket.h>
 # include <unistd.h>
-#define BUFFER_SIZE 30000
 
 class Connector
 {
@@ -44,9 +43,6 @@ class Connector
 		int			handle();
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
-		int			readSocket(std::string &request);
-		int			recvRequest(std::string &request, std::string patern);
-		int			recvRequest(std::string &request, size_t len);
 		Listener	getListener()	const;
 };
 
