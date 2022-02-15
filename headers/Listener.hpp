@@ -28,7 +28,7 @@ class	Listener
 
 	public:
 		Listener();
-		Listener(Listener &copy);
+		Listener(const Listener &copy);
 		Listener	&operator=(Listener &copy);
 		virtual	~Listener() {};
 		int		getFd();

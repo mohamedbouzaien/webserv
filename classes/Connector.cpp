@@ -19,9 +19,9 @@ Connector::Connector(Listener &listener): _listener(listener)
 	_client_socket = 0;
 }
 
-Connector::Connector(Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
+Connector::Connector(const Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
 {
-	
+
 }
 
 Connector	&Connector::operator=(Connector &other)
