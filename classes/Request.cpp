@@ -5,15 +5,17 @@ const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Request::Request() {}
+Request::Request() : _is_body(0) {}
 
-Request::Request(int socket) : _client_socket(socket) {}
+Request::Request(int socket) : _client_socket(socket), _is_body(0) {}
 
 Request::Request(const Request &other) {
 	*this = other;
 }
 
-Request::~Request() {}
+Request::~Request() {
+	_vbuffer.clear();
+}
 
 Request &Request::operator=(const Request &other) {
 	if (this != &other)
@@ -186,10 +188,25 @@ void Request::parseRequest(char *buffer) {
 int		Request::recvSocket(std::string &request) {
 	char buffer[BUFFER_SIZE + 1];
 	int	bytesRead;
-
+	int to_skip = 0;
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+	char *search_body = strstr(buffer, "\r\n\r\n");
+	std::cout << _is_body << std::endl;
+	if (search_body != NULL && _is_body == 0) {
+		to_skip = search_body - buffer + 4;
+		std::cout << "skip : " << to_skip << std::endl;
+		_is_body = 1;
+	}
+	if (_is_body)
+		_vbuffer.insert(_vbuffer.end(), buffer + to_skip, buffer + bytesRead);
 	request += buffer;
+	std::cout << "Bytes read : " << bytesRead << ", vector size : " << _vbuffer.size() << std::endl;
+	std::vector<char>::iterator it = _vbuffer.begin();
+	std::vector<char>::iterator ite = _vbuffer.end();
+	for (; it != ite; it++)
+		std::cout << *it;
+	std::cout << std::endl;
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
 }

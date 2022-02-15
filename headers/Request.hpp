@@ -3,11 +3,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <map>
+#include <vector>
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
-#define BUFFER_SIZE 30000
+#define BUFFER_SIZE 30
 
 class Request {
 	private:
@@ -19,6 +20,8 @@ class Request {
 		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::string> _header_fields;
 		std::string _body;
+		std::vector<char> _vbuffer;
+		int _is_body;
 		int _uri_length;
 		int _body_length;
 
