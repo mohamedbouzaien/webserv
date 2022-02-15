@@ -32,10 +32,17 @@ int main(int ac, char **av) {
         {
             Config conf(conf_path);
             conf.print_servers(); // Testing // prints all servers content
-            Listener listener(80);
-            Listener listener2(90);
-            listener.execute();
-            listener2.execute();
+
+            Listener listener;
+            Listener listener2;
+            Listener listener3;
+            Listener listener4;
+
+            listener.execute("*", 80);
+            listener2.execute("*", 9090);
+            listener3.execute("127.0.0.1", 9090);
+            listener4.execute("127.0.0.1", 9090);
+
             Poller		poller(listener);
             while (true)
             {
