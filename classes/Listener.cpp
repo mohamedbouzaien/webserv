@@ -20,7 +20,7 @@ Listener::Listener()
 
 }
 
-Listener::Listener(Listener &copy) : _fd(copy._fd), _address(copy._address)
+Listener::Listener(const Listener &copy) : _fd(copy._fd), _address(copy._address)
 {
 
 }

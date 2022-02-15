@@ -28,7 +28,7 @@ class Connector
 		Listener		_listener;
 	public:
 		Connector(Listener &listener);
-		Connector(Connector &copy);
+		Connector(const Connector &copy);
 		Connector	&operator=(Connector &other);
 		virtual	~Connector() {};
 		class ConnectionFailedException : public std::exception
