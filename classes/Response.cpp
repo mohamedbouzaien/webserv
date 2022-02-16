@@ -6,13 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 19:38:52 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/15 22:19:35 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../headers/Response.hpp"
 
-Response::Response()
+Response::Response(const Server_t &conf) : _conf(conf)
 {
 	this->initMime();
 	this->initCodes();
@@ -136,12 +136,11 @@ void		Response::initCodes()
 	this->_codes.insert(std::make_pair<int, std::string>(500, "Internal Server Error"));
 }
 
-void		Response::handleHeader(std::string path, int code, const Server_t &serv_conf)
+void		Response::handleHeader(std::string path, int code)
 {
 	size_t	index = path.find_last_of('.');
 	bool	cond = false;
 
-	(void)serv_conf;
 	this->addHeader(std::to_string(code) + " ", _codes[code]);
 	if (index != std::string::npos)
 	{
@@ -179,7 +178,7 @@ void		Response::handleHeader(std::string path, int code, const Server_t &serv_co
 	this->addHeader("Date: ", std::string(buffer));
 }
 
-void		Response::retreiveBody(std::string path, int code, const Server_t &serv_conf)
+void		Response::retreiveBody(std::string path, int code)
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
@@ -190,13 +189,13 @@ void		Response::retreiveBody(std::string path, int code, const Server_t &serv_co
 		std::cerr << "File not found => \"" << path.substr(1) << "\"" << std::endl;
 		Request	error;
 		error.setPath("/error_page/404.html");
-		this->retreiveBody("/error_page/400_error/404.html", 404, serv_conf);
+		this->retreiveBody("/error_page/400_error/404.html", 404);
 	}
 	else
 	{
 		if (!indata.is_open())
-			this->retreiveBody("/error_page/400_error/403.html", 403, serv_conf);
-		this->handleHeader(path, code, serv_conf);
+			this->retreiveBody("/error_page/400_error/403.html", 403);
+		this->handleHeader(path, code);
 		sstr << indata.rdbuf();
 		this->_body = sstr.str();
 		indata.close();
@@ -209,22 +208,22 @@ bool 		Response::endsWith(std::string const & value, std::string const & ending)
     	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-void		Response::prepare(Request &request, const Server_t &serv_conf)
+void		Response::prepare(Request &request)
 {
-	if (serv_conf.is_allowed_get())
+	if (_conf.is_allowed_get())
 		_allowed_methods.push_back(GET);
-	if (serv_conf.is_allowed_post())
+	if (_conf.is_allowed_post())
 		_allowed_methods.push_back(POST);
-	if (serv_conf.is_allowed_delete())
+	if (_conf.is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
 	if ((request.getUriLength()) > URI_MAX_LEN)
-		this->retreiveBody("/error_page/400_error/414.html", 414, serv_conf);
+		this->retreiveBody("/error_page/400_error/414.html", 414);
 	else if (request.getMethod() == BAD_REQUEST)
-		this->retreiveBody("/error_page/400_error/400.html", 400, serv_conf);
+		this->retreiveBody("/error_page/400_error/400.html", 400);
 	else if (std::find(_allowed_methods.begin(), _allowed_methods.end(), request.getMethod()) == _allowed_methods.end())
-		this->retreiveBody("/error_page/400_error/405.html", 405, serv_conf);
-	else if (request.getBody().size() > serv_conf.get_client_max_body_size())
-		this->retreiveBody("/error_page/400_error/413.html", 413, serv_conf);
+		this->retreiveBody("/error_page/400_error/405.html", 405);
+	else if (request.getBody().size() > _conf.get_client_max_body_size())
+		this->retreiveBody("/error_page/400_error/413.html", 413);
 	else if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
@@ -236,7 +235,7 @@ void		Response::prepare(Request &request, const Server_t &serv_conf)
 		this->_body = std::string(body);
 	}
 	else
-		retreiveBody(request.getPath(), 200, serv_conf);
+		retreiveBody(request.getPath(), 200);
 	
 }
 
