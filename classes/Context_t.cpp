@@ -58,6 +58,9 @@ void Context_t::inherit(Context_t &parent) {
          _allow_method = parent._allow_method;
     if (!_is_set[IS_CGI])
          _cgi = parent._cgi;
+    for (std::map<int, std::string>::iterator it = parent._error_pages.begin(); it != parent._error_pages.end(); it++)
+        if (_error_pages.find(it->first) == _error_pages.end())
+            _error_pages[it->first] = it->second;
 }
 
 // Unset directives default values ---------

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/16 16:38:03 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/16 20:51:38 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Response
 		std::vector<std::string>			_allowed_methods;
 		Server_t							_conf;
 		Location_t							_loc;
+		std::map<int, std::string>			_error_pages;
 
 		void		addHeader(std::string key, std::string value);
 		void		initMime();
@@ -47,7 +48,7 @@ class Response
 		void		retreiveBody(std::string path, int code);
 		bool 		endsWith(std::string const & value, std::string const & ending);
 		int			pathIsFile(const std::string& path);
-		int			getLocationBlock();
+		int			setLocationBlock(std::string const &path);
 	public:
 		Response(const Server_t &conf);
 		Response(const Response &copy);
