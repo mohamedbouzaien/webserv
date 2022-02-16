@@ -33,9 +33,9 @@ class Server_t : public Context_t
         void add_location(const Location_t *loc);
 
 // Getters ----------------------------------
-        std::set<std::string>   &get_names();
-        std::set<listen_pair_t> &get_listen();
-        std::vector<Location_t> &get_locations();
+        const std::set<std::string>   &get_names() const;
+        const std::set<listen_pair_t> &get_listen() const;
+         std::vector<Location_t> &get_locations();
 
 // checks --------------------
         bool has_name(const std::string &name) const;
