@@ -104,7 +104,7 @@ class Config
         //Testing, outputs each server's attributes
         void print_servers();
 
-        std::vector<Server_t> get_servers();
+        const std::vector<Server_t> & get_servers();
 
        	class FileOpenException : public std::exception
         {

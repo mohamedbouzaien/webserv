@@ -34,17 +34,9 @@ int main(int ac, char **av) {
             Config conf(conf_path);
             conf.print_servers(); // Testing // prints all servers content
 
-            Listener listener;
-            Listener listener2;
-            Listener listener3;
-            Listener listener4;
+            Lstn_collec lstns(conf.get_servers());
 
-            listener.execute("*", 80);
-            listener2.execute("*", 9090);
-            listener3.execute("127.0.0.1", 9090);
-            listener4.execute("127.0.0.1", 9090);
-
-            Poller		poller(listener);
+            Poller		poller(lstns.get_collec().front());
             while (true)
             {
                 poller.start();
