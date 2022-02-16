@@ -14,7 +14,7 @@ Request::Request(const Request &other) {
 }
 
 Request::~Request() {
-	_vbuffer.clear();
+	_vbody.clear();
 }
 
 Request &Request::operator=(const Request &other) {
@@ -199,11 +199,11 @@ int		Request::recvSocket(std::string &request) {
 		_is_body = 1;
 	}
 	if (_is_body)
-		_vbuffer.insert(_vbuffer.end(), buffer + to_skip, buffer + bytesRead);
+		_vbody.insert(_vbody.end(), buffer + to_skip, buffer + bytesRead);
 	request += buffer;
-	std::cout << "Bytes read : " << bytesRead << ", vector size : " << _vbuffer.size() << std::endl;
-	std::vector<char>::iterator it = _vbuffer.begin();
-	std::vector<char>::iterator ite = _vbuffer.end();
+	std::cout << "Bytes read : " << bytesRead << ", vector size : " << _vbody.size() << std::endl;
+	std::vector<char>::iterator it = _vbody.begin();
+	std::vector<char>::iterator ite = _vbody.end();
 	for (; it != ite; it++)
 		std::cout << *it;
 	std::cout << std::endl;
@@ -306,6 +306,10 @@ void Request::setUriLength(int len) {
 	_uri_length = len;
 }
 
+void Request::setVBody(std::vector<char> vbody) {
+	_vbody = vbody;
+}
+
 //Getters
 
 std::string Request::getMethod() const {
@@ -336,8 +340,8 @@ std::string Request::getBody() const {
 	return (_body);
 }
 
-int Request::getUriLength() const {
-	return (_uri_length);
+std::vector<char> Request::getVBody() const {
+	return (_vbody);
 }
 
 // << OVERLOAD

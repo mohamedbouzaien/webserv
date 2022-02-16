@@ -8,11 +8,13 @@
 #define OK 200
 class Cgi {
 	private:
+
+		int _body_size;
 		std::string _cgi_path;
 		char _output[CGI_BUFFER_SIZE];
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
-		int _body_size;
+		char *_body;
 		int _status_code;
 		char **_cgi_env;
 

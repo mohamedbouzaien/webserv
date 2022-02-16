@@ -7,7 +7,18 @@ const char* Cgi::MallocFailedException::what() const throw() {
 
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
 	setCgiEnv(request);
-	_body_size = request.getBody().size();
+	std::vector<char> vbody = request.getVBody();
+	int _body_size = vbody.size();
+	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
+		_status_code = INTERNAL_SERVER_ERROR;
+		throw Cgi::MallocFailedException();
+	}
+	std::vector<char>::iterator it = vbody.begin();
+	std::vector<char>::iterator ite = vbody.end();
+	int i = 0;
+	for (; it != ite; it++)
+		_body[i++] = *it;
+	_body[i] = 0;
 	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 }
 
@@ -20,6 +31,7 @@ Cgi::~Cgi() {
 		return ;
 	for (int i = 0; _cgi_env[i] != NULL; i++)
 		free(_cgi_env[i]);
+	free(_body);
 	free(_cgi_env);
 }
 
@@ -62,7 +74,7 @@ void Cgi::runCgi(Request &request) {
 	}
 	else {
 		close(_body_pipe[SIDE_IN]);
-		write(_body_pipe[SIDE_OUT], request.getBody().c_str(), _body_size);
+		write(_body_pipe[SIDE_OUT], _body, request.getVBody().size());
 		close(_body_pipe[SIDE_OUT]);
 		close(_output_pipe[SIDE_OUT]);
 		waitpid(pid, &_status_code, 0);

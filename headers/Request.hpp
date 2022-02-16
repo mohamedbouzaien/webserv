@@ -20,11 +20,9 @@ class Request {
 		std::pair<std::string, std::string> _host;
 		std::map<std::string, std::string> _header_fields;
 		std::string _body;
-		std::vector<char> _vbuffer;
+		std::vector<char> _vbody;
 		int _is_body;
 		int _uri_length;
-		int _body_length;
-
 
 	public:
 		Request();
@@ -53,7 +51,7 @@ class Request {
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
 		void setBody(std::string body);
 		void setUriLength(int len);
-		void setBodyLength(int len);
+		void setVBody(std::vector<char> vbody);
 		//Getters
 		int getClientSocket() const;
 		std::string getMethod() const ;
@@ -64,7 +62,7 @@ class Request {
 		std::map<std::string, std::string> getHeaderFields() const;
 		std::string getBody() const;
 		int getUriLength() const;
-		int getBodyLength() const;
+		std::vector<char> getVBody() const;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception
