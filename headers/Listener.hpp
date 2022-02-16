@@ -14,8 +14,7 @@
 
 # define SERVER_HPP
 
-# define PORT 80
-
+# include<arpa/inet.h>
 # include<sys/socket.h>
 # include<netinet/in.h>
 # include<iostream>
@@ -29,10 +28,12 @@ class	Listener
 	public:
 		Listener();
 		Listener(const Listener &copy);
-		Listener	&operator=(Listener &copy);
+		Listener	&operator=(const Listener &copy);
 		virtual	~Listener() {};
+
 		int		getFd();
 		sockaddr_in	&getAddress();
+
 		class CreationFailedException : public std::exception
 		{
 			public:
@@ -48,7 +49,10 @@ class	Listener
 			public:
 				virtual const char* what() const throw();
 		};
-		void	execute();
+
+        void    close_perror(const char *msg);
+
+		void	execute(std::string addr, in_port_t port);
 };
 
 #endif
