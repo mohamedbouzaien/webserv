@@ -196,8 +196,9 @@ int		Request::recvSocket(std::string &request) {
 		to_skip = search_body - buffer + 4;
 		_is_body = 1;
 	}
-	if (_is_body)
+	if (_is_body) {
 		_vbody.insert(_vbody.end(), buffer + to_skip, buffer + bytesRead);
+	}
 	request += buffer;
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
@@ -229,24 +230,50 @@ int		Request::readSocket(std::string &request, size_t len) {
 	return (1);
 }
 
-int Request::handle() {
-	std::string s_buffer;
-	int status;
-	int s_buffer_len;
+int		Request::readBody(size_t len) {
+	char buffer[BUFFER_SIZE + 1];
+	int to_read;
+	int	bytesRead;
 
-	status = readSocket(s_buffer, "\r\n\r\n");
+	if (_vbody.size() >= len) {
+		_vbody.erase(_vbody.begin() + len, _vbody.end());
+		return (1);
+	}
+	while (_vbody.size() < len) {
+		memset(buffer, 0, BUFFER_SIZE + 1);
+		if (_vbody.size() + BUFFER_SIZE < len)
+			to_read = BUFFER_SIZE;
+		else
+			to_read = len - _vbody.size();
+		bytesRead = recv(_client_socket, buffer, to_read, 0);
+		_vbody.insert(_vbody.end(), buffer, buffer + bytesRead);
+		if (bytesRead < 1)
+			return (bytesRead);
+	}
+	return (bytesRead);
+}
+
+int Request::handle() {
+	std::string header;
+	int status;
+
+	status = readSocket(header, "\r\n\r\n");
 	if (status < 1)
 		return (status);
-	parseRequest((char *)s_buffer.c_str());
-	s_buffer_len = s_buffer.size();
-	s_buffer.erase(0, s_buffer.find("\r\n\r\n") + 4);
-	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked" && s_buffer_len >= BUFFER_SIZE)
-		status = readSocket(s_buffer, "0\r\n\r\n");
-	else if (_header_fields.find("Content-Length") != _header_fields.end() && s_buffer_len >= BUFFER_SIZE)
-		status = readSocket(s_buffer, stoi(_header_fields["Content-Length"]) );
+	parseRequest((char *)header.c_str());
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked" && header.size() >= BUFFER_SIZE)
+		status = readSocket(header, "0\r\n\r\n");
+	else if (_header_fields.find("Content-Length") != _header_fields.end())
+		status = readBody(stoi(_header_fields["Content-Length"]));
 	if (status < 1)
 		return (status);
-	setBody(s_buffer);
+	std::cout << *this << std::endl;
+	std::vector<char>::iterator it = _vbody.begin();
+	std::vector<char>::iterator ite = _vbody.end();
+	for (; it != ite; it++)
+		std::cout << *it;
+	std::cout << std::endl;
+	std::cout << _vbody.size() << std::endl;
 	return (1);
 }
 

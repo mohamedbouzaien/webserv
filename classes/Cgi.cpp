@@ -6,7 +6,6 @@ const char* Cgi::MallocFailedException::what() const throw() {
 
 
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
-	setCgiEnv(request);
 	std::vector<char> vbody = request.getVBody();
 	_body_size = vbody.size();
 	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
@@ -20,6 +19,7 @@ Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
 		_body[i++] = *it;
 	_body[i] = 0;
 	memset((char *)_output, 0, CGI_BUFFER_SIZE);
+	setCgiEnv(request);
 }
 
 Cgi::Cgi(const Cgi &other) {
@@ -121,7 +121,7 @@ void Cgi::setCgiEnv(Request &request) {
 
 	if (mapped_cgi_env["REQUEST_METHOD"] == "POST") {
 		mapped_cgi_env["CONTENT_TYPE"] = header_fields["Content-Type"];
-		mapped_cgi_env["CONTENT_LENGTH"] = std::to_string(request.getBody().size());
+		mapped_cgi_env["CONTENT_LENGTH"] = std::to_string(_body_size);
 	}
 
 	mapped_cgi_env["REDIRECT_STATUS"] = "200";
