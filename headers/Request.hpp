@@ -8,7 +8,7 @@
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
-#define BUFFER_SIZE 3000
+#define BUFFER_SIZE 30
 
 class Request {
 	private:
@@ -40,7 +40,8 @@ class Request {
 		void setHeaderField(std::string, char *);
 		int recvSocket(std::string& request);
 		int readSocket(std::string& request, std::string pattern);
-		int readSocket(std::string& request, size_t len);
+		int readChunkedBody();
+		int unchunkBody(std::string &chunked_body);
 		int readBody(size_t len);
 		int handle();
 		//Setters
