@@ -523,7 +523,7 @@ const char* Config::ParseErrException::what() const throw()
 	return ("Error reading configuration file");
 }
 
-std::vector<Server_t> Config::get_servers()
+const std::vector<Server_t> & Config::get_servers()
 {
     return (this->_servers);
 }
