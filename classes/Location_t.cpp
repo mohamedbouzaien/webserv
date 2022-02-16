@@ -1,5 +1,8 @@
 #include "../headers/Location_t.hpp"
 
+Location_t::Location_t()
+{
+}
 
 Location_t::Location_t(const std::string uri): _uri(uri),
                                                _locations(std::vector<Location_t>()),
@@ -76,7 +79,7 @@ void Location_t::print(){
         std::cout << "     -" << *it << '\n';
 
     std::cout << "    error_pages:\n";
-    for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
+    for (std::map<int, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
 
 

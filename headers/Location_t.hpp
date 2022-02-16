@@ -17,6 +17,7 @@ class Location_t : public Context_t
         std::string _alias;
 
     public:
+        Location_t();
         Location_t(std::string uri);
         Location_t(const Location_t &copy);
         Location_t  &operator=(const Location_t &other);

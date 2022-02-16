@@ -99,7 +99,7 @@ void Server_t::print(){
         std::cout << "   -" << *it << '\n';
 
     std::cout << "  error_pages:\n";
-    for (std::map<std::string, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
+    for (std::map<int, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
 
     std::cout << "  _autoindex: " << _autoindex << '\n';

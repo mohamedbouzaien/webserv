@@ -35,7 +35,7 @@ class Context_t
         std::list<std::string> _index;
         bool                   _autoindex;
         unsigned long          _client_max_body_size;
-        std::map<std::string, std::string> _error_pages;
+        std::map<int, std::string> _error_pages;
         std::vector<bool>      _allow_method;
         std::pair<std::string, std::string> _cgi;
 
@@ -69,7 +69,7 @@ class Context_t
         const std::list<std::string> &get_index();
         bool get_autoindex();
         unsigned long get_client_max_body_size()        const;
-        std::map<std::string, std::string> get_error_page();
+        std::map<int, std::string> get_error_page();
         bool is_allowed_get()   const;
         bool is_allowed_post()  const;
         bool is_allowed_delete()        const;

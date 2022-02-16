@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/15 21:59:20 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/16 16:38:03 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <sstream>
 
 # include <time.h>
+# include <sys/stat.h>
 
 # include "Request.hpp"
 # include "Config.hpp"
@@ -37,6 +38,7 @@ class Response
 		std::map<std::string, std::string>	_mime;
 		std::vector<std::string>			_allowed_methods;
 		Server_t							_conf;
+		Location_t							_loc;
 
 		void		addHeader(std::string key, std::string value);
 		void		initMime();
@@ -44,6 +46,8 @@ class Response
 		void		handleHeader(std::string path, int code);
 		void		retreiveBody(std::string path, int code);
 		bool 		endsWith(std::string const & value, std::string const & ending);
+		int			pathIsFile(const std::string& path);
+		int			getLocationBlock();
 	public:
 		Response(const Server_t &conf);
 		Response(const Response &copy);
