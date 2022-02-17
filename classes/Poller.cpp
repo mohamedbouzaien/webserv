@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:35:07 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:20:31 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/09 18:26:43 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ Poller::Poller(Listener &listener) : _nfds(1), _listener(listener)
 	_fds[0].events = POLLIN | POLLPRI;
 }
 
-Poller::Poller(const Poller &copy)
+Poller::Poller(const Poller &copy):
+    _listener(copy._listener)
 {
 	for (int i = 0; i < copy._nfds; i++)
 		this->_fds[i] = copy._fds[i];
@@ -50,7 +51,7 @@ void        Poller::start(void)
 		throw	Poller::PollFailedException();
 }
 
-void        Poller::handle(void)
+void        Poller::handle(const Server_t &serv_conf)
 {
 	int current_sockets;
 	Connector	connector(_listener);
@@ -70,10 +71,10 @@ void        Poller::handle(void)
 			_nfds++;
 			}
 		else
-		{	
+		{
 			std::cout << "  Descriptor " << _fds[i].fd << " is readable" << std::endl;
 			connector.setClientSocket(_fds[i].fd);
-			if (connector.handle() < 0)
+			if (connector.handle(serv_conf) < 0)
 			{
 				_fds[i].fd = 0;
 				_fds[i].events = 0;

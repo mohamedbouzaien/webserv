@@ -6,14 +6,17 @@
 # include <string>
 # include <map>
 
+# include "default_conf.hpp"
+
 // is_set bool vector correspondance
-# define IS_BOOL_SIZE     6
+# define IS_BOOL_SIZE     7
 # define IS_ROOT          0
 # define IS_INDEX         1
 # define IS_AUTO_INDEX    2
 # define IS_MAX_BODY_SIZE 3
 # define IS_ERROR_PAGES   4
 # define IS_ALLOW_METHOD  5
+# define IS_CGI           6
 
 // allow_method bool vector correspondance
 # define METH_SIZE   3
@@ -34,6 +37,7 @@ class Context_t
         unsigned long          _client_max_body_size;
         std::map<std::string, std::string> _error_pages;
         std::vector<bool>      _allow_method;
+        std::pair<std::string, std::string> _cgi;
 
     public:
         Context_t();
@@ -56,17 +60,21 @@ class Context_t
         void allow_get();
         void allow_post();
         void allow_delete();
+        void set_cgi(std::string &path, std::string &type);
+
         virtual void add_location(const Location_t*) = 0;
 
 // Getters ----------------------------------
         const std::string &get_root();
         const std::list<std::string> &get_index();
         bool get_autoindex();
-        unsigned long get_client_max_body_size();
+        unsigned long get_client_max_body_size()        const;
         std::map<std::string, std::string> get_error_page();
-        bool is_allowed_get();
-        bool is_allowed_post();
-        bool is_allowed_delete();
+        bool is_allowed_get()   const;
+        bool is_allowed_post()  const;
+        bool is_allowed_delete()        const;
+        const std::string &get_cgi_path();
+        const std::string &get_cgi_type();
 };
 
 #endif

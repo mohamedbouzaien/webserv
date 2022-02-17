@@ -43,10 +43,10 @@ void Server_t::add_location(const Location_t *loc)
 }
 
 // Getters ----------------------------------
-std::set<std::string>   &Server_t::get_names(){
+const std::set<std::string>   &Server_t::get_names() const{
     return _names;
 }
-std::set<Server_t::listen_pair_t> &Server_t::get_listen(){
+const std::set<Server_t::listen_pair_t> &Server_t::get_listen() const {
     return _listen;
 }
 std::vector<Location_t> &Server_t::get_locations(){
@@ -114,6 +114,8 @@ void Server_t::print(){
         std::cout << "DELETE ";
     std::cout << "\n";
 
+    std::cout << "  _cgi_path: " << get_cgi_path() << '\n';
+    std::cout << "  _cgi_type: " << get_cgi_type() << '\n';
 
 
     if  (_locations.size())

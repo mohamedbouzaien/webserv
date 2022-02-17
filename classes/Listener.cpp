@@ -17,15 +17,14 @@
 Listener::Listener()
 {
 
-
 }
 
-Listener::Listener(Listener &copy) : _fd(copy._fd), _address(copy._address)
+Listener::Listener(const Listener &copy) : _fd(copy._fd), _address(copy._address)
 {
 
 }
 
-Listener	&Listener::operator=(Listener &copy)
+Listener	&Listener::operator=(const Listener &copy)
 {
 	if (this == &copy)
 		return (*this);
@@ -59,23 +58,33 @@ sockaddr_in	&Listener::getAddress()
 	return (this->_address);
 }
 
-void	Listener::execute()
+void    Listener::close_perror(const char *msg)
+{
+		perror(msg);
+		close(_fd);
+		exit(-1);
+}
+
+void	Listener::execute(std::string addr, in_port_t port)
 {
 	this->_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_fd == -1)
 		throw Listener::CreationFailedException();
 	this->_address.sin_family = AF_INET;
-	this->_address.sin_addr.s_addr = INADDR_ANY;
-	this->_address.sin_port = htons(PORT);
+    if (addr == "*")
+        this->_address.sin_addr.s_addr = INADDR_ANY;
+    else
+        this->_address.sin_addr.s_addr = inet_addr(addr.c_str());
+	this->_address.sin_port = htons(port);
 	int	on, rc;
 	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
 				(char *)&on, sizeof(on));
 	if (rc < 0)
-	{
-		perror("setsockopt() failed");
-		close(_fd);
-		exit(-1);
-	}
+        close_perror("setsockopt() SO_REUSEADDR failed");
+    rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEPORT,
+                (char *)&on, sizeof(on));
+	if (rc < 0)
+        close_perror("setsockopt() SO_REUSEPORT failed");
 	if (bind(_fd, (struct sockaddr*)&_address, sizeof(sockaddr)) < 0)
 		throw Listener::PortBindingFailedException();
 	if (listen(this->_fd, 10) < 0)

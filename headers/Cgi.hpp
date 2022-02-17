@@ -6,6 +6,7 @@
 #define CGI_BUFFER_SIZE 4096
 #define INTERNAL_SERVER_ERROR 500
 #define OK 200
+
 class Cgi {
 	private:
 

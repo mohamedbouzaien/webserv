@@ -7,6 +7,7 @@
 # include <set>
 
 # include "Context_t.hpp"
+# include "default_conf.hpp"
 
 class Location_t : public Context_t
 {

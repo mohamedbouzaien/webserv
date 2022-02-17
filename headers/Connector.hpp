@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/15 15:07:16 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/17 14:34:59 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 # define CONNECTOR_HPP
 
 # include "Listener.hpp"
+# include "Response.hpp"
+# include "Config.hpp"
+
 # include <sys/socket.h>
 # include <unistd.h>
 
@@ -25,7 +28,7 @@ class Connector
 		Listener		_listener;
 	public:
 		Connector(Listener &listener);
-		Connector(Connector &copy);
+		Connector(const Connector &copy);
 		Connector	&operator=(Connector &other);
 		virtual	~Connector() {};
 		class ConnectionFailedException : public std::exception
@@ -40,7 +43,7 @@ class Connector
 		};
 		void		poll_server();
 		void		accept_c();
-		int			handle();
+		int			handle(const Server_t &serv_conf);
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
 		Listener	getListener()	const;

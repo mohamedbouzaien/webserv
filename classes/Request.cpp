@@ -372,6 +372,10 @@ std::vector<char> Request::getBody() const {
 	return (_body);
 }
 
+int Request::getUriLength() const {
+	return (_uri_length);
+}
+
 // << OVERLOAD
 
 std::ostream& operator<<(std::ostream& os, const Request& request) {

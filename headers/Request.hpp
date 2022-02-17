@@ -1,5 +1,5 @@
 #pragma once
-#include "Connector.hpp"
+#include <sys/socket.h>
 #include <iostream>
 #include <cstdlib>
 #include <map>

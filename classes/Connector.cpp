@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/15 15:07:35 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/17 14:34:17 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@ Connector::Connector(Listener &listener): _listener(listener)
 	_client_socket = 0;
 }
 
-Connector::Connector(Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
+Connector::Connector(const Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
 {
-	
+
 }
 
 Connector	&Connector::operator=(Connector &other)
@@ -51,22 +51,19 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-int    Connector::handle()
+int    Connector::handle(const Server_t &serv_conf)
 {
-	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
 	Request request(_client_socket);
+	Response	response;
 	int status;
 
+	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
 	if ((status = request.handle()) < 1)
 		return (status);
-	std::string s("bin/php-cgi"); // Path to cgi binary
-	Cgi cgi((char *)s.c_str(), request); // Cgi constr.
-	cgi.runCgi(request); // run Cgi
-	char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-	char *body = strstr(output, "\r\n\r\n"); // get output body
-	body += 4; // skip \r\n\r\n
-	std::string result = ("HTTP/1.1 200 OK\nContent-Length: " + std::to_string(strlen(body)) + "\n" + output); // build test response
-	send(_client_socket, result.c_str(), result.size(), 0);
+	std::cout << request << std::endl;
+	response.prepare(request, serv_conf);
+	std::string hello = response.parse();
+	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
 	std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
 	return (1);

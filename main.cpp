@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/19 19:36:30 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/13 20:17:12 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # include "headers/Connector.hpp"
 # include "headers/Config.hpp"
 # include "headers/Poller.hpp"
+# include "headers/Lstn_collec.hpp"
 
 # include <string.h>
 #include "headers/Request.hpp"
@@ -32,13 +33,14 @@ int main(int ac, char **av) {
         {
             Config conf(conf_path);
             conf.print_servers(); // Testing // prints all servers content
-            Listener listener;
-            listener.execute();
-            Poller		poller(listener);
+
+            Lstn_collec lstns(conf.get_servers());
+
+            Poller		poller(lstns.get_collec().front());
             while (true)
             {
                 poller.start();
-                poller.handle();
+                poller.handle(conf.get_servers()[0]);
             }
 
         }

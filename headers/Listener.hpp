@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 14:38:57 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/01/26 15:38:48 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/02 12:45:24 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@
 
 # define SERVER_HPP
 
-# define PORT 8080
-
+# include<arpa/inet.h>
 # include<sys/socket.h>
 # include<netinet/in.h>
 # include<iostream>
@@ -28,11 +27,13 @@ class	Listener
 
 	public:
 		Listener();
-		Listener(Listener &copy);
-		Listener	&operator=(Listener &copy);
+		Listener(const Listener &copy);
+		Listener	&operator=(const Listener &copy);
 		virtual	~Listener() {};
+
 		int		getFd();
 		sockaddr_in	&getAddress();
+
 		class CreationFailedException : public std::exception
 		{
 			public:
@@ -48,7 +49,10 @@ class	Listener
 			public:
 				virtual const char* what() const throw();
 		};
-		void	execute();
+
+        void    close_perror(const char *msg);
+
+		void	execute(std::string addr, in_port_t port);
 };
 
 #endif
