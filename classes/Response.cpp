@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 19:38:52 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/17 15:31:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,6 @@ void		Response::retreiveBody(std::string path, int code, const Server_t &serv_co
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
-
 	indata.open(path.substr(1), std::ifstream::in);
 	if (!indata)
 	{
