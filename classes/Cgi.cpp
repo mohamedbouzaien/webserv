@@ -6,7 +6,7 @@ const char* Cgi::MallocFailedException::what() const throw() {
 
 
 Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
-	std::vector<char> vbody = request.getVBody();
+	std::vector<char> vbody = request.getBody();
 	_body_size = vbody.size();
 	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
 		_status_code = INTERNAL_SERVER_ERROR;

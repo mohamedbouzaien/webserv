@@ -14,7 +14,7 @@ Request::Request(const Request &other) {
 }
 
 Request::~Request() {
-	_vbody.clear();
+	_body.clear();
 }
 
 Request &Request::operator=(const Request &other) {
@@ -218,7 +218,7 @@ int		Request::recvSocket(std::string &request) {
 	if ((to_skip = isHeaderEnded(request, buffer)) > 0)
 		_is_body = 1;
 	if (_is_body)
-		_vbody.insert(_vbody.end(), buffer + to_skip, buffer + bytesRead);
+		_body.insert(_body.end(), buffer + to_skip, buffer + bytesRead);
 	request += buffer;
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
@@ -245,8 +245,7 @@ int Request::unchunkBody(std::string &chunked_body) {
 		if (chunk_size == 0)
 			return (1);
 		chunked_body.erase(0, chunked_body.find("\r\n") + 2);
-		_vbody.insert(_vbody.end(), chunked_body.begin(), chunked_body.begin() + chunk_size);
-		_body += std::string(chunked_body, 0, chunk_size);
+		_body.insert(_body.end(), chunked_body.begin(), chunked_body.begin() + chunk_size);
 		chunked_body.erase(0, chunk_size);
 		if (chunked_body.find("\r\n") != 0)
 			return (1);
@@ -256,9 +255,9 @@ int Request::unchunkBody(std::string &chunked_body) {
 }
 
 int Request::readChunkedBody() {
-	std::string chunked_body(_vbody.begin(), _vbody.end());
+	std::string chunked_body(_body.begin(), _body.end());
 	int status;
-	_vbody.clear();
+	_body.clear();
 	if (chunked_body.find("0\r\n\r\n") != 0) {
 		while (chunked_body.find("\r\n0\r\n\r\n") == std::string::npos) {
 			status = recvSocket(chunked_body);
@@ -278,18 +277,18 @@ int Request::readBody(size_t len) {
 	int to_read;
 	int	bytesRead;
 
-	if (_vbody.size() >= len) {
-		_vbody.erase(_vbody.begin() + len, _vbody.end());
+	if (_body.size() >= len) {
+		_body.erase(_body.begin() + len, _body.end());
 		return (1);
 	}
-	while (_vbody.size() < len) {
+	while (_body.size() < len) {
 		memset(buffer, 0, BUFFER_SIZE + 1);
-		if (_vbody.size() + BUFFER_SIZE < len)
+		if (_body.size() + BUFFER_SIZE < len)
 			to_read = BUFFER_SIZE;
 		else
-			to_read = len - _vbody.size();
+			to_read = len - _body.size();
 		bytesRead = recv(_client_socket, buffer, to_read, 0);
-		_vbody.insert(_vbody.end(), buffer, buffer + bytesRead);
+		_body.insert(_body.end(), buffer, buffer + bytesRead);
 		if (bytesRead < 1)
 			return (bytesRead);
 	}
@@ -335,34 +334,12 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 	_header_fields = header_fields;
 }
 
-void Request::setBody(std::string body) {
-	char *end;
-
-	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
-	{
-		int chunk_size;
-		while (body.find("\r\n") != std::string::npos) {
-			chunk_size = strtol(body.c_str(), &end, 16);
-			if (chunk_size == 0)
-				return ;
-			body.erase(0, body.find("\r\n") + 2);
-			_body += std::string(body, 0, chunk_size);
-			body.erase(0, chunk_size);
-			if (body.find("\r\n") != 0)
-				return ;
-			body.erase(0, 2);
-		}
-	}
-	else if (_header_fields.find("Content-Length") != _header_fields.end())
-		_body += std::string(body.c_str(), stoi(_header_fields["Content-Length"]) - _body.size());
-}
-
 void Request::setUriLength(int len) {
 	_uri_length = len;
 }
 
-void Request::setVBody(std::vector<char> vbody) {
-	_vbody = vbody;
+void Request::setBody(std::vector<char> vbody) {
+	_body = vbody;
 }
 
 //Getters
@@ -391,12 +368,8 @@ std::string Request::getQueryString() const {
 	return (_query_string);
 }
 
-std::string Request::getBody() const {
+std::vector<char> Request::getBody() const {
 	return (_body);
-}
-
-std::vector<char> Request::getVBody() const {
-	return (_vbody);
 }
 
 // << OVERLOAD
@@ -421,7 +394,9 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 	for (; it != ite; it++)
 		std::cout << it->first << " : " << it->second << std::endl;
 	std::cout << "<------ BODY ----->" << std::endl;
-	std::cout << "Body : " << request._body << std::endl;
-	std::cout << "<------ END ----->" << std::endl;
+	for(std::vector<char>::const_iterator it = request._body.begin(); it != request._body.end(); it++)
+		std::cout << *it << std::endl;
+
+	std::cout << std::endl << "<------ END ----->" << std::endl;
 	return (os);
 }
