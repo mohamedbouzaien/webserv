@@ -43,6 +43,7 @@ class Request {
 		int readChunkedBody();
 		int unchunkBody(std::string &chunked_body);
 		int readBody(size_t len);
+		int isHeaderEnded(std::string &request, char *buffer) ;
 		int handle();
 		//Setters
 		void setClientSocket(int socket);

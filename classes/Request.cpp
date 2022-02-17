@@ -185,21 +185,41 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 }
 
+int		Request::isHeaderEnded(std::string &request, char *buffer) {
+	char *body = strstr(buffer, "\r\n\r\n");
+	std::string request_end;
+
+	if (_is_body == 1)
+		return (0);
+
+	if (request.size() > 3)
+		request_end = request.substr(request.size() - 3);
+	else
+		request_end = request;
+	if (body != NULL) {
+		return (body - buffer + 4);
+	}
+	else if (request_end == "\r\n\r" && *buffer == '\n')
+		return (1);
+	else if (request_end.find("\r\n") != std::string::npos && (request_end.find("\r\n") + 2 == request_end.size()) && strstr(buffer, "\r\n") == buffer) 
+		return (2);
+	else if (request_end.find("\r") != std::string::npos && (request_end.find("\r") + 1 == request_end.size()) && strstr(buffer, "\n\r\n") == buffer)
+		return (3);
+	return (0);
+}
+
 int		Request::recvSocket(std::string &request) {
 	char buffer[BUFFER_SIZE + 1];
 	int	bytesRead;
 	int to_skip = 0;
+
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
-	request += buffer;
-	char *search_body = strstr((char *)request.c_str(), "\r\n\r\n");
-	if (search_body != NULL && _is_body == 0) {
-		to_skip = search_body - buffer + 4;
+	if ((to_skip = isHeaderEnded(request, buffer)) > 0)
 		_is_body = 1;
-	}
-	if (_is_body) {
+	if (_is_body)
 		_vbody.insert(_vbody.end(), buffer + to_skip, buffer + bytesRead);
-	}
+	request += buffer;
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
 }
@@ -239,7 +259,6 @@ int Request::readChunkedBody() {
 	std::string chunked_body(_vbody.begin(), _vbody.end());
 	int status;
 	_vbody.clear();
-	std::cout << "read CB" << std::endl;
 	if (chunked_body.find("0\r\n\r\n") != 0) {
 		while (chunked_body.find("\r\n0\r\n\r\n") == std::string::npos) {
 			status = recvSocket(chunked_body);
@@ -249,9 +268,6 @@ int Request::readChunkedBody() {
 				break;
 		}
 	}
-	std::cout << "Chunked body" << std::endl;
-	std::cout << chunked_body << std::endl;
-	std::cout << "---" << std::endl;
 	unchunkBody(chunked_body);
 	return (1);
 
@@ -287,8 +303,6 @@ int Request::handle() {
 	status = readSocket(header, "\r\n\r\n");
 	if (status < 1)
 		return (status);
-	std::cout << header << std::endl;
-
 	parseRequest((char *)header.c_str());
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody();
@@ -296,12 +310,6 @@ int Request::handle() {
 		status = readBody(stoi(_header_fields["Content-Length"]));
 	if (status < 1)
 		return (status);
-	std::vector<char>::iterator it = _vbody.begin();
-	std::vector<char>::iterator ite = _vbody.end();
-	for (; it != ite; it++)
-		std::cout << *it;
-	std::cout << std::endl;
-	std::cout << _vbody.size() << std::endl;
 	return (1);
 }
 
