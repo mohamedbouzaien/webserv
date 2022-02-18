@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/17 14:34:17 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/18 10:17:39 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,14 @@ void    Connector::accept_c()
 int    Connector::handle(const Server_t &serv_conf)
 {
 	Request request(_client_socket);
-	Response	response;
+	Response	response(serv_conf);
 	int status;
 
 	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
 	if ((status = request.handle()) < 1)
 		return (status);
 	std::cout << request << std::endl;
-	response.prepare(request, serv_conf);
+	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
