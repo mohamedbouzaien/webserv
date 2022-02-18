@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 18:27:17 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/15 22:20:53 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void    Connector::accept_c()
 int    Connector::handle(const Server_t &serv_conf)
 {
 	Request		request;
-	Response	response;
+	Response	response(serv_conf);
 	char buffer[30000];
 	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
 	if (bytesRead < 0)
@@ -64,7 +64,7 @@ int    Connector::handle(const Server_t &serv_conf)
 	std::cout << buffer << std::endl;
 	request.parseRequest(buffer);
 	std::cout << request << std::endl;
-	response.prepare(request, serv_conf);
+	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();

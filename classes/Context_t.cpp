@@ -6,7 +6,7 @@ Context_t::Context_t():
     _index(std::list<std::string>()),
     _autoindex(DEFAULT_AUTOINDEX),
     _client_max_body_size(DEFAULT_MAX_BODY_SIZE ),
-    _error_pages(std::map<std::string, std::string>()),
+    _error_pages(std::map<int, std::string>()),
     _allow_method(std::vector<bool>(IS_BOOL_SIZE, false)),
     _cgi(std::make_pair(DEFAULT_CGI_PATH, DEFAULT_CGI_TYPE))
 {
@@ -58,6 +58,9 @@ void Context_t::inherit(Context_t &parent) {
          _allow_method = parent._allow_method;
     if (!_is_set[IS_CGI])
          _cgi = parent._cgi;
+    for (std::map<int, std::string>::iterator it = parent._error_pages.begin(); it != parent._error_pages.end(); it++)
+        if (_error_pages.find(it->first) == _error_pages.end())
+            _error_pages[it->first] = it->second;
 }
 
 // Unset directives default values ---------
@@ -71,6 +74,13 @@ void Context_t::init_not_set()
         allow_post();
         allow_delete();
     }
+	_error_pages.insert(std::make_pair<int, std::string>(400, "/error_page/400_error/400.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(403, "/error_page/400_error/403.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(404, "/error_page/400_error/404.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(405, "/error_page/400_error/405.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(413, "/error_page/400_error/413.html"));
+    _error_pages.insert(std::make_pair<int, std::string>(414, "/error_page/400_error/414.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(500, "/error_page/500_error/500.html"));
 }
 
 // Setters ---------------------------------
@@ -96,7 +106,7 @@ void Context_t::set_client_max_body_size(const unsigned long n) {
 
 void Context_t::add_error_page(std::string & error, std::string & page) {
     _is_set[IS_ERROR_PAGES] = true;
-    _error_pages.insert(std::make_pair(error, page));
+    _error_pages[std::stoi(error)] = page;
 }
 
 void Context_t::allow_get() {
@@ -141,7 +151,7 @@ unsigned long Context_t::get_client_max_body_size() const
     return _client_max_body_size;
 }
 
-std::map<std::string, std::string> Context_t::get_error_page()
+std::map<int, std::string> Context_t::get_error_page()
 {
     return _error_pages;
 }
