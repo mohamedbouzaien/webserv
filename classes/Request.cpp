@@ -399,8 +399,7 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 		std::cout << it->first << " : " << it->second << std::endl;
 	std::cout << "<------ BODY ----->" << std::endl;
 	for(std::vector<char>::const_iterator it = request._body.begin(); it != request._body.end(); it++)
-		std::cout << *it << std::endl;
-
+		std::cout << *it;
 	std::cout << std::endl << "<------ END ----->" << std::endl;
 	return (os);
 }

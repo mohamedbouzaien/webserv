@@ -102,8 +102,8 @@ void Cgi::setCgiEnv(Request &request) {
 	mapped_cgi_env["SERVER_PORT"] = request.getHost().second;
 
 	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
-	mapped_cgi_env["PATH_INFO"] = "tests/www" + request.getPath();
-	mapped_cgi_env["PATH_TRANSLATED"] = "tests/www" + request.getPath();
+	mapped_cgi_env["PATH_INFO"] = request.getPath();
+	mapped_cgi_env["PATH_TRANSLATED"] = request.getPath();
 	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
