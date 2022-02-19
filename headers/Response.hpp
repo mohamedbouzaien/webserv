@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/16 20:51:38 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/18 10:19:45 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@
 # include "Cgi.hpp"
 
 #define URI_MAX_LEN 280000
-
 
 class Response
 {
