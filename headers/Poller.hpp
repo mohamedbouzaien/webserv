@@ -24,11 +24,14 @@
 class Poller
 {
 	private:
-		struct pollfd	_fds[MAX_CLIENTS];
-		int				_nfds;
-		Listener		_listener;
+        typedef std::vector<Listener> lstnrs;
+
+		struct pollfd             _fds[MAX_CLIENTS];
+		int			              _nfds;
+        lstnrs		              _listeners;
+        std::map<int, Listener*>  _index_map;
 	public:
-		Poller(Listener &listner);
+		Poller(lstnrs &listeners);
 		Poller(const Poller &copy);
 		Poller  &operator=(const Poller &other);
 		virtual ~Poller() {};
