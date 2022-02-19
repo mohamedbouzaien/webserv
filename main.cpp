@@ -34,9 +34,9 @@ int main(int ac, char **av) {
             Config conf(conf_path);
             conf.print_servers(); // Testing // prints all servers content
 
-            Lstn_collec lstns(conf.get_servers());
+            Lstn_collec listeners(conf.get_servers());
 
-            Poller		poller(lstns.get_collec().front());
+            Poller		poller(listeners.get_collec());
             while (true)
             {
                 poller.start();

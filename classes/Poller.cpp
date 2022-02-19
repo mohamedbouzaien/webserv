@@ -13,14 +13,19 @@
 # include "../headers/Poller.hpp"
 # include "../headers/Connector.hpp"
 
-Poller::Poller(Listener &listener) : _nfds(1), _listener(listener)
+Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listeners)
 {
-	_fds[0].fd = listener.getFd();
-	_fds[0].events = POLLIN | POLLPRI;
+    unsigned int i = 0;
+    for (lstnrs::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+    {
+        _fds[i].fd = it->getFd();
+        _fds[i].events = POLLIN | POLLPRI;
+        ++i;
+    }
 }
 
 Poller::Poller(const Poller &copy):
-    _listener(copy._listener)
+    _listeners(copy._listeners)
 {
 	for (int i = 0; i < copy._nfds; i++)
 		this->_fds[i] = copy._fds[i];
@@ -54,32 +59,39 @@ void        Poller::start(void)
 void        Poller::handle(const Server_t &serv_conf)
 {
 	int current_sockets;
-	Connector	connector(_listener);
 
 	current_sockets = _nfds;
 	for (int i = 0; i < current_sockets; i++)
 	{
 		if(_fds[i].revents == 0)
 			continue;
-		if (_fds[i].fd == _listener.getFd())
+        lstnrs::iterator it = _listeners.begin();
+        while (it != _listeners.end() && _fds[i].fd != it->getFd())
+            ++it;
+        if (it != _listeners.end())
+        {
+            Connector connector(*it);
+            std::cout << "  Listening socket is readable" << std::endl;
+            connector.accept_c();
+            std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
+            _fds[_nfds].fd = connector.getClientSocket();
+            _fds[_nfds].events = POLLIN | POLLPRI;
+            _index_map.insert(std::make_pair(_nfds, &(*it)));
+            ++_nfds;
+        }
+        else
 		{
-			std::cout << "  Listening socket is readable" << std::endl;
-			connector.accept_c();
-			std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
-			_fds[_nfds].fd = connector.getClientSocket();
-			_fds[_nfds].events = POLLIN | POLLPRI;
-			_nfds++;
-			}
-		else
-		{
-			std::cout << "  Descriptor " << _fds[i].fd << " is readable" << std::endl;
+			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << std::endl;
+            Connector connector(*_index_map[i]);
 			connector.setClientSocket(_fds[i].fd);
 			if (connector.handle(serv_conf) < 0)
 			{
+                std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
+                close(_fds[i].fd);
 				_fds[i].fd = 0;
 				_fds[i].events = 0;
 				_fds[i].revents = 0;
-				_nfds--;
+				--_nfds;
 			}
 		}
 	}
