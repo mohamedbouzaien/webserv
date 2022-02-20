@@ -51,27 +51,54 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs)
+const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const std::string host) const
 {
-    std::list<Server_t> possible;
-    for (std::vector<Server_t>::const_iterator it = servs.begin(); it != servs.end(); ++it)
-        (void)it;
-    return servs.front();
+    std::set<const Server_t*> possible;
+
+    if (_listener.getAddress().sin_addr.s_addr != INADDR_ANY) // Find every server exact ip:port correspondance
+    {
+        for (std::vector<Server_t>::const_iterator serv_it = servs.begin(); serv_it != servs.end(); ++serv_it)
+            for (std::set<Server_t::listen_pair_t>::iterator lstn_it = serv_it->get_listen().begin(); lstn_it != serv_it->get_listen().end(); ++lstn_it)
+                if (htons(lstn_it->second) == _listener.getAddress().sin_port
+                        && inet_addr(lstn_it->first.c_str()) == _listener.getAddress().sin_addr.s_addr)
+                    possible.insert(&(*serv_it));
+    }
+    if (possible.empty()) // if no corresponding listen or listening on 0.0.0.0, search every 0.0.0.0 with same port
+    {
+        for (std::vector<Server_t>::const_iterator serv_it = servs.begin(); serv_it != servs.end(); ++serv_it)
+            for (std::set<Server_t::listen_pair_t>::iterator lstn_it = serv_it->get_listen().begin(); lstn_it != serv_it->get_listen().end(); ++lstn_it)
+                if (htons(lstn_it->second) == _listener.getAddress().sin_port)
+                    possible.insert(&(*serv_it));
+    }
+
+    if (!possible.size()) //TEMPORARY
+        std::cout << "IL Y A UN GROOOOOS PROBLEME DANS LA FONCTION CHOOSE_SERVER" << std::endl;
+
+    if (possible.size() != 1) // Multiple servers with same priority, analyze server_name
+    {
+
+    }
+    // EN TRAIN DE TOTALEMENT DEBILISER SUR CA JE CONTINUE DEMAIN !!!!!!!!!!!!!!!!
+        return *possible.begin();
 }
 
 int    Connector::handle(const std::vector<Server_t> &servs)
 {
 	Request		request;
-	Response	response(servs.front());
+
 	char buffer[30000];
 	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
 	if (bytesRead < 0)
 		throw Connector::RecvFailedException();
 	if (bytesRead == 0)
 		return (-1);
+
 	std::cout << buffer << std::endl;
 	request.parseRequest(buffer);
 	std::cout << request << std::endl;
+
+	Response	response(choose_serv(servs, request.getHost().first));
+
 	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
