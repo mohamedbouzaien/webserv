@@ -41,7 +41,7 @@ class Poller
 				virtual const char* what() const throw();
 		};
 		void    start(void);
-		void    handle(const Server_t &serv_conf);
+		void    handle(const std::vector<Server_t> &servs);
 };
 
 #endif

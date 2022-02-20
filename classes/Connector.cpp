@@ -51,10 +51,18 @@ void    Connector::accept_c()
 		throw Connector::ConnectionFailedException();
 }
 
-int    Connector::handle(const Server_t &serv_conf)
+const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs)
+{
+    std::list<Server_t> possible;
+    for (std::vector<Server_t>::const_iterator it = servs.begin(); it != servs.end(); ++it)
+        (void)it;
+    return servs.front();
+}
+
+int    Connector::handle(const std::vector<Server_t> &servs)
 {
 	Request		request;
-	Response	response(serv_conf);
+	Response	response(servs.front());
 	char buffer[30000];
 	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
 	if (bytesRead < 0)

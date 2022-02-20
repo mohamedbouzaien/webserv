@@ -40,7 +40,7 @@ int main(int ac, char **av) {
             while (true)
             {
                 poller.start();
-                poller.handle(conf.get_servers()[0]);
+                poller.handle(conf.get_servers());
             }
 
         }
