@@ -53,33 +53,37 @@ void    Connector::accept_c()
 
 const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const std::string host) const
 {
-    std::set<const Server_t*> possible;
+    std::list<const Server_t*> possible;
 
-    if (_listener.getAddress().sin_addr.s_addr != INADDR_ANY) // Find every server exact ip:port correspondance
+    if (_listener.getAddress().sin_addr.s_addr != INADDR_ANY) // Find every server w/ exact ip:port correspondance
     {
         for (std::vector<Server_t>::const_iterator serv_it = servs.begin(); serv_it != servs.end(); ++serv_it)
             for (std::set<Server_t::listen_pair_t>::iterator lstn_it = serv_it->get_listen().begin(); lstn_it != serv_it->get_listen().end(); ++lstn_it)
                 if (htons(lstn_it->second) == _listener.getAddress().sin_port
-                        && inet_addr(lstn_it->first.c_str()) == _listener.getAddress().sin_addr.s_addr)
-                    possible.insert(&(*serv_it));
+                        && inet_addr(lstn_it->first.c_str()) == _listener.getAddress().sin_addr.s_addr
+                        && std::find(possible.begin(), possible.end(), &(*serv_it)) == possible.end())
+                    possible.push_back(&(*serv_it));
     }
-    if (possible.empty()) // if no corresponding listen or listening on 0.0.0.0, search every 0.0.0.0 with same port
+    if (possible.empty()) // if no matching listen or listening on 0.0.0.0, search every 0.0.0.0 with same port
     {
         for (std::vector<Server_t>::const_iterator serv_it = servs.begin(); serv_it != servs.end(); ++serv_it)
             for (std::set<Server_t::listen_pair_t>::iterator lstn_it = serv_it->get_listen().begin(); lstn_it != serv_it->get_listen().end(); ++lstn_it)
-                if (htons(lstn_it->second) == _listener.getAddress().sin_port)
-                    possible.insert(&(*serv_it));
+                if (htons(lstn_it->second) == _listener.getAddress().sin_port
+                        && std::find(possible.begin(), possible.end(), &(*serv_it)) == possible.end())
+                    possible.push_back(&(*serv_it));
     }
 
-    if (!possible.size()) //TEMPORARY
-        std::cout << "IL Y A UN GROOOOOS PROBLEME DANS LA FONCTION CHOOSE_SERVER" << std::endl;
+    // if (!possible.size()) //TEMPORARY
+    //    std::cout << "IL Y A UN GROOOOOS PROBLEME DANS LA FONCTION CHOOSE_SERVER" << std::endl;
+    if (possible.size() == 1)
+        return **possible.begin();
 
-    if (possible.size() != 1) // Multiple servers with same priority, analyze server_name
-    {
-
-    }
-    // EN TRAIN DE TOTALEMENT DEBILISER SUR CA JE CONTINUE DEMAIN !!!!!!!!!!!!!!!!
-        return *possible.begin();
+    // Multiple servers with same priority, analyze server_name
+    for (std::list<const Server_t*>::const_iterator serv_it = possible.begin(); serv_it != possible.end(); ++serv_it)
+        if ((*serv_it)->has_name(host))
+            return **serv_it;
+    // return first possible if no matching name found
+    return *possible.front();
 }
 
 int    Connector::handle(const std::vector<Server_t> &servs)

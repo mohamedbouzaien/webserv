@@ -15,6 +15,10 @@
 # define CONNECTOR_HPP
 
 # include <arpa/inet.h>
+# include <list>
+# include <vector>
+# include <algorithm>
+
 
 # include "Listener.hpp"
 # include "Response.hpp"
