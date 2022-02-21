@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <map>
 #include <vector>
+#include <algorithm>
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
@@ -40,7 +41,9 @@ class Request {
 		int recvSocket(std::string& request);
 		int readSocket(std::string& request, std::string pattern);
 		int readChunkedBody(int readed);
-		int unchunkBody(std::string &chunked_body);
+		int searchEndline(std::vector<char> &vector) const;
+		int getChunkSize(std::vector<char> &vector) const;
+		int unchunkBody(std::vector<char> &body_buffer);
 		int readBody(size_t len);
 		int isHeaderEnded(std::string &request, char *buffer) ;
 		int handle();

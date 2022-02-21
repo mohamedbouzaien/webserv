@@ -237,50 +237,73 @@ int		Request::readSocket(std::string &request, std::string pattern) {
 	return (status);
 }
 
-int Request::unchunkBody(std::string &chunked_body) {
-	size_t chunk_size;
-	std::string chunked_body_copy(chunked_body);
-	std::vector<char> tmp_body;
+int Request::searchEndline(std::vector<char> &vector) const {
+	std::vector<char>::iterator it = vector.begin();
+	std::vector<char>::iterator ite = vector.end();
 
+	for(int i = 0; it != ite; i++) {
+		if (*it == '\r') {
+			if (*(++it) == '\n')
+				return (i);
+		}
+		else
+			it++;
+	}
+	return (-1);
+}
+
+int Request::getChunkSize(std::vector<char> &vector) const {
+	int endline = searchEndline(vector);
+	if (endline < 0)
+		return (-1);
+	std::string size(vector.begin(), vector.begin() + endline);
+	return (strtol(size.c_str(), NULL, 16));
+}
+
+int Request::unchunkBody(std::vector<char> &body_buffer) {
+	size_t chunk_size;
+	std::vector<char> chunk;
+	std::vector<char> body_copy;
+
+	body_copy = body_buffer;
 	while (1) {
-		chunked_body_copy = chunked_body;
-		chunk_size = strtol(chunked_body_copy.c_str(), NULL, 16);
-		if (chunk_size == 0)
-			return (0);
-		if (chunked_body_copy.find("\r\n") == std::string::npos)
-			return (-1);
-		chunked_body_copy.erase(0, chunked_body_copy.find("\r\n") + 2);
+		chunk_size = getChunkSize(body_copy);
+		if (chunk_size == std::string::npos)
+			return (chunk_size);
+		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
 		if (chunk_size > 16711568)
 			return (0);
-		tmp_body.insert(tmp_body.end(), chunked_body_copy.begin(), chunked_body_copy.begin() + chunk_size);
-		if (tmp_body.size() != chunk_size)
+		if (body_copy.size() < chunk_size)
 			return (-1);
-		chunked_body_copy.erase(0, chunk_size);
-		if (chunked_body_copy.find("\r\n") == std::string::npos)
+		chunk.insert(chunk.end(), body_copy.begin(), body_copy.begin() + chunk_size);
+		body_copy.erase(body_copy.begin(), body_copy.begin() + chunk_size);
+		if (searchEndline(body_copy) == -1)
 			return (-1);
-		_body.insert(_body.end(), tmp_body.begin(), tmp_body.end());
-		chunked_body_copy.erase(0,chunked_body_copy.find("\r\n") + 2);
-		chunked_body = chunked_body_copy;
-		tmp_body.clear();
+		_body.insert(_body.end(), chunk.begin(), chunk.end());
+		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
+		body_buffer = body_copy;
+		chunk.clear();
 	}
 	return (chunk_size);
 }
 
+
 int Request::readChunkedBody(int readed) {
 	char buffer[BUFFER_SIZE + 1];
-	std::string chunked_body(_body.begin(), _body.end());
 	int status;
-
+	std::vector<char> body_buffer = _body;
 	status = readed;
 	_body.clear();
+	memset(buffer, 0, BUFFER_SIZE + 1);
+
 	while (1) {
-		if (unchunkBody(chunked_body) == 0 || status != BUFFER_SIZE)
+		if (unchunkBody(body_buffer) == 0 || status != BUFFER_SIZE)
 			break;
 		memset(buffer, 0, BUFFER_SIZE + 1);
 		status = recv(_client_socket, buffer, BUFFER_SIZE, 0);
-		chunked_body += buffer;
 		if (status <= 0)
 			return (-1);
+		body_buffer.insert(body_buffer.end(), buffer, buffer + status);
 	}
 	return (1);
 
