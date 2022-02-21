@@ -27,7 +27,7 @@ int main(int ac, char **av) {
 	}
 
 	std::cout << "ok" << std::endl;
-	std::string request = "POST /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees du premier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
+	std::string request = "POST /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees dpremier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
 
 	std::cout << "ok" << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);

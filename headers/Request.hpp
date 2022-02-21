@@ -39,7 +39,7 @@ class Request {
 		void setHeaderField(std::string, char *);
 		int recvSocket(std::string& request);
 		int readSocket(std::string& request, std::string pattern);
-		int readChunkedBody();
+		int readChunkedBody(int readed);
 		int unchunkBody(std::string &chunked_body);
 		int readBody(size_t len);
 		int isHeaderEnded(std::string &request, char *buffer) ;
