@@ -11,6 +11,7 @@ class Cgi {
 	private:
 
 		std::string _cgi_path;
+		std::string _translated_path;
 		char _output[CGI_BUFFER_SIZE];
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
@@ -20,13 +21,15 @@ class Cgi {
 		char **_cgi_env;
 
 	public:
-		Cgi(char *path, Request &request);
+		Cgi(char *cgi_path, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
 		void runCgi(Request &request);
 		void setCgiPath(char *path);
+		void setTranslatedPath(std::string t_path);
+		std::string getTranslatedPath() const ;
 		std::string getCgiPath() const;
 		char *getOutput() const;
 		int getStatusCode() const;
