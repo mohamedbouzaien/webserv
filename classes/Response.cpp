@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/22 12:50:42 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/22 19:50:50 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,8 +222,9 @@ int			Response::pathIsFile(std::string const &path)
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
 {
-	if (ending.size() > value.size()) return false;
-		return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+	if (ending.size() > value.size())
+		return (false);
+	return (std::equal(ending.rbegin(), ending.rend(), value.rbegin()));
 }
 
 int			Response::setLocationBlock(std::string const &path)
@@ -255,8 +256,11 @@ void		Response::getMethod(Request &request)
 	if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
-		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
-		cgi.runCgi(request); // run Cgi
+		std::string t_path(request.getPath());
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi((char *)s.c_str(), t_path, request);
+		cgi.runCgi(request);
 		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
 		char *body = strstr(output, "\r\n\r\n"); // get output body
 		body += 4; // skip \r\n\r\n
@@ -277,8 +281,11 @@ void		Response::postMethod(Request &request)
 	if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
-		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
-		cgi.runCgi(request); // run Cgi
+		std::string t_path(request.getPath());
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi((char *)s.c_str(), t_path, request);
+		cgi.runCgi(request);
 		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
 		char *body = strstr(output, "\r\n\r\n"); // get output body
 		body += 4; // skip \r\n\r\n
