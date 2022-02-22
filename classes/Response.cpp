@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/18 10:33:27 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/22 12:50:42 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,20 +204,20 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 }
 
-int			Response::pathIsFile(const std::string& path)
+int			Response::pathIsFile(std::string const &path)
 {
 	struct stat s;
 	if (stat(path.c_str(), &s) == 0)
 	{
 		if (s.st_mode & S_IFDIR)
-			return 0;
+			return (0);
 		else if (s.st_mode & S_IFREG)
-			return 1;
+			return (1);
 		else
-			return 0;
+			return (0);
 	}
 	else
-		return 0;
+		return (0);
 }
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
@@ -237,6 +237,62 @@ int			Response::setLocationBlock(std::string const &path)
 	return (false);
 }
 
+void		Response::deleteMethod(std::string const &path)
+{
+	if (pathIsFile(path))
+	{
+		if (remove(path.c_str()) == 0)
+			this->handleHeader(path, 204);
+		else
+			retreiveBody(_error_pages[403], 403);
+	}
+	else
+		retreiveBody(_error_pages[404], 404);
+}
+
+void		Response::getMethod(Request &request)
+{
+	if (endsWith(request.getPath(), ".php"))
+	{
+		std::string s("bin/php-cgi"); // Path to cgi binary
+		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
+		cgi.runCgi(request); // run Cgi
+		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+		char *body = strstr(output, "\r\n\r\n"); // get output body
+		body += 4; // skip \r\n\r\n
+		if (cgi.getStatusCode() - 400 <= 100)
+			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+		else
+		{
+			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->_body = std::string(body);
+		}
+	}
+	else
+		retreiveBody(request.getPath(), 200);
+}
+
+void		Response::postMethod(Request &request)
+{
+	if (endsWith(request.getPath(), ".php"))
+	{
+		std::string s("bin/php-cgi"); // Path to cgi binary
+		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
+		cgi.runCgi(request); // run Cgi
+		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+		char *body = strstr(output, "\r\n\r\n"); // get output body
+		body += 4; // skip \r\n\r\n
+		if (cgi.getStatusCode() - 400 <= 100)
+			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+		else
+		{
+			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->_body = std::string(body);
+		}
+	}
+	else
+		this->handleHeader(request.getPath(), 204);
+}
 
 void		Response::prepare(Request &request)
 {
@@ -258,18 +314,16 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_error_pages[405], 405);
 	else if (request.getBody().size() > _conf.get_client_max_body_size())
 		this->retreiveBody(_error_pages[413], 413);
-	else if (endsWith(request.getPath(), ".php"))
-	{
-		std::string s("bin/php-cgi"); // Path to cgi binary
-		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
-		cgi.runCgi(request); // run Cgi
-		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-		char *body = strstr(output, "\r\n\r\n"); // get output body
-		body += 4; // skip \r\n\r\n
-		this->_body = std::string(body);
-	}
 	else
-		retreiveBody(request.getPath(), 200);
+	{
+		if (request.getMethod() == GET)
+			this->getMethod(request);
+		else if (request.getMethod() == POST)
+			this->postMethod(request);
+		else if (request.getMethod() == DELETE)
+			this ->deleteMethod(request.getPath());
+	}
+
 }
 
 std::string Response::parse(void)
