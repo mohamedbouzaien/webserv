@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/22 19:50:50 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/22 21:38:44 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void		Response::initMime()
 	this->_mime.insert(std::make_pair<std::string, std::string>(".otf", "font/otf"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".png", "image/png"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".pdf", "application/pdf"));
-	this->_mime.insert(std::make_pair<std::string, std::string>(".php", "application/x-httpd-php"));
+	this->_mime.insert(std::make_pair<std::string, std::string>(".php", "text/html"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".ppt", "application/vnd.ms-powerpoint"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".rar", "application/vnd.rar"));
@@ -240,9 +240,9 @@ int			Response::setLocationBlock(std::string const &path)
 
 void		Response::deleteMethod(std::string const &path)
 {
-	if (pathIsFile(path))
+	if (pathIsFile(path.substr(1)))
 	{
-		if (remove(path.c_str()) == 0)
+		if (remove(path.substr(1).c_str()) == 0)
 			this->handleHeader(path, 204);
 		else
 			retreiveBody(_error_pages[403], 403);
@@ -264,7 +264,7 @@ void		Response::getMethod(Request &request)
 		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
 		char *body = strstr(output, "\r\n\r\n"); // get output body
 		body += 4; // skip \r\n\r\n
-		if (cgi.getStatusCode() - 400 <= 100)
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
@@ -289,7 +289,7 @@ void		Response::postMethod(Request &request)
 		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
 		char *body = strstr(output, "\r\n\r\n"); // get output body
 		body += 4; // skip \r\n\r\n
-		if (cgi.getStatusCode() - 400 <= 100)
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
