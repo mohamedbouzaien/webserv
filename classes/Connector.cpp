@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/21 09:08:59 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/22 13:19:07 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ int    Connector::handle(const Server_t &serv_conf)
 	std::cout << request << std::endl;
 	response.prepare(request);
 	std::string hello = response.parse();
-	hello = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\nContent-Length: 5\r\n\r\nhello\r\n";
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
 	std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
