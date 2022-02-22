@@ -5,7 +5,7 @@ const char* Cgi::MallocFailedException::what() const throw() {
 }
 
 
-Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
+Cgi::Cgi(char *path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
 	std::vector<char> vbody = request.getBody();
 	_body_size = vbody.size();
 	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
@@ -103,7 +103,7 @@ void Cgi::setCgiEnv(Request &request) {
 
 	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
 	mapped_cgi_env["PATH_INFO"] = request.getPath();
-	mapped_cgi_env["PATH_TRANSLATED"] = request.getPath();
+	mapped_cgi_env["PATH_TRANSLATED"] = _translated_path;
 	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();

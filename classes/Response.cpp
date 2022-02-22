@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/18 10:33:27 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/22 14:04:13 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,10 @@ void		Response::prepare(Request &request)
 	else if (endsWith(request.getPath(), ".php"))
 	{
 		std::string s("bin/php-cgi"); // Path to cgi binary
-		Cgi cgi((char *)s.c_str(), request); // Cgi constr.
+		std::string t_path(request.getPath());
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi((char *)s.c_str(), t_path, request); // Cgi constr.
 		cgi.runCgi(request); // run Cgi
 		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
 		char *body = strstr(output, "\r\n\r\n"); // get output body
