@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/22 14:04:13 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/22 21:38:44 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void		Response::initMime()
 	this->_mime.insert(std::make_pair<std::string, std::string>(".otf", "font/otf"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".png", "image/png"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".pdf", "application/pdf"));
-	this->_mime.insert(std::make_pair<std::string, std::string>(".php", "application/x-httpd-php"));
+	this->_mime.insert(std::make_pair<std::string, std::string>(".php", "text/html"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".ppt", "application/vnd.ms-powerpoint"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
 	this->_mime.insert(std::make_pair<std::string, std::string>(".rar", "application/vnd.rar"));
@@ -204,26 +204,27 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 }
 
-int			Response::pathIsFile(const std::string& path)
+int			Response::pathIsFile(std::string const &path)
 {
 	struct stat s;
 	if (stat(path.c_str(), &s) == 0)
 	{
 		if (s.st_mode & S_IFDIR)
-			return 0;
+			return (0);
 		else if (s.st_mode & S_IFREG)
-			return 1;
+			return (1);
 		else
-			return 0;
+			return (0);
 	}
 	else
-		return 0;
+		return (0);
 }
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
 {
-	if (ending.size() > value.size()) return false;
-		return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+	if (ending.size() > value.size())
+		return (false);
+	return (std::equal(ending.rbegin(), ending.rend(), value.rbegin()));
 }
 
 int			Response::setLocationBlock(std::string const &path)
@@ -237,6 +238,68 @@ int			Response::setLocationBlock(std::string const &path)
 	return (false);
 }
 
+void		Response::deleteMethod(std::string const &path)
+{
+	if (pathIsFile(path.substr(1)))
+	{
+		if (remove(path.substr(1).c_str()) == 0)
+			this->handleHeader(path, 204);
+		else
+			retreiveBody(_error_pages[403], 403);
+	}
+	else
+		retreiveBody(_error_pages[404], 404);
+}
+
+void		Response::getMethod(Request &request)
+{
+	if (endsWith(request.getPath(), ".php"))
+	{
+		std::string s("bin/php-cgi"); // Path to cgi binary
+		std::string t_path(request.getPath());
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi((char *)s.c_str(), t_path, request);
+		cgi.runCgi(request);
+		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+		char *body = strstr(output, "\r\n\r\n"); // get output body
+		body += 4; // skip \r\n\r\n
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
+			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+		else
+		{
+			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->_body = std::string(body);
+		}
+	}
+	else
+		retreiveBody(request.getPath(), 200);
+}
+
+void		Response::postMethod(Request &request)
+{
+	if (endsWith(request.getPath(), ".php"))
+	{
+		std::string s("bin/php-cgi"); // Path to cgi binary
+		std::string t_path(request.getPath());
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi((char *)s.c_str(), t_path, request);
+		cgi.runCgi(request);
+		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
+		char *body = strstr(output, "\r\n\r\n"); // get output body
+		body += 4; // skip \r\n\r\n
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
+			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+		else
+		{
+			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->_body = std::string(body);
+		}
+	}
+	else
+		this->handleHeader(request.getPath(), 204);
+}
 
 void		Response::prepare(Request &request)
 {
@@ -258,21 +321,16 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_error_pages[405], 405);
 	else if (request.getBody().size() > _conf.get_client_max_body_size())
 		this->retreiveBody(_error_pages[413], 413);
-	else if (endsWith(request.getPath(), ".php"))
-	{
-		std::string s("bin/php-cgi"); // Path to cgi binary
-		std::string t_path(request.getPath());
-		if (t_path[0] == '/')
-			t_path.erase(0, 1);
-		Cgi cgi((char *)s.c_str(), t_path, request); // Cgi constr.
-		cgi.runCgi(request); // run Cgi
-		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-		char *body = strstr(output, "\r\n\r\n"); // get output body
-		body += 4; // skip \r\n\r\n
-		this->_body = std::string(body);
-	}
 	else
-		retreiveBody(request.getPath(), 200);
+	{
+		if (request.getMethod() == GET)
+			this->getMethod(request);
+		else if (request.getMethod() == POST)
+			this->postMethod(request);
+		else if (request.getMethod() == DELETE)
+			this ->deleteMethod(request.getPath());
+	}
+
 }
 
 std::string Response::parse(void)
