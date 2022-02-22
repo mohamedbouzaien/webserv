@@ -10,6 +10,7 @@
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
 #define BUFFER_SIZE 30
+#define MAX_MALLOC_SIZE 16711568
 
 class Request {
 	private:

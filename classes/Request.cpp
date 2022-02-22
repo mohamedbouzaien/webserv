@@ -271,7 +271,7 @@ int Request::unchunkBody(std::vector<char> &body_buffer) {
 		if (chunk_size == std::string::npos)
 			return (chunk_size);
 		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
-		if (chunk_size > 16711568)
+		if (chunk_size > MAX_MALLOC_SIZE)
 			return (0);
 		if (body_copy.size() < chunk_size)
 			return (-1);
