@@ -4,11 +4,13 @@
 #include <cstdlib>
 #include <map>
 #include <vector>
+#include <algorithm>
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
 #define BUFFER_SIZE 30
+#define MAX_MALLOC_SIZE 16711568
 
 class Request {
 	private:
@@ -39,8 +41,10 @@ class Request {
 		void setHeaderField(std::string, char *);
 		int recvSocket(std::string& request);
 		int readSocket(std::string& request, std::string pattern);
-		int readChunkedBody();
-		int unchunkBody(std::string &chunked_body);
+		int readChunkedBody(int readed);
+		int searchEndline(std::vector<char> &vector) const;
+		int getChunkSize(std::vector<char> &vector) const;
+		int unchunkBody(std::vector<char> &body_buffer);
 		int readBody(size_t len);
 		int isHeaderEnded(std::string &request, char *buffer) ;
 		int handle();
