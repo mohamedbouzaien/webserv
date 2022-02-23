@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/22 11:58:41 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/23 18:09:38 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <sstream>
 
 # include <time.h>
+# include <dirent.h>
 # include <sys/stat.h>
 
 # include "Request.hpp"
@@ -39,6 +40,10 @@ class Response
 		Server_t							_conf;
 		Location_t							_loc;
 		std::map<int, std::string>			_error_pages;
+		int									_autoindex;
+		std::string							_host;
+		int									_port;
+		
 
 		void		addHeader(std::string key, std::string value);
 		void		initMime();
@@ -51,6 +56,7 @@ class Response
 		void		getMethod(Request &request);
 		void		deleteMethod(std::string const &path);
 		void		postMethod(Request &request);
+		void		listDirectory(std::string const &path, std::string const &host, int port);
 	public:
 		Response(const Server_t &conf);
 		Response(const Response &copy);

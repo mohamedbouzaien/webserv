@@ -6,13 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/23 09:49:45 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/23 19:36:25 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../headers/Response.hpp"
 
-Response::Response(const Server_t &conf) : _conf(conf)
+Response::Response(const Server_t &conf) : _conf(conf), _autoindex(false)
 {
 	this->initMime();
 	this->initCodes();
@@ -184,12 +184,7 @@ void		Response::retreiveBody(std::string path, int code)
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
 
-	if (!pathIsFile(path.substr(1)))
-	{
-		std::cerr << "File not found => \"" << path.substr(1) << "\"" << std::endl;
-		this->retreiveBody(_error_pages[404], 404);
-	}
-	else
+	if (pathIsFile(path.substr(1)))
 	{
 		indata.open(path.substr(1), std::ifstream::in);
 		if (!indata.is_open())
@@ -201,6 +196,18 @@ void		Response::retreiveBody(std::string path, int code)
 			this->_body = sstr.str();
 			indata.close();
 		}
+	}
+	else if (_autoindex)
+	{
+		this->addHeader(std::to_string(code) + " ", _codes[code]);
+		this->addHeader("Content-type: ", "text/html");
+		this->listDirectory(path, _host, _port);
+	}
+	else
+	{		
+		std::cerr << _autoindex <<" File not found => \"" << path.substr(1) << "\"" << std::endl;
+		this->retreiveBody(_error_pages[404], 404);
+
 	}
 }
 
@@ -218,6 +225,29 @@ int			Response::pathIsFile(std::string const &path)
 	}
 	else
 		return (0);
+}
+
+void		Response::listDirectory(std::string const &path, std::string const &host, int port)
+{
+	DIR	*dir=opendir(path.substr(1).c_str());
+
+	if (dir != NULL)
+	{
+		std::string	clean_p;
+		if (path.back() == '/')
+			clean_p = path.substr(0, path.length() - 1);
+		else
+			clean_p = path;
+		this->_body ="<!DOCTYPE html>\n<html>\n<head>\n<title>" + clean_p + "</title>\n\
+		</head>\n<body>\n<h1>Index of " + path + "</h1>\n<p>\n";
+		for (struct dirent *dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir))
+			this->_body += "\t\t<p><a href=\"http://" + host + ":" + std::to_string(port) + clean_p + "/"\
+			+ std::string(dirEntry->d_name) + "\">" + std::string(dirEntry->d_name) + "</a></p>\n";
+		this->_body += "</p>\n</body>\n</html>\n";
+		closedir(dir);
+	}
+	else
+		std::cerr << "can't reach to directory" << std::endl;
 }
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
@@ -297,6 +327,11 @@ void		Response::postMethod(Request &request)
 
 void		Response::prepare(Request &request)
 {
+	_host = request.getHost().first;
+	if (request.getHost().second.empty())
+		_port = 80;
+	else
+		_port = std::stoi(request.getHost().second);
 	if (_conf.is_allowed_get())
 		_allowed_methods.push_back(GET);
 	if (_conf.is_allowed_post())
@@ -304,9 +339,17 @@ void		Response::prepare(Request &request)
 	if (_conf.is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
 	if (setLocationBlock(request.getPath()))
+	{
 		_error_pages = _loc.get_error_page();
+		_autoindex = _loc.get_autoindex();
+		std::cerr << "Autoindex: " << _loc.get_autoindex() << std::endl;
+		std::cerr << "uri: " << _loc.get_uri() << std::endl;
+	}
 	else
+	{
 		_error_pages = _conf.get_error_page();
+		_autoindex = _conf.get_autoindex();
+	}
 	if ((request.getUriLength()) > URI_MAX_LEN)
 		this->retreiveBody(_error_pages[414], 414);
 	else if (request.getMethod() == BAD_REQUEST)

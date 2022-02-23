@@ -27,6 +27,7 @@ Location_t	&Location_t::operator=(const Location_t &other)
     _locations = other._locations;
     _alias = other._alias;
     _error_pages = other._error_pages;
+    _autoindex = other._autoindex;
 	return *this;
 }
 
