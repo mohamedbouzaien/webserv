@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:35:07 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 18:26:43 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/23 19:04:06 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void        Poller::handle(const Server_t &serv_conf)
 			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << std::endl;
             Connector connector(*_index_map[i]);
 			connector.setClientSocket(_fds[i].fd);
-			if (connector.handle(serv_conf) < 0)
+			if (connector.handle(serv_conf))
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
                 close(_fds[i].fd);
