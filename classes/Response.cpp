@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/22 21:38:44 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/23 09:49:45 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,15 +261,12 @@ void		Response::getMethod(Request &request)
 			t_path.erase(0, 1);
 		Cgi cgi((char *)s.c_str(), t_path, request);
 		cgi.runCgi(request);
-		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-		char *body = strstr(output, "\r\n\r\n"); // get output body
-		body += 4; // skip \r\n\r\n
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
 			this->handleHeader(request.getPath(), cgi.getStatusCode());
-			this->_body = std::string(body);
+			this->_body = cgi.getOutput();
 		}
 	}
 	else
@@ -286,15 +283,12 @@ void		Response::postMethod(Request &request)
 			t_path.erase(0, 1);
 		Cgi cgi((char *)s.c_str(), t_path, request);
 		cgi.runCgi(request);
-		char *output = cgi.getOutput(); // get Cgi result, use getStatusCode for status code (int)
-		char *body = strstr(output, "\r\n\r\n"); // get output body
-		body += 4; // skip \r\n\r\n
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
 			this->handleHeader(request.getPath(), cgi.getStatusCode());
-			this->_body = std::string(body);
+			this->_body = cgi.getOutput();
 		}
 	}
 	else
