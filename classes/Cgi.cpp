@@ -5,10 +5,20 @@ const char* Cgi::MallocFailedException::what() const throw() {
 }
 
 
-Cgi::Cgi(char *path, Request &request) : _cgi_path(path), _status_code() {
+Cgi::Cgi(char *path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
+	std::vector<char> vbody = request.getBody();
+	_body_size = vbody.size();
+	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
+		_status_code = INTERNAL_SERVER_ERROR;
+		throw Cgi::MallocFailedException();
+	}
+	std::vector<char>::iterator it = vbody.begin();
+	std::vector<char>::iterator ite = vbody.end();
+	int i = 0;
+	for (; it != ite; it++)
+		_body[i++] = *it;
+	_body[i] = 0;
 	setCgiEnv(request);
-	_body_size = request.getBody().size();
-	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 }
 
 Cgi::Cgi(const Cgi &other) {
@@ -20,21 +30,30 @@ Cgi::~Cgi() {
 		return ;
 	for (int i = 0; _cgi_env[i] != NULL; i++)
 		free(_cgi_env[i]);
+	free(_body);
 	free(_cgi_env);
 }
 
 Cgi &Cgi::operator=(const Cgi &other) {
-	if (this != &other)
+	if (this != &other) {
+
 		_cgi_path = other._cgi_path;
+		_output = other._output;
+		_body_size = other._body_size;
+		_status_code = other._status_code;
+	}
 	return (*this);
 }
 
 void Cgi::runCgi(Request &request) {
 	int pid;
 	char *argv[3];
-	argv[0] = _cgi_path;
+	char buffer[CGI_BUFFER_SIZE + 1];
+
+	argv[0] = const_cast<char *>(_cgi_path.c_str());
 	argv[1] = (char *)request.getPath().c_str();
 	argv[2] = NULL;
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		_status_code = INTERNAL_SERVER_ERROR;
@@ -56,17 +75,21 @@ void Cgi::runCgi(Request &request) {
 	}
 	else {
 		close(_body_pipe[SIDE_IN]);
-		write(_body_pipe[SIDE_OUT], request.getBody().c_str(), _body_size);
+		write(_body_pipe[SIDE_OUT], _body, _body_size);
 		close(_body_pipe[SIDE_OUT]);
 		close(_output_pipe[SIDE_OUT]);
 		waitpid(pid, &_status_code, 0);
 
 		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) != 0)
 			_status_code = INTERNAL_SERVER_ERROR;
-		read(_output_pipe[SIDE_IN], (char *)_output, CGI_BUFFER_SIZE - 1);
+		while (read(_output_pipe[SIDE_IN], buffer, CGI_BUFFER_SIZE) > 0){
+			_output += buffer;
+			memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+		}
 		close(_output_pipe[SIDE_IN]);
-		setStatusCode(_output);
 	}
+	setStatusCode(_output);
+	_output.erase(0, _output.find("\r\n\r\n") + 4);
 }
 
 void Cgi::setCgiEnv(Request &request) {
@@ -84,8 +107,8 @@ void Cgi::setCgiEnv(Request &request) {
 	mapped_cgi_env["SERVER_PORT"] = request.getHost().second;
 
 	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
-	mapped_cgi_env["PATH_INFO"] = "tests/www" + request.getPath();
-	mapped_cgi_env["PATH_TRANSLATED"] = "tests/www" + request.getPath();
+	mapped_cgi_env["PATH_INFO"] = request.getPath();
+	mapped_cgi_env["PATH_TRANSLATED"] = _translated_path;
 	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
@@ -103,7 +126,7 @@ void Cgi::setCgiEnv(Request &request) {
 
 	if (mapped_cgi_env["REQUEST_METHOD"] == "POST") {
 		mapped_cgi_env["CONTENT_TYPE"] = header_fields["Content-Type"];
-		mapped_cgi_env["CONTENT_LENGTH"] = std::to_string(request.getBody().size());
+		mapped_cgi_env["CONTENT_LENGTH"] = std::to_string(_body_size);
 	}
 
 	mapped_cgi_env["REDIRECT_STATUS"] = "200";
@@ -165,11 +188,11 @@ void Cgi::setStatusCode(std::string buffer) {
 
 //Getter
 
-char* Cgi::getOutput() const {
-	return ((char *)_output);
+std::string Cgi::getOutput() const {
+	return (_output);
 } 
 
-char* Cgi::getCgiPath() const {
+std::string Cgi::getCgiPath() const {
 	return (_cgi_path);
 }
 

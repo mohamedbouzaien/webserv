@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/15 22:20:53 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/22 13:19:07 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,17 +93,12 @@ const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const
 
 int    Connector::handle(const std::vector<Server_t> &servs)
 {
-	Request		request;
+	Request request(_client_socket);
+	int status;
 
-	char buffer[30000];
-	int	bytesRead = recv(_client_socket, buffer, 30000, 0);
-	if (bytesRead < 0)
-		throw Connector::RecvFailedException();
-	if (bytesRead == 0)
-		return (-1);
-
-	std::cout << buffer << std::endl;
-	request.parseRequest(buffer);
+	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
+	if ((status = request.handle()) < 1)
+		return (status);
 	std::cout << request << std::endl;
 
 	Response	response(choose_serv(servs, request.getHost().first));
@@ -112,8 +107,8 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	request.clear();
-	memset(buffer, 0, 30000);
-	return (0);
+	std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
+	return (1);
 }
 
 void	Connector::setClientSocket(int client_socket)

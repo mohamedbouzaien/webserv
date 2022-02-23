@@ -3,29 +3,35 @@
 #include <unistd.h>
 #define SIDE_IN 0
 #define SIDE_OUT 1
-#define CGI_BUFFER_SIZE 4096
+#define CGI_BUFFER_SIZE 96
 #define INTERNAL_SERVER_ERROR 500
 #define OK 200
+
 class Cgi {
 	private:
-		char *_cgi_path;
-		char _output[CGI_BUFFER_SIZE];
+
+		std::string _cgi_path;
+		std::string _translated_path;
+		std::string _output;
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
+		char *_body;
 		int _body_size;
 		int _status_code;
 		char **_cgi_env;
 
 	public:
-		Cgi(char *path, Request &request);
+		Cgi(char *cgi_path, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
 		void runCgi(Request &request);
 		void setCgiPath(char *path);
-		char *getCgiPath() const;
-		char *getOutput() const;
+		void setTranslatedPath(std::string t_path);
+		std::string getTranslatedPath() const ;
+		std::string getCgiPath() const;
+		std::string getOutput() const;
 		int getStatusCode() const;
 		void setStatusCode(std::string buffer);
 		void setCgiEnv(Request &request);
