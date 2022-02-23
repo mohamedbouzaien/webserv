@@ -18,7 +18,6 @@ Cgi::Cgi(char *path, std::string t_path, Request &request) : _cgi_path(path), _t
 	for (; it != ite; it++)
 		_body[i++] = *it;
 	_body[i] = 0;
-	memset((char *)_output, 0, CGI_BUFFER_SIZE);
 	setCgiEnv(request);
 }
 
@@ -39,7 +38,7 @@ Cgi &Cgi::operator=(const Cgi &other) {
 	if (this != &other) {
 
 		_cgi_path = other._cgi_path;
-		strcpy(_output, other._output);
+		_output = other._output;
 		_body_size = other._body_size;
 		_status_code = other._status_code;
 	}
@@ -49,10 +48,12 @@ Cgi &Cgi::operator=(const Cgi &other) {
 void Cgi::runCgi(Request &request) {
 	int pid;
 	char *argv[3];
+	char buffer[CGI_BUFFER_SIZE + 1];
+
 	argv[0] = const_cast<char *>(_cgi_path.c_str());
 	argv[1] = (char *)request.getPath().c_str();
 	argv[2] = NULL;
-
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		_status_code = INTERNAL_SERVER_ERROR;
@@ -81,10 +82,14 @@ void Cgi::runCgi(Request &request) {
 
 		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) != 0)
 			_status_code = INTERNAL_SERVER_ERROR;
-		read(_output_pipe[SIDE_IN], (char *)_output, CGI_BUFFER_SIZE - 1);
+		while (read(_output_pipe[SIDE_IN], buffer, CGI_BUFFER_SIZE) > 0){
+			_output += buffer;
+			memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+		}
 		close(_output_pipe[SIDE_IN]);
-		setStatusCode(_output);
 	}
+	setStatusCode(_output);
+	_output.erase(0, _output.find("\r\n\r\n") + 4);
 }
 
 void Cgi::setCgiEnv(Request &request) {
@@ -183,8 +188,8 @@ void Cgi::setStatusCode(std::string buffer) {
 
 //Getter
 
-char* Cgi::getOutput() const {
-	return ((char *)_output);
+std::string Cgi::getOutput() const {
+	return (_output);
 } 
 
 std::string Cgi::getCgiPath() const {
