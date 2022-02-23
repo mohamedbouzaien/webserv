@@ -56,7 +56,7 @@ void        Poller::start(void)
 		throw	Poller::PollFailedException();
 }
 
-void        Poller::handle(const Server_t &serv_conf)
+void        Poller::handle(const std::vector<Server_t> &servs)
 {
 	int current_sockets;
 
@@ -81,10 +81,10 @@ void        Poller::handle(const Server_t &serv_conf)
         }
         else
 		{
-			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << std::endl;
+			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << " on "  << inet_ntoa(_index_map[i]->getAddress().sin_addr) << ":" << ntohs(_index_map[i]->getAddress().sin_port)  << std::endl;
             Connector connector(*_index_map[i]);
 			connector.setClientSocket(_fds[i].fd);
-			if (connector.handle(serv_conf) < 0)
+			if (connector.handle(servs) < 0)
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
                 close(_fds[i].fd);
