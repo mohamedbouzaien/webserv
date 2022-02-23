@@ -73,11 +73,16 @@ const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const
                     possible.push_back(&(*serv_it));
     }
 
-    // if (!possible.size()) //TEMPORARY
+    /* TESTING
+    // if (!possible.size())
     //    std::cout << "IL Y A UN GROOOOOS PROBLEME DANS LA FONCTION CHOOSE_SERVER" << std::endl;
+    for (std::list<const Server_t*>::const_iterator serv_it = possible.begin(); serv_it != possible.end(); ++serv_it)
+        (*serv_it)->print(); // TESTING
+    */
+
+    // If only one possibility, return it
     if (possible.size() == 1)
         return **possible.begin();
-
     // Multiple servers with same priority, analyze server_name
     for (std::list<const Server_t*>::const_iterator serv_it = possible.begin(); serv_it != possible.end(); ++serv_it)
         if ((*serv_it)->has_name(host))

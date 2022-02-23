@@ -73,8 +73,8 @@ class Context_t
         bool is_allowed_get()   const;
         bool is_allowed_post()  const;
         bool is_allowed_delete()        const;
-        const std::string &get_cgi_path();
-        const std::string &get_cgi_type();
+        const std::string &get_cgi_path() const ;
+        const std::string &get_cgi_type() const;
 };
 
 #endif

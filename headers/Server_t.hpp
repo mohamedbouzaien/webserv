@@ -46,7 +46,7 @@ class Server_t : public Context_t
 
 
         //testing
-        void print();
+        void print() const;
 };
 
 
