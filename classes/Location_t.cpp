@@ -55,7 +55,7 @@ const std::string &Location_t::get_uri() const
 }
 
 #include <iostream>
-void Location_t::print(){
+void Location_t::print() const {
     std::cout << "  Location content:\n";
     std::cout << "    uri: " << _uri << "\n";
     std::cout << "    root: " << _root << "\n";
@@ -76,16 +76,16 @@ void Location_t::print(){
     std::cout << "    _cgi_type: " << get_cgi_type() << '\n';
 
     std::cout << "    index:\n";
-    for (std::list<std::string>::iterator it = _index.begin();
+    for (std::list<std::string>::const_iterator it = _index.begin();
             it != _index.end(); ++it)
         std::cout << "     -" << *it << '\n';
 
     std::cout << "    error_pages:\n";
-    for (std::map<int, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
+    for (std::map<int, std::string>::const_iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
 
 
-    for (std::vector<Location_t>::iterator it = _locations.begin();
+    for (std::vector<Location_t>::const_iterator it = _locations.begin();
             it != _locations.end(); ++it) {
         std::cout << "---- SubLocation " << it->_uri << "----\n";
         it->print();

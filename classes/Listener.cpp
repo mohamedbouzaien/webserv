@@ -53,7 +53,7 @@ int			Listener::getFd()
 	return (this->_fd);
 }
 
-sockaddr_in	&Listener::getAddress()
+const sockaddr_in	&Listener::getAddress() const
 {
 	return (this->_address);
 }
