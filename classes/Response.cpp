@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/23 09:49:45 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/24 15:03:49 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,9 +307,9 @@ void		Response::prepare(Request &request)
 		_error_pages = _loc.get_error_page();
 	else
 		_error_pages = _conf.get_error_page();
-	if ((request.getUriLength()) > URI_MAX_LEN)
+	if ((request.getStatusCode()) == 414)
 		this->retreiveBody(_error_pages[414], 414);
-	else if (request.getMethod() == BAD_REQUEST)
+	else if (request.getStatusCode() == 400)
 		this->retreiveBody(_error_pages[400], 400);
 	else if (std::find(_allowed_methods.begin(), _allowed_methods.end(), request.getMethod()) == _allowed_methods.end())
 		this->retreiveBody(_error_pages[405], 405);

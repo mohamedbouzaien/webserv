@@ -163,7 +163,6 @@ int Request::setRequestField(char *buffer) {
 void Request::parseRequest(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
-	_uri_length = _path.size();
 	if (!buffer || !*buffer)
 		return;
 	buffer++;
@@ -178,7 +177,8 @@ void Request::parseRequest(char *buffer) {
 		}
 		buffer++;
 	}
-	_uri_length += _host.first.size();
+	if (_path.size() + _host.first.size() > MAX_URI_SIZE)
+		_status_code = 414;
 }
 
 int		Request::isHeaderEnded(std::string &request, char *buffer) {
@@ -371,12 +371,12 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 	_header_fields = header_fields;
 }
 
-void Request::setUriLength(int len) {
-	_uri_length = len;
-}
-
 void Request::setBody(std::vector<char> vbody) {
 	_body = vbody;
+}
+
+void Request::setStatusCode(int status_code) {
+	_status_code = status_code;
 }
 
 //Getters
@@ -416,8 +416,8 @@ std::vector<char> Request::getBody() const {
 	return (_body);
 }
 
-int Request::getUriLength() const {
-	return (_uri_length);
+int Request::getStatusCode() const {
+	return (_status_code);
 }
 
 // << OVERLOAD
@@ -435,7 +435,6 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 		std::cout << request._host.second << std::endl;
 	else
 		std::cout << "Non Specified" << std::endl;
-	std::cout << "URI Length: " << request._uri_length << std::endl;
 	std::cout << "Header fields:" << std::endl;
 	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
 	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();
