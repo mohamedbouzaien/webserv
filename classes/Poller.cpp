@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:35:07 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 18:26:43 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/24 09:44:33 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
 			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << " on "  << inet_ntoa(_index_map[i]->getAddress().sin_addr) << ":" << ntohs(_index_map[i]->getAddress().sin_port)  << std::endl;
             Connector connector(*_index_map[i]);
 			connector.setClientSocket(_fds[i].fd);
-			if (connector.handle(servs) < 0)
+			if (connector.handle(servs))
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
                 close(_fds[i].fd);
