@@ -78,7 +78,7 @@ bool Server_t::listen_empty() const
 
 
 #include <iostream>
-void Server_t::print(){
+void Server_t::print() const{
     std::cout << "Server content:\n";
 
     std::cout << "  server names:\n";
@@ -94,12 +94,12 @@ void Server_t::print(){
     std::cout << "  root: " << _root << "\n";
 
     std::cout << "  index:\n";
-    for (std::list<std::string>::iterator it = _index.begin();
+    for (std::list<std::string>::const_iterator it = _index.begin();
             it != _index.end(); ++it)
         std::cout << "   -" << *it << '\n';
 
     std::cout << "  error_pages:\n";
-    for (std::map<int, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
+    for (std::map<int, std::string>::const_iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         std::cout << "     -" << it->first << " / " << it->second << '\n';
 
     std::cout << "  _autoindex: " << _autoindex << '\n';
@@ -120,7 +120,7 @@ void Server_t::print(){
 
     if  (_locations.size())
         std::cout << "  locations: \n";
-    for (std::vector<Location_t>::iterator it = _locations.begin();
+    for (std::vector<Location_t>::const_iterator it = _locations.begin();
             it != _locations.end(); ++it){
         std::cout << "---- Location " << it->get_uri() << " ----\n";
         it->print();

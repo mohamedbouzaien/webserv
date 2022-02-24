@@ -17,7 +17,7 @@
 # include "headers/Lstn_collec.hpp"
 
 # include <string.h>
-#include "headers/Request.hpp"
+# include "headers/Request.hpp"
 
 
 
@@ -40,7 +40,7 @@ int main(int ac, char **av) {
             while (true)
             {
                 poller.start();
-                poller.handle(conf.get_servers()[0]);
+                poller.handle(conf.get_servers());
             }
 
         }

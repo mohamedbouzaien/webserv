@@ -33,7 +33,7 @@ class Location_t : public Context_t
         const std::string &get_alias() const;
 
         //testing
-        void print();
+        void print() const;
 };
 
 

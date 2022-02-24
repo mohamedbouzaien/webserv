@@ -32,7 +32,7 @@ class	Listener
 		virtual	~Listener() {};
 
 		int		getFd();
-		sockaddr_in	&getAddress();
+		const sockaddr_in	&getAddress() const;
 
 		class CreationFailedException : public std::exception
 		{
