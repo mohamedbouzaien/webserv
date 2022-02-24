@@ -59,12 +59,12 @@ int Request::setRequestLine(char *buffer) {
 	else if (keyword == "DELETE")
 		_method = DELETE;
 	else
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	buffer += pos;
 	if (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
-		_method = BAD_REQUEST;
+		_status_code = 400;
 
 	pos = 0;
 	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
@@ -81,11 +81,11 @@ int Request::setRequestLine(char *buffer) {
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	_protocol = std::string(buffer, pos);
 	buffer += pos;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	while (*buffer && *buffer != '\n')
 		buffer++;
 	return (1);
@@ -100,7 +100,7 @@ int Request::setHostField(char *buffer) {
 
 	if (_host.first.size())
 	{
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return (0);
 	}
 	while (*buffer == ' ')
@@ -122,7 +122,7 @@ int Request::setHostField(char *buffer) {
 	while (*buffer == ' ')
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	return (1);
 }
 
@@ -133,7 +133,7 @@ void Request::setHeaderField(std::string keyword, char *buffer) {
 	while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
 	if (buffer[pos] == '\r' && buffer[pos + 1] != '\n') {
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return ;
 	}
 	pos--;
@@ -149,7 +149,7 @@ int Request::setRequestField(char *buffer) {
 	std::string keyword(buffer, pos);
 	if (buffer[pos] != ':')
 	{
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return (1);
 	}
 	pos++;
@@ -173,7 +173,7 @@ void Request::parseRequest(char *buffer) {
 		buffer = strchr(buffer, '\n');
 		if (buffer == NULL)
 		{
-			_method = BAD_REQUEST;
+			_status_code = 400;
 			break;
 		}
 		buffer++;
@@ -204,36 +204,32 @@ int		Request::isHeaderEnded(std::string &request, char *buffer) {
 	return (0);
 }
 
-int		Request::recvSocket(std::string &request) {
+int		Request::recvHeader(std::string &header) {
 	char buffer[BUFFER_SIZE + 1];
 	int	bytesRead;
 	int to_skip = 0;
 
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
-	if ((to_skip = isHeaderEnded(request, buffer)) > 0)
+	if ((to_skip = isHeaderEnded(header, buffer)) > 0)
 		_is_body = 1;
 	if (_is_body)
 		_body.insert(_body.end(), buffer + to_skip, buffer + bytesRead);
-	request += std::string(buffer, to_skip);
+	header += std::string(buffer, to_skip);
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
 }
 
-int		Request::readSocket(std::string &request, std::string pattern) {
+int		Request::readHeader(std::string &header) {
 	int status;
 
-	while (request.find(pattern) == std::string::npos) {
-		status = recvSocket(request);
-		std::cout << request << std::endl;
-		std::cout << "size : " << request.size() << std::endl;
-		std::cout << "---" << std::endl;
+	while (header.find("\r\n\r\n") == std::string::npos) {
+		status = recvHeader(header);
 		if (status <= 0)
 			return (-1);
-		if (status != BUFFER_SIZE || request.size() > MAX_HEADER_SIZE) {
-			if (request.size() > MAX_HEADER_SIZE)
+		if (status != BUFFER_SIZE || header.size() > MAX_HEADER_SIZE) {
+			if (header.size() > MAX_HEADER_SIZE)
 				_status_code = 431;
-			std::cout << _status_code << std::endl;
 			break;
 		}
 	}
@@ -339,9 +335,10 @@ int Request::handle() {
 	std::string header;
 	int status;
 
-	status = readSocket(header, "\r\n\r\n");
+	status = readHeader(header);
 	if (status < 1)
 		return (status);
+	std::cout << _status_code << ", size : " << header.size() << std::endl;
 	parseRequest((char *)header.c_str());
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status);

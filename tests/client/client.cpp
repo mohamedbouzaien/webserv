@@ -44,6 +44,8 @@ int main(int ac, char **av) {
 		if (pfds[0].revents & POLLIN) {
 			read(sockfd, response, MAXLINE - 1);
 			std::cout << response;
+			close(pfds[0].fd);
+			break;
 		}
 		else {
 			std::cout << "Socket closed" << std::endl;

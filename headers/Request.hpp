@@ -9,9 +9,9 @@
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
-#define BUFFER_SIZE 300
+#define BUFFER_SIZE 30000
 #define MAX_MALLOC_SIZE 16711568
-#define MAX_HEADER_SIZE 84
+#define MAX_HEADER_SIZE 80
 
 class Request {
 	private:
@@ -41,8 +41,8 @@ class Request {
 		int setHostField(char *buffer);
 		void parseRequest(char *buffer);
 		void setHeaderField(std::string, char *);
-		int recvSocket(std::string& request);
-		int readSocket(std::string& request, std::string pattern);
+		int recvHeader(std::string& header);
+		int readHeader(std::string& header);
 		int readChunkedBody(int readed);
 		int searchEndline(std::vector<char> &vector) const;
 		int getChunkSize(std::vector<char> &vector) const;
