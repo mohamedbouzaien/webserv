@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/23 19:36:25 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/24 18:08:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,8 +183,10 @@ void		Response::retreiveBody(std::string path, int code)
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
+	int					path_type;
 
-	if (pathIsFile(path.substr(1)))
+	path_type = pathIsFile(path.substr(1));
+	if (path_type == 1)
 	{
 		indata.open(path.substr(1), std::ifstream::in);
 		if (!indata.is_open())
@@ -197,11 +199,22 @@ void		Response::retreiveBody(std::string path, int code)
 			indata.close();
 		}
 	}
-	else if (_autoindex)
+	else if (path_type == 0)
 	{
-		this->addHeader(std::to_string(code) + " ", _codes[code]);
-		this->addHeader("Content-type: ", "text/html");
-		this->listDirectory(path, _host, _port);
+		std::vector<std::string>	dir_conts = getDirContents(path);
+		std::string index = findIndex(dir_conts);
+		if (!index.empty())
+		{
+			if (!(path.back() == '/'))
+				path += '/';
+			this->retreiveBody(path + index, 200);
+		}
+		else if (_autoindex)
+		{
+			this->addHeader(std::to_string(code) + " ", _codes[code]);
+			this->addHeader("Content-type: ", "text/html");
+			this->listDirectory(path, dir_conts);
+		}
 	}
 	else
 	{		
@@ -221,33 +234,52 @@ int			Response::pathIsFile(std::string const &path)
 		else if (s.st_mode & S_IFREG)
 			return (1);
 		else
-			return (0);
+			return (-1);
 	}
 	else
-		return (0);
+		return (-1);
 }
 
-void		Response::listDirectory(std::string const &path, std::string const &host, int port)
+std::vector<std::string>	Response::getDirContents(std::string const &path)
 {
-	DIR	*dir=opendir(path.substr(1).c_str());
+	DIR							*dir=opendir(path.substr(1).c_str());
+	std::vector<std::string>	dir_contents;
 
 	if (dir != NULL)
 	{
-		std::string	clean_p;
-		if (path.back() == '/')
-			clean_p = path.substr(0, path.length() - 1);
-		else
-			clean_p = path;
-		this->_body ="<!DOCTYPE html>\n<html>\n<head>\n<title>" + clean_p + "</title>\n\
-		</head>\n<body>\n<h1>Index of " + path + "</h1>\n<p>\n";
-		for (struct dirent *dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir))
-			this->_body += "\t\t<p><a href=\"http://" + host + ":" + std::to_string(port) + clean_p + "/"\
-			+ std::string(dirEntry->d_name) + "\">" + std::string(dirEntry->d_name) + "</a></p>\n";
-		this->_body += "</p>\n</body>\n</html>\n";
+		for (struct dirent *entry = readdir(dir); entry; entry = readdir(dir))
+			dir_contents.push_back(std::string(entry->d_name));
 		closedir(dir);
 	}
 	else
 		std::cerr << "can't reach to directory" << std::endl;
+	return (dir_contents);
+}
+
+void		Response::listDirectory(std::string const &path, std::vector<std::string> dir_cont)
+{
+		std::string	clean_p;
+		
+		if (path.back() == '/')
+			clean_p = path.substr(0, path.length() - 1);
+		else
+			clean_p = path;
+		this->_body ="<!DOCTYPE html><html><head><title>" + clean_p + "</title>\
+		</head><body><h1>Index of " + path + "</h1><p>";
+		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); it++)
+			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + clean_p + "/"\
+			+ *it + "\">" + *it + "</a></p>";
+		this->_body += "</p></body></html>";
+}
+
+std::string		Response::findIndex(std::vector<std::string> dir_cont)
+{
+	std::string							find_index;
+
+	for (std::list<std::string>::iterator itl = _index_list.begin(); itl != _index_list.end(); ++itl)
+		if (std::find(dir_cont.begin(), dir_cont.end(), *itl) != dir_cont.end())
+			return (*itl);
+	return (std::string());
 }
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
@@ -270,7 +302,7 @@ int			Response::setLocationBlock(std::string const &path)
 
 void		Response::deleteMethod(std::string const &path)
 {
-	if (pathIsFile(path.substr(1)))
+	if (pathIsFile(path.substr(1)) != -1)
 	{
 		if (remove(path.substr(1).c_str()) == 0)
 			this->handleHeader(path, 204);
@@ -342,13 +374,13 @@ void		Response::prepare(Request &request)
 	{
 		_error_pages = _loc.get_error_page();
 		_autoindex = _loc.get_autoindex();
-		std::cerr << "Autoindex: " << _loc.get_autoindex() << std::endl;
-		std::cerr << "uri: " << _loc.get_uri() << std::endl;
+		_index_list = _loc.get_index();
 	}
 	else
 	{
 		_error_pages = _conf.get_error_page();
 		_autoindex = _conf.get_autoindex();
+		_index_list = _conf.get_index();
 	}
 	if ((request.getUriLength()) > URI_MAX_LEN)
 		this->retreiveBody(_error_pages[414], 414);
@@ -365,9 +397,8 @@ void		Response::prepare(Request &request)
 		else if (request.getMethod() == POST)
 			this->postMethod(request);
 		else if (request.getMethod() == DELETE)
-			this ->deleteMethod(request.getPath());
+			this->deleteMethod(request.getPath());
 	}
-
 }
 
 std::string Response::parse(void)

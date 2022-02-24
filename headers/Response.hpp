@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/23 18:09:38 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/02/24 18:02:31 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Response
 		int									_autoindex;
 		std::string							_host;
 		int									_port;
+		std::list<std::string>				_index_list;
 		
 
 		void		addHeader(std::string key, std::string value);
@@ -56,7 +57,9 @@ class Response
 		void		getMethod(Request &request);
 		void		deleteMethod(std::string const &path);
 		void		postMethod(Request &request);
-		void		listDirectory(std::string const &path, std::string const &host, int port);
+		void		listDirectory(std::string const &path, std::vector<std::string> dir_cont);
+		std::string	findIndex(std::vector<std::string> dir_cont);
+		std::vector<std::string>	getDirContents(std::string const &path);
 	public:
 		Response(const Server_t &conf);
 		Response(const Response &copy);
