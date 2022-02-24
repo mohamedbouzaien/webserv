@@ -14,6 +14,12 @@
 
 # define CONNECTOR_HPP
 
+# include <arpa/inet.h>
+# include <list>
+# include <vector>
+# include <algorithm>
+
+
 # include "Listener.hpp"
 # include "Response.hpp"
 # include "Config.hpp"
@@ -26,6 +32,9 @@ class Connector
 	private:
 		int				_client_socket;
 		Listener		_listener;
+
+        const Server_t &choose_serv(const std::vector<Server_t> &servs, const std::string host) const;
+
 	public:
 		Connector(Listener &listener);
 		Connector(const Connector &copy);
@@ -43,7 +52,7 @@ class Connector
 		};
 		void		poll_server();
 		void		accept_c();
-		int			handle(const Server_t &serv_conf);
+		int			handle(const std::vector<Server_t> &servs);
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
 		Listener	getListener()	const;

@@ -171,12 +171,12 @@ bool Context_t::is_allowed_delete() const
     return _allow_method[METH_DELETE];
 }
 
-const std::string &Context_t::get_cgi_path()
+const std::string &Context_t::get_cgi_path() const
 {
     return _cgi.first;
 }
 
-const std::string &Context_t::get_cgi_type()
+const std::string &Context_t::get_cgi_type() const
 {
     return _cgi.second;
 }
