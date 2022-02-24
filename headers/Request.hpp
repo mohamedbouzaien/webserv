@@ -9,8 +9,9 @@
 #define POST "POST"
 #define DELETE "DELETE"
 #define BAD_REQUEST "BAD REQUEST"
-#define BUFFER_SIZE 30
+#define BUFFER_SIZE 300
 #define MAX_MALLOC_SIZE 16711568
+#define MAX_HEADER_SIZE 84
 
 class Request {
 	private:
@@ -24,6 +25,7 @@ class Request {
 		std::vector<char> _body;
 		int _is_body;
 		int _uri_length;
+		int _status_code;
 
 	public:
 		Request();

@@ -5,9 +5,9 @@ const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Request::Request() : _is_body(0) {}
+Request::Request() :  _is_body(0) , _status_code(200){}
 
-Request::Request(int socket) : _client_socket(socket), _is_body(0) {}
+Request::Request(int socket) : _client_socket(socket), _is_body(0), _status_code(200) {}
 
 Request::Request(const Request &other) {
 	*this = other;
@@ -179,10 +179,6 @@ void Request::parseRequest(char *buffer) {
 		buffer++;
 	}
 	_uri_length += _host.first.size();
-	if (*buffer == '\r')
-		buffer++;
-	if (*buffer == '\n')
-		buffer++;
 }
 
 int		Request::isHeaderEnded(std::string &request, char *buffer) {
@@ -219,7 +215,7 @@ int		Request::recvSocket(std::string &request) {
 		_is_body = 1;
 	if (_is_body)
 		_body.insert(_body.end(), buffer + to_skip, buffer + bytesRead);
-	request += buffer;
+	request += std::string(buffer, to_skip);
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
 }
@@ -229,10 +225,17 @@ int		Request::readSocket(std::string &request, std::string pattern) {
 
 	while (request.find(pattern) == std::string::npos) {
 		status = recvSocket(request);
+		std::cout << request << std::endl;
+		std::cout << "size : " << request.size() << std::endl;
+		std::cout << "---" << std::endl;
 		if (status <= 0)
 			return (-1);
-		if (status != BUFFER_SIZE)
+		if (status != BUFFER_SIZE || request.size() > MAX_HEADER_SIZE) {
+			if (request.size() > MAX_HEADER_SIZE)
+				_status_code = 431;
+			std::cout << _status_code << std::endl;
 			break;
+		}
 	}
 	return (status);
 }
