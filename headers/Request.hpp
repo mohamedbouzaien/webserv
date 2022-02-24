@@ -58,6 +58,7 @@ class Request {
 		void setUriLength(int len);
 		void setBody(std::vector<char> vbody);
 		//Getters
+		std::string search(std::string) const;
 		int getClientSocket() const;
 		std::string getMethod() const ;
 		std::string getPath() const ;

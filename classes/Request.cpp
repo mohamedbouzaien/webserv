@@ -381,6 +381,13 @@ void Request::setBody(std::vector<char> vbody) {
 
 //Getters
 
+std::string Request::search(std::string s) const {
+	if (_header_fields.find(s) != _header_fields.end())
+		return (_header_fields.find(s)->second);
+	else
+		return ("");
+}
+
 std::string Request::getMethod() const {
 	return (_method);
 }
