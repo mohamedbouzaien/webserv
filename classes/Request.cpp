@@ -225,6 +225,7 @@ int		Request::readHeader(std::string &header) {
 
 	while (header.find("\r\n\r\n") == std::string::npos) {
 		status = recvHeader(header);
+		std::cout << header << std::endl;
 		if (status <= 0)
 			return (-1);
 		if (status != BUFFER_SIZE || header.size() > MAX_HEADER_SIZE) {
