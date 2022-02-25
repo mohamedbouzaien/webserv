@@ -26,7 +26,7 @@ Location_t	&Location_t::operator=(const Location_t &other)
     _uri = other._uri;
     _locations = other._locations;
     _alias = other._alias;
-    _error_pages = other._error_pages;
+    Context_t::operator=(other);
 	return *this;
 }
 

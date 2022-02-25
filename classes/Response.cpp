@@ -6,13 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/23 09:49:45 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/24 18:08:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../headers/Response.hpp"
 
-Response::Response(const Server_t &conf) : _conf(conf)
+Response::Response(const Server_t &conf) : _conf(conf), _autoindex(false)
 {
 	this->initMime();
 	this->initCodes();
@@ -183,13 +183,10 @@ void		Response::retreiveBody(std::string path, int code)
 {
 	std::ifstream   	indata;
 	std::ostringstream	sstr;
+	int					path_type;
 
-	if (!pathIsFile(path.substr(1)))
-	{
-		std::cerr << "File not found => \"" << path.substr(1) << "\"" << std::endl;
-		this->retreiveBody(_error_pages[404], 404);
-	}
-	else
+	path_type = pathIsFile(path.substr(1));
+	if (path_type == 1)
 	{
 		indata.open(path.substr(1), std::ifstream::in);
 		if (!indata.is_open())
@@ -201,6 +198,29 @@ void		Response::retreiveBody(std::string path, int code)
 			this->_body = sstr.str();
 			indata.close();
 		}
+	}
+	else if (path_type == 0)
+	{
+		std::vector<std::string>	dir_conts = getDirContents(path);
+		std::string index = findIndex(dir_conts);
+		if (!index.empty())
+		{
+			if (!(path.back() == '/'))
+				path += '/';
+			this->retreiveBody(path + index, 200);
+		}
+		else if (_autoindex)
+		{
+			this->addHeader(std::to_string(code) + " ", _codes[code]);
+			this->addHeader("Content-type: ", "text/html");
+			this->listDirectory(path, dir_conts);
+		}
+	}
+	else
+	{		
+		std::cerr << _autoindex <<" File not found => \"" << path.substr(1) << "\"" << std::endl;
+		this->retreiveBody(_error_pages[404], 404);
+
 	}
 }
 
@@ -214,10 +234,52 @@ int			Response::pathIsFile(std::string const &path)
 		else if (s.st_mode & S_IFREG)
 			return (1);
 		else
-			return (0);
+			return (-1);
 	}
 	else
-		return (0);
+		return (-1);
+}
+
+std::vector<std::string>	Response::getDirContents(std::string const &path)
+{
+	DIR							*dir=opendir(path.substr(1).c_str());
+	std::vector<std::string>	dir_contents;
+
+	if (dir != NULL)
+	{
+		for (struct dirent *entry = readdir(dir); entry; entry = readdir(dir))
+			dir_contents.push_back(std::string(entry->d_name));
+		closedir(dir);
+	}
+	else
+		std::cerr << "can't reach to directory" << std::endl;
+	return (dir_contents);
+}
+
+void		Response::listDirectory(std::string const &path, std::vector<std::string> dir_cont)
+{
+		std::string	clean_p;
+		
+		if (path.back() == '/')
+			clean_p = path.substr(0, path.length() - 1);
+		else
+			clean_p = path;
+		this->_body ="<!DOCTYPE html><html><head><title>" + clean_p + "</title>\
+		</head><body><h1>Index of " + path + "</h1><p>";
+		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); it++)
+			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + clean_p + "/"\
+			+ *it + "\">" + *it + "</a></p>";
+		this->_body += "</p></body></html>";
+}
+
+std::string		Response::findIndex(std::vector<std::string> dir_cont)
+{
+	std::string							find_index;
+
+	for (std::list<std::string>::iterator itl = _index_list.begin(); itl != _index_list.end(); ++itl)
+		if (std::find(dir_cont.begin(), dir_cont.end(), *itl) != dir_cont.end())
+			return (*itl);
+	return (std::string());
 }
 
 bool 		Response::endsWith(std::string const &value, std::string const &ending)
@@ -240,7 +302,7 @@ int			Response::setLocationBlock(std::string const &path)
 
 void		Response::deleteMethod(std::string const &path)
 {
-	if (pathIsFile(path.substr(1)))
+	if (pathIsFile(path.substr(1)) != -1)
 	{
 		if (remove(path.substr(1).c_str()) == 0)
 			this->handleHeader(path, 204);
@@ -297,6 +359,11 @@ void		Response::postMethod(Request &request)
 
 void		Response::prepare(Request &request)
 {
+	_host = request.getHost().first;
+	if (request.getHost().second.empty())
+		_port = 80;
+	else
+		_port = std::stoi(request.getHost().second);
 	if (_conf.is_allowed_get())
 		_allowed_methods.push_back(GET);
 	if (_conf.is_allowed_post())
@@ -304,9 +371,17 @@ void		Response::prepare(Request &request)
 	if (_conf.is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
 	if (setLocationBlock(request.getPath()))
+	{
 		_error_pages = _loc.get_error_page();
+		_autoindex = _loc.get_autoindex();
+		_index_list = _loc.get_index();
+	}
 	else
+	{
 		_error_pages = _conf.get_error_page();
+		_autoindex = _conf.get_autoindex();
+		_index_list = _conf.get_index();
+	}
 	if ((request.getUriLength()) > URI_MAX_LEN)
 		this->retreiveBody(_error_pages[414], 414);
 	else if (request.getMethod() == BAD_REQUEST)
@@ -322,9 +397,8 @@ void		Response::prepare(Request &request)
 		else if (request.getMethod() == POST)
 			this->postMethod(request);
 		else if (request.getMethod() == DELETE)
-			this ->deleteMethod(request.getPath());
+			this->deleteMethod(request.getPath());
 	}
-
 }
 
 std::string Response::parse(void)
