@@ -25,7 +25,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "ll /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nContent-Length: 11\r\n\r\nhello world";
+	std::string request = "GET /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nContent-Length: 1A\r\n\r\nhello world";
 
 	std::cout << request.size() << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);
