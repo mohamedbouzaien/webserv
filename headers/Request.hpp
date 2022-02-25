@@ -38,7 +38,7 @@ class Request {
 		int setRequestLine(char *buffer);
 		int setRequestField(char *buffer);
 		int setHostField(char *buffer);
-		void parseRequest(char *buffer);
+		void parseHeader(char *buffer);
 		void setHeaderField(std::string, char *);
 		int recvHeader(std::string& header);
 		int readHeader(std::string& header);

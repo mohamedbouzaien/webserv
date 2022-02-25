@@ -160,7 +160,7 @@ int Request::setRequestField(char *buffer) {
 	return (1);
 }
 
-void Request::parseRequest(char *buffer) {
+void Request::parseHeader(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
 	if (!buffer || !*buffer)
@@ -213,6 +213,8 @@ int		Request::recvHeader(std::string &header) {
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
 	if ((to_skip = isHeaderEnded(header, buffer)) > 0)
 		_is_body = 1;
+	else
+		to_skip = bytesRead;
 	if (_is_body)
 		_body.insert(_body.end(), buffer + to_skip, buffer + bytesRead);
 	header += std::string(buffer, to_skip);
@@ -225,7 +227,6 @@ int		Request::readHeader(std::string &header) {
 
 	while (header.find("\r\n\r\n") == std::string::npos) {
 		status = recvHeader(header);
-		std::cout << header << std::endl;
 		if (status <= 0)
 			return (-1);
 		if (status != BUFFER_SIZE || header.size() > MAX_HEADER_SIZE) {
@@ -339,8 +340,7 @@ int Request::handle() {
 	status = readHeader(header);
 	if (status < 1)
 		return (status);
-	std::cout << _status_code << ", size : " << header.size() << std::endl;
-	parseRequest((char *)header.c_str());
+	parseHeader((char *)header.c_str());
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())
