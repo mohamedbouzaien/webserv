@@ -179,6 +179,9 @@ void Request::parseHeader(char *buffer) {
 	}
 	if (_path.size() + _host.first.size() > MAX_URI_SIZE)
 		_status_code = 414;
+	std::map<std::string, std::string>::iterator  content_length = _header_fields.find("Content-Length");
+	if (content_length != _header_fields.end() && std::all_of(content_length->second.begin(), content_length->second.end(), ::isdigit) == false)
+		_status_code = 400;
 }
 
 int		Request::isHeaderEnded(std::string &request, char *buffer) {
@@ -341,6 +344,8 @@ int Request::handle() {
 	if (status < 1)
 		return (status);
 	parseHeader((char *)header.c_str());
+	if (_status_code != 200)
+		return (1);
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())
