@@ -8,9 +8,10 @@
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
-#define BAD_REQUEST "BAD REQUEST"
-#define BUFFER_SIZE 30
+#define BUFFER_SIZE 30000
 #define MAX_MALLOC_SIZE 16711568
+#define MAX_HEADER_SIZE 16000
+#define MAX_URI_SIZE 2048
 
 class Request {
 	private:
@@ -23,7 +24,7 @@ class Request {
 		std::map<std::string, std::string> _header_fields;
 		std::vector<char> _body;
 		int _is_body;
-		int _uri_length;
+		int _status_code;
 
 	public:
 		Request();
@@ -37,10 +38,10 @@ class Request {
 		int setRequestLine(char *buffer);
 		int setRequestField(char *buffer);
 		int setHostField(char *buffer);
-		void parseRequest(char *buffer);
+		void parseHeader(char *buffer);
 		void setHeaderField(std::string, char *);
-		int recvSocket(std::string& request);
-		int readSocket(std::string& request, std::string pattern);
+		int recvHeader(std::string& header);
+		int readHeader(std::string& header);
 		int readChunkedBody(int readed);
 		int searchEndline(std::vector<char> &vector) const;
 		int getChunkSize(std::vector<char> &vector) const;
@@ -55,18 +56,18 @@ class Request {
 		void setProtocol(std::string protocol);
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
-		void setUriLength(int len);
 		void setBody(std::vector<char> vbody);
+		void setStatusCode(int status_code);
 		//Getters
 		std::string search(std::string) const;
 		int getClientSocket() const;
+		int getStatusCode() const;
 		std::string getMethod() const ;
 		std::string getPath() const ;
 		std::string getQueryString() const ;
 		std::string getProtocol() const ;
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
-		int getUriLength() const;
 		std::vector<char> getBody() const;
 		//EXCEPTIONS
 

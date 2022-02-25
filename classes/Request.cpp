@@ -5,9 +5,9 @@ const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Request::Request() : _is_body(0) {}
+Request::Request() :  _is_body(0) , _status_code(200){}
 
-Request::Request(int socket) : _client_socket(socket), _is_body(0) {}
+Request::Request(int socket) : _client_socket(socket), _is_body(0), _status_code(200) {}
 
 Request::Request(const Request &other) {
 	*this = other;
@@ -59,12 +59,12 @@ int Request::setRequestLine(char *buffer) {
 	else if (keyword == "DELETE")
 		_method = DELETE;
 	else
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	buffer += pos;
 	if (*buffer == ' ')
 		buffer++;
 	if (*buffer != '/')
-		_method = BAD_REQUEST;
+		_status_code = 400;
 
 	pos = 0;
 	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
@@ -81,11 +81,11 @@ int Request::setRequestLine(char *buffer) {
 		buffer++;
 	pos = getWordEnd(buffer);
 	if (pos == 0)
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	_protocol = std::string(buffer, pos);
 	buffer += pos;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	while (*buffer && *buffer != '\n')
 		buffer++;
 	return (1);
@@ -100,7 +100,7 @@ int Request::setHostField(char *buffer) {
 
 	if (_host.first.size())
 	{
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return (0);
 	}
 	while (*buffer == ' ')
@@ -122,7 +122,7 @@ int Request::setHostField(char *buffer) {
 	while (*buffer == ' ')
 		buffer++;
 	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
-		_method = BAD_REQUEST;
+		_status_code = 400;
 	return (1);
 }
 
@@ -133,7 +133,7 @@ void Request::setHeaderField(std::string keyword, char *buffer) {
 	while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n')
 		pos++;
 	if (buffer[pos] == '\r' && buffer[pos + 1] != '\n') {
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return ;
 	}
 	pos--;
@@ -149,7 +149,7 @@ int Request::setRequestField(char *buffer) {
 	std::string keyword(buffer, pos);
 	if (buffer[pos] != ':')
 	{
-		_method = BAD_REQUEST;
+		_status_code = 400;
 		return (1);
 	}
 	pos++;
@@ -160,10 +160,9 @@ int Request::setRequestField(char *buffer) {
 	return (1);
 }
 
-void Request::parseRequest(char *buffer) {
+void Request::parseHeader(char *buffer) {
 	this->setRequestLine(buffer);
 	buffer = strchr(buffer, '\n');
-	_uri_length = _path.size();
 	if (!buffer || !*buffer)
 		return;
 	buffer++;
@@ -173,16 +172,13 @@ void Request::parseRequest(char *buffer) {
 		buffer = strchr(buffer, '\n');
 		if (buffer == NULL)
 		{
-			_method = BAD_REQUEST;
+			_status_code = 400;
 			break;
 		}
 		buffer++;
 	}
-	_uri_length += _host.first.size();
-	if (*buffer == '\r')
-		buffer++;
-	if (*buffer == '\n')
-		buffer++;
+	if (_path.size() + _host.first.size() > MAX_URI_SIZE)
+		_status_code = 414;
 }
 
 int		Request::isHeaderEnded(std::string &request, char *buffer) {
@@ -208,31 +204,36 @@ int		Request::isHeaderEnded(std::string &request, char *buffer) {
 	return (0);
 }
 
-int		Request::recvSocket(std::string &request) {
+int		Request::recvHeader(std::string &header) {
 	char buffer[BUFFER_SIZE + 1];
 	int	bytesRead;
 	int to_skip = 0;
 
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
-	if ((to_skip = isHeaderEnded(request, buffer)) > 0)
+	if ((to_skip = isHeaderEnded(header, buffer)) > 0)
 		_is_body = 1;
+	else
+		to_skip = bytesRead;
 	if (_is_body)
 		_body.insert(_body.end(), buffer + to_skip, buffer + bytesRead);
-	request += buffer;
+	header += std::string(buffer, to_skip);
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	return (bytesRead);
 }
 
-int		Request::readSocket(std::string &request, std::string pattern) {
+int		Request::readHeader(std::string &header) {
 	int status;
 
-	while (request.find(pattern) == std::string::npos) {
-		status = recvSocket(request);
+	while (header.find("\r\n\r\n") == std::string::npos) {
+		status = recvHeader(header);
 		if (status <= 0)
 			return (-1);
-		if (status != BUFFER_SIZE)
+		if (status != BUFFER_SIZE || header.size() > MAX_HEADER_SIZE) {
+			if (header.size() > MAX_HEADER_SIZE)
+				_status_code = 431;
 			break;
+		}
 	}
 	return (status);
 }
@@ -336,10 +337,10 @@ int Request::handle() {
 	std::string header;
 	int status;
 
-	status = readSocket(header, "\r\n\r\n");
+	status = readHeader(header);
 	if (status < 1)
 		return (status);
-	parseRequest((char *)header.c_str());
+	parseHeader((char *)header.c_str());
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())
@@ -371,12 +372,12 @@ void Request::setHeaderFields(std::map<std::string, std::string > header_fields)
 	_header_fields = header_fields;
 }
 
-void Request::setUriLength(int len) {
-	_uri_length = len;
-}
-
 void Request::setBody(std::vector<char> vbody) {
 	_body = vbody;
+}
+
+void Request::setStatusCode(int status_code) {
+	_status_code = status_code;
 }
 
 //Getters
@@ -416,8 +417,8 @@ std::vector<char> Request::getBody() const {
 	return (_body);
 }
 
-int Request::getUriLength() const {
-	return (_uri_length);
+int Request::getStatusCode() const {
+	return (_status_code);
 }
 
 // << OVERLOAD
@@ -435,7 +436,6 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 		std::cout << request._host.second << std::endl;
 	else
 		std::cout << "Non Specified" << std::endl;
-	std::cout << "URI Length: " << request._uri_length << std::endl;
 	std::cout << "Header fields:" << std::endl;
 	std::map<std::string, std::string>::const_iterator it = request._header_fields.begin();
 	std::map<std::string, std::string>::const_iterator ite = request._header_fields.end();
