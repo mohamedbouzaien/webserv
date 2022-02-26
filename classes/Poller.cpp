@@ -16,6 +16,7 @@
 Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listeners)
 {
     unsigned int i = 0;
+    memset(_fds, 0, sizeof(_fds));
     for (lstnrs::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
     {
         _fds[i].fd = it->getFd();
@@ -53,6 +54,7 @@ void        Poller::start(void)
 
     std::cout << "Poll called !\n";
 	rc = poll(_fds, _nfds, -1);
+    std::cout << "Poll returned !\n";
 	if (rc < 0)
 		throw	Poller::PollFailedException();
 }
@@ -71,14 +73,21 @@ void        Poller::handle(const std::vector<Server_t> &servs)
             ++it;
         if (it != _listeners.end())
         {
-            Connector connector(*it);
             std::cout << "  Listening socket is readable" << std::endl;
-            connector.accept_c();
-            std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
-            _fds[_nfds].fd = connector.getClientSocket();
-            _fds[_nfds].events = POLLIN | POLLPRI;
-            _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
-            ++_nfds;
+            while (1)
+            {
+                Connector connector(*it);
+                if (!connector.accept_c())
+                {
+                    std::cout << "  No more incoming connection on this socket" << std::endl;
+                    break;
+                }
+                std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
+                _fds[_nfds].fd = connector.getClientSocket();
+                _fds[_nfds].events = POLLIN | POLLPRI;
+                _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
+                ++_nfds;
+            }
         }
         else
 		{

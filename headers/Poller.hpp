@@ -17,6 +17,7 @@
 
 # include <sys/poll.h>
 # include <iostream>
+# include <cstring> // memset()
 
 # include "Listener.hpp"
 # include "Config.hpp"
