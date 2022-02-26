@@ -28,7 +28,7 @@ class Poller
         typedef std::vector<Listener> lstnrs;
 
 		struct pollfd             _fds[MAX_CLIENTS + 1];
-		int			              _nfds;
+		nfds_t		              _nfds;
         lstnrs		              _listeners;
         std::map<int, Listener*>  _listen_map;
 

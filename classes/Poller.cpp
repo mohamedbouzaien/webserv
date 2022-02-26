@@ -15,7 +15,7 @@
 
 Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listeners)
 {
-    unsigned int i = 0;
+    nfds_t i = 0;
     memset(_fds, 0, sizeof(_fds));
     for (lstnrs::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
     {
@@ -28,7 +28,7 @@ Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listener
 Poller::Poller(const Poller &copy):
     _listeners(copy._listeners)
 {
-	for (int i = 0; i < copy._nfds; i++)
+	for (nfds_t i = 0; i < copy._nfds; i++)
 		this->_fds[i] = copy._fds[i];
 	this->_nfds = copy._nfds;
 }
@@ -37,7 +37,7 @@ Poller  &Poller::operator=(const Poller &other)
 {
 	if (this == &other)
 		return (*this);
-	for (int i = 0; i < other._nfds; i++)
+	for (nfds_t i = 0; i < other._nfds; i++)
 		this->_fds[i] = other._fds[i];
 	this->_nfds = other._nfds;
 	return (*this);
@@ -50,7 +50,7 @@ const char* Poller::PollFailedException::what() const throw()
 
 const char* Poller::max_clients_reached::what() const throw()
 {
-	return ("Poll error");
+	return ("Max clients reached");
 }
 
 
@@ -58,7 +58,7 @@ const char* Poller::max_clients_reached::what() const throw()
 void Poller::print_fds()
 {
     std::cout << "=";
-    for (int i = 0; i < _nfds; ++i)
+    for (nfds_t i = 0; i < _nfds; ++i)
         if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
             std::cout << "===";
         else
@@ -66,13 +66,13 @@ void Poller::print_fds()
     std::cout << "\n";
 
     std::cout << "|";
-    for (int i = 0; i < _nfds; ++i)
+    for (nfds_t i = 0; i < _nfds; ++i)
         std::cout << _fds[i].fd << "|";
     std::cout << "\n";
 
 
     std::cout << "=";
-    for (int i = 0; i < _nfds; ++i)
+    for (nfds_t i = 0; i < _nfds; ++i)
         if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
             std::cout << "===";
         else
@@ -94,10 +94,10 @@ void        Poller::start(void)
 
 void        Poller::handle(const std::vector<Server_t> &servs)
 {
-	int current_sockets = _nfds;
+	nfds_t current_sockets = _nfds;
     bool compress = false;
 
-	for (int i = 0; i < current_sockets; i++)
+	for (nfds_t i = 0; i < current_sockets; i++)
 	{
 		if(_fds[i].revents == 0)
 			continue;
@@ -132,20 +132,22 @@ void        Poller::handle(const std::vector<Server_t> &servs)
 			if (connector.handle(servs))
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
+                shutdown(_fds[i].fd, SHUT_RDWR);
                 close(_fds[i].fd);
                 _listen_map.erase(_fds[i].fd);
 				_fds[i].fd = -1;
                 compress = true;
 			}
 		}
+        print_fds();
 	}
 
     if (compress)
-        for (int i = 0; i < _nfds; ++i)
+        for (nfds_t i = 0; i < _nfds; ++i)
         {
             if (_fds[i].fd == -1)
             {
-                for (int j = i; j < _nfds; ++j)
+                for (nfds_t j = i; j < _nfds; ++j)
                     _fds[j].fd = _fds[j + 1].fd;
                 --_nfds;
                 --i;
