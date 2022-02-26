@@ -48,8 +48,12 @@ bool    Connector::accept_c()
 	socklen_t	addrlen = sizeof(this->_listener.getAddress());
 	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_listener.getAddress()), &addrlen);
 	if (_client_socket < 0)
-        return false;
-		//throw Connector::ConnectionFailedException();
+    {
+        if (errno == EAGAIN)
+            return false;
+        else
+            throw Connector::ConnectionFailedException();
+    }
     return true;
 }
 

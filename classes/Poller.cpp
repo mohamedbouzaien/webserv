@@ -48,11 +48,44 @@ const char* Poller::PollFailedException::what() const throw()
 	return ("Poll error");
 }
 
+const char* Poller::max_clients_reached::what() const throw()
+{
+	return ("Poll error");
+}
+
+
+
+void Poller::print_fds()
+{
+    std::cout << "=";
+    for (int i = 0; i < _nfds; ++i)
+        if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
+            std::cout << "===";
+        else
+            std::cout << "==";
+    std::cout << "\n";
+
+    std::cout << "|";
+    for (int i = 0; i < _nfds; ++i)
+        std::cout << _fds[i].fd << "|";
+    std::cout << "\n";
+
+
+    std::cout << "=";
+    for (int i = 0; i < _nfds; ++i)
+        if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
+            std::cout << "===";
+        else
+            std::cout << "==";
+    std::cout << "\n";
+}
+
 void        Poller::start(void)
 {
 	int	rc;
 
     std::cout << "Poll called !\n";
+    print_fds();
 	rc = poll(_fds, _nfds, -1);
     std::cout << "Poll returned !\n";
 	if (rc < 0)
@@ -87,6 +120,8 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                 _fds[_nfds].events = POLLIN | POLLPRI;
                 _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
                 ++_nfds;
+                if (_nfds == MAX_CLIENTS)
+                    throw (max_clients_reached());
             }
         }
         else
@@ -107,10 +142,14 @@ void        Poller::handle(const std::vector<Server_t> &servs)
 
     if (compress)
         for (int i = 0; i < _nfds; ++i)
+        {
             if (_fds[i].fd == -1)
             {
                 for (int j = i; j < _nfds; ++j)
                     _fds[j].fd = _fds[j + 1].fd;
                 --_nfds;
+                --i;
             }
+        }
+    print_fds();
 }
