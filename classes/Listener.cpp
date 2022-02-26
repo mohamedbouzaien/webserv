@@ -76,17 +76,24 @@ void	Listener::execute(std::string addr, in_port_t port)
     else
         this->_address.sin_addr.s_addr = inet_addr(addr.c_str());
 	this->_address.sin_port = htons(port);
+
 	int	on, rc;
 	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
 				(char *)&on, sizeof(on));
 	if (rc < 0)
         close_perror("setsockopt() SO_REUSEADDR failed");
+
     rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEPORT,
                 (char *)&on, sizeof(on));
 	if (rc < 0)
         close_perror("setsockopt() SO_REUSEPORT failed");
+
+    rc = fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL, 0) | O_NONBLOCK);
+	if (rc < 0)
+        close_perror("fctnl() set NONBLOCK failed");
+
 	if (bind(_fd, (struct sockaddr*)&_address, sizeof(sockaddr)) < 0)
 		throw Listener::PortBindingFailedException();
-	if (listen(this->_fd, 10) < 0)
+	if (listen(this->_fd, 128) < 0)
 		throw Listener::ListeningFailedException();
 }

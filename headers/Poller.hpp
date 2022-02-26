@@ -17,6 +17,7 @@
 
 # include <sys/poll.h>
 # include <iostream>
+# include <cstring> // memset()
 
 # include "Listener.hpp"
 # include "Config.hpp"
@@ -26,15 +27,25 @@ class Poller
 	private:
         typedef std::vector<Listener> lstnrs;
 
-		struct pollfd             _fds[MAX_CLIENTS];
-		int			              _nfds;
+		struct pollfd             _fds[MAX_CLIENTS + 1];
+		nfds_t		              _nfds;
         lstnrs		              _listeners;
-        std::map<int, Listener*>  _index_map;
+        std::map<int, Listener*>  _listen_map;
+
+
+        //testing
+        void print_fds();
+
 	public:
 		Poller(lstnrs &listeners);
 		Poller(const Poller &copy);
 		Poller  &operator=(const Poller &other);
 		virtual ~Poller() {};
+        class max_clients_reached : public std::exception
+		{
+			public:
+				virtual const char* what() const throw();
+		};
 		class PollFailedException : public std::exception
 		{
 			public:

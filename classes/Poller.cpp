@@ -15,7 +15,8 @@
 
 Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listeners)
 {
-    unsigned int i = 0;
+    nfds_t i = 0;
+    memset(_fds, 0, sizeof(_fds));
     for (lstnrs::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
     {
         _fds[i].fd = it->getFd();
@@ -27,7 +28,7 @@ Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listener
 Poller::Poller(const Poller &copy):
     _listeners(copy._listeners)
 {
-	for (int i = 0; i < copy._nfds; i++)
+	for (nfds_t i = 0; i < copy._nfds; i++)
 		this->_fds[i] = copy._fds[i];
 	this->_nfds = copy._nfds;
 }
@@ -36,7 +37,7 @@ Poller  &Poller::operator=(const Poller &other)
 {
 	if (this == &other)
 		return (*this);
-	for (int i = 0; i < other._nfds; i++)
+	for (nfds_t i = 0; i < other._nfds; i++)
 		this->_fds[i] = other._fds[i];
 	this->_nfds = other._nfds;
 	return (*this);
@@ -47,21 +48,56 @@ const char* Poller::PollFailedException::what() const throw()
 	return ("Poll error");
 }
 
+const char* Poller::max_clients_reached::what() const throw()
+{
+	return ("Max clients reached");
+}
+
+
+
+void Poller::print_fds()
+{
+    std::cout << "=";
+    for (nfds_t i = 0; i < _nfds; ++i)
+        if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
+            std::cout << "===";
+        else
+            std::cout << "==";
+    std::cout << "\n";
+
+    std::cout << "|";
+    for (nfds_t i = 0; i < _nfds; ++i)
+        std::cout << _fds[i].fd << "|";
+    std::cout << "\n";
+
+
+    std::cout << "=";
+    for (nfds_t i = 0; i < _nfds; ++i)
+        if (_fds[i].fd >= 10 || _fds[i].fd == -1 )
+            std::cout << "===";
+        else
+            std::cout << "==";
+    std::cout << "\n";
+}
+
 void        Poller::start(void)
 {
 	int	rc;
 
+    std::cout << "Poll called !\n";
+    print_fds();
 	rc = poll(_fds, _nfds, -1);
+    std::cout << "Poll returned !\n";
 	if (rc < 0)
 		throw	Poller::PollFailedException();
 }
 
 void        Poller::handle(const std::vector<Server_t> &servs)
 {
-	int current_sockets;
+	nfds_t current_sockets = _nfds;
+    bool compress = false;
 
-	current_sockets = _nfds;
-	for (int i = 0; i < current_sockets; i++)
+	for (nfds_t i = 0; i < current_sockets; i++)
 	{
 		if(_fds[i].revents == 0)
 			continue;
@@ -70,29 +106,52 @@ void        Poller::handle(const std::vector<Server_t> &servs)
             ++it;
         if (it != _listeners.end())
         {
-            Connector connector(*it);
             std::cout << "  Listening socket is readable" << std::endl;
-            connector.accept_c();
-            std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
-            _fds[_nfds].fd = connector.getClientSocket();
-            _fds[_nfds].events = POLLIN | POLLPRI;
-            _index_map.insert(std::make_pair(_nfds, &(*it)));
-            ++_nfds;
+            while (1)
+            {
+                Connector connector(*it);
+                if (!connector.accept_c())
+                {
+                    std::cout << "  No more incoming connection on this socket" << std::endl;
+                    break;
+                }
+                std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
+                _fds[_nfds].fd = connector.getClientSocket();
+                _fds[_nfds].events = POLLIN | POLLPRI;
+                _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
+                ++_nfds;
+                if (_nfds == MAX_CLIENTS)
+                    throw (max_clients_reached());
+            }
         }
         else
 		{
-			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << " on "  << inet_ntoa(_index_map[i]->getAddress().sin_addr) << ":" << ntohs(_index_map[i]->getAddress().sin_port)  << std::endl;
-            Connector connector(*_index_map[i]);
+			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _listen_map[_fds[i].fd]->getFd() << " on "  << inet_ntoa(_listen_map[_fds[i].fd]->getAddress().sin_addr) << ":" << ntohs(_listen_map[_fds[i].fd]->getAddress().sin_port)  << std::endl;
+            Connector connector(*_listen_map[_fds[i].fd]);
 			connector.setClientSocket(_fds[i].fd);
 			if (connector.handle(servs))
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
+                shutdown(_fds[i].fd, SHUT_RDWR);
                 close(_fds[i].fd);
-				_fds[i].fd = 0;
-				_fds[i].events = 0;
-				_fds[i].revents = 0;
-				--_nfds;
+                _listen_map.erase(_fds[i].fd);
+				_fds[i].fd = -1;
+                compress = true;
 			}
 		}
+        print_fds();
 	}
+
+    if (compress)
+        for (nfds_t i = 0; i < _nfds; ++i)
+        {
+            if (_fds[i].fd == -1)
+            {
+                for (nfds_t j = i; j < _nfds; ++j)
+                    _fds[j].fd = _fds[j + 1].fd;
+                --_nfds;
+                --i;
+            }
+        }
+    print_fds();
 }

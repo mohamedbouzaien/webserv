@@ -43,12 +43,18 @@ const char* Connector::RecvFailedException::what() const throw()
 	return ("Recv error");
 }
 
-void    Connector::accept_c()
+bool    Connector::accept_c()
 {
 	socklen_t	addrlen = sizeof(this->_listener.getAddress());
 	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_listener.getAddress()), &addrlen);
 	if (_client_socket < 0)
-		throw Connector::ConnectionFailedException();
+    {
+        if (errno == EAGAIN)
+            return false;
+        else
+            throw Connector::ConnectionFailedException();
+    }
+    return true;
 }
 
 const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const std::string host) const

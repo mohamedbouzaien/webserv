@@ -51,7 +51,7 @@ class Connector
 				virtual const char* what() const throw();
 		};
 		void		poll_server();
-		void		accept_c();
+		bool		accept_c();
 		int			handle(const std::vector<Server_t> &servs);
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
