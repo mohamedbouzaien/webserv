@@ -29,7 +29,7 @@ class Poller
 		struct pollfd             _fds[MAX_CLIENTS];
 		int			              _nfds;
         lstnrs		              _listeners;
-        std::map<int, Listener*>  _index_map;
+        std::map<int, Listener*>  _listen_map;
 	public:
 		Poller(lstnrs &listeners);
 		Poller(const Poller &copy);

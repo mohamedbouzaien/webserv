@@ -51,6 +51,7 @@ void        Poller::start(void)
 {
 	int	rc;
 
+    std::cout << "Poll called !\n";
 	rc = poll(_fds, _nfds, -1);
 	if (rc < 0)
 		throw	Poller::PollFailedException();
@@ -58,9 +59,9 @@ void        Poller::start(void)
 
 void        Poller::handle(const std::vector<Server_t> &servs)
 {
-	int current_sockets;
+	int current_sockets = _nfds;
+    bool compress = false;
 
-	current_sockets = _nfds;
 	for (int i = 0; i < current_sockets; i++)
 	{
 		if(_fds[i].revents == 0)
@@ -76,23 +77,31 @@ void        Poller::handle(const std::vector<Server_t> &servs)
             std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
             _fds[_nfds].fd = connector.getClientSocket();
             _fds[_nfds].events = POLLIN | POLLPRI;
-            _index_map.insert(std::make_pair(_nfds, &(*it)));
+            _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
             ++_nfds;
         }
         else
 		{
-			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _index_map[i]->getFd() << " on "  << inet_ntoa(_index_map[i]->getAddress().sin_addr) << ":" << ntohs(_index_map[i]->getAddress().sin_port)  << std::endl;
-            Connector connector(*_index_map[i]);
+			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _listen_map[_fds[i].fd]->getFd() << " on "  << inet_ntoa(_listen_map[_fds[i].fd]->getAddress().sin_addr) << ":" << ntohs(_listen_map[_fds[i].fd]->getAddress().sin_port)  << std::endl;
+            Connector connector(*_listen_map[_fds[i].fd]);
 			connector.setClientSocket(_fds[i].fd);
 			if (connector.handle(servs))
 			{
                 std::cout << "   Closing descriptor " << _fds[i].fd << std::endl;
                 close(_fds[i].fd);
-				_fds[i].fd = 0;
-				_fds[i].events = 0;
-				_fds[i].revents = 0;
-				--_nfds;
+                _listen_map.erase(_fds[i].fd);
+				_fds[i].fd = -1;
+                compress = true;
 			}
 		}
 	}
+
+    if (compress)
+        for (int i = 0; i < _nfds; ++i)
+            if (_fds[i].fd == -1)
+            {
+                for (int j = i; j < _nfds; ++j)
+                    _fds[j].fd = _fds[j + 1].fd;
+                --_nfds;
+            }
 }
