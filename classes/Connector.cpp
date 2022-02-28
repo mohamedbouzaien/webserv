@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/28 11:20:23 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/28 14:24:28 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,13 +106,11 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	if ((status = request.readAndParseHeader()) < 1)
 		return (status);
 	const Server_t &current_serv = (choose_serv(servs, request.getHost().first));
-	if ((status = request.readAndParseBody(current_serv.get_client_max_body_size())) < 1)
+	if ((status = request.readAndParseBody(status, current_serv.get_client_max_body_size())) < 1)
 		return (status);
-	std::cout << "SC : " << request.getStatusCode() << std::endl;
 	std::cout << request << std::endl;
 
 	Response	response(choose_serv(servs, request.getHost().first));
-
 	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);

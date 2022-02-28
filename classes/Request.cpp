@@ -292,15 +292,15 @@ int Request::unchunkBody(std::vector<char> &body_buffer) {
 }
 
 
-int Request::readChunkedBody(int readed, size_t max_body_size) {
+int Request::readChunkedBody(int status, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
-	int status;
+	size_t client_body_size;
 	std::vector<char> body_buffer = _body;
-	status = readed;
+
 	_body.clear();
 	memset(buffer, 0, BUFFER_SIZE + 1);
-
-	while (_body.size() < max_body_size) {
+	client_body_size = body_buffer.size();
+	while (client_body_size < max_body_size) {
 		if (unchunkBody(body_buffer) == 0 || status != BUFFER_SIZE)
 			break;
 		memset(buffer, 0, BUFFER_SIZE + 1);
@@ -308,8 +308,9 @@ int Request::readChunkedBody(int readed, size_t max_body_size) {
 		if (status <= 0)
 			return (-1);
 		body_buffer.insert(body_buffer.end(), buffer, buffer + status);
+		client_body_size += status;
 	}
-	if (_body.size() > max_body_size)
+	if (client_body_size > max_body_size)
 		_status_code = 413;
 	return (1);
 
@@ -353,10 +354,7 @@ int Request::readAndParseHeader() {
 	return (1);
 }
 
-int Request::readAndParseBody(size_t max_body_size) {
-	int status;
-
-	status = 1;
+int Request::readAndParseBody(int status, size_t max_body_size) {
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status, max_body_size);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())

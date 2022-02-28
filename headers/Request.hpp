@@ -42,14 +42,14 @@ class Request {
 		void setHeaderField(std::string, char *);
 		int recvHeader(std::string& header);
 		int readHeader(std::string& header);
-		int readChunkedBody(int readed, size_t max_body_size);
+		int readChunkedBody(int status, size_t max_body_size);
 		int searchEndline(std::vector<char> &vector) const;
 		int getChunkSize(std::vector<char> &vector) const;
 		int unchunkBody(std::vector<char> &body_buffer);
 		int readBody(size_t len, size_t max_body_size);
 		int isHeaderEnded(std::string &request, char *buffer) ;
 		int readAndParseHeader();
-		int readAndParseBody(size_t max_body_size);
+		int readAndParseBody(int status, size_t max_body_size);
 		//Setters
 		void setClientSocket(int socket);
 		void setMethod(std::string method);
