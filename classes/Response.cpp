@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/25 10:50:24 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/28 11:31:32 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,7 +388,7 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_error_pages[400], 400);
 	else if (std::find(_allowed_methods.begin(), _allowed_methods.end(), request.getMethod()) == _allowed_methods.end())
 		this->retreiveBody(_error_pages[405], 405);
-	else if (request.getBody().size() > _conf.get_client_max_body_size())
+	else if (request.getStatusCode() == 413)
 		this->retreiveBody(_error_pages[413], 413);
 	else
 	{
