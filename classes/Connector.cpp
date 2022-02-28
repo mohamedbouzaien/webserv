@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/24 11:12:39 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/02/28 10:39:35 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,9 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	int status;
 
 	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
-	if ((status = request.handle()) < 1)
+	if ((status = request.readAndParseHeader()) < 1)
+		return (status);
+	if ((status = request.readAndParseBody()) < 1)
 		return (status);
 	std::cout << request << std::endl;
 

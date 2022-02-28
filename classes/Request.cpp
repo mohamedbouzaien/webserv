@@ -336,6 +336,30 @@ int Request::readBody(size_t len) {
 	return (bytesRead);
 }
 
+int Request::readAndParseHeader() {
+	std::string header;
+	int status;
+
+	status = readHeader(header);
+	if (status < 1)
+		return (status);
+	parseHeader((char *)header.c_str());
+	return (1);
+}
+
+int Request::readAndParseBody() {
+	int status;
+
+	status = 1;
+	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
+		status = readChunkedBody(status);
+	else if (_header_fields.find("Content-Length") != _header_fields.end())
+		status = readBody(stoi(_header_fields["Content-Length"]));
+	if (status < 1)
+		return (status);
+	return (1);
+}
+
 int Request::handle() {
 	std::string header;
 	int status;

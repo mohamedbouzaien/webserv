@@ -49,6 +49,8 @@ class Request {
 		int readBody(size_t len);
 		int isHeaderEnded(std::string &request, char *buffer) ;
 		int handle();
+		int readAndParseHeader();
+		int readAndParseBody();
 		//Setters
 		void setClientSocket(int socket);
 		void setMethod(std::string method);
