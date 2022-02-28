@@ -292,7 +292,7 @@ int Request::unchunkBody(std::vector<char> &body_buffer) {
 }
 
 
-int Request::readChunkedBody(int readed) {
+int Request::readChunkedBody(int readed, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
 	int status;
 	std::vector<char> body_buffer = _body;
@@ -300,7 +300,7 @@ int Request::readChunkedBody(int readed) {
 	_body.clear();
 	memset(buffer, 0, BUFFER_SIZE + 1);
 
-	while (1) {
+	while (_body.size() < max_body_size) {
 		if (unchunkBody(body_buffer) == 0 || status != BUFFER_SIZE)
 			break;
 		memset(buffer, 0, BUFFER_SIZE + 1);
@@ -309,15 +309,21 @@ int Request::readChunkedBody(int readed) {
 			return (-1);
 		body_buffer.insert(body_buffer.end(), buffer, buffer + status);
 	}
+	if (_body.size() > max_body_size)
+		_status_code = 413;
 	return (1);
 
 }
 
-int Request::readBody(size_t len) {
+int Request::readBody(size_t len, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
 	int to_read;
 	int	bytesRead;
 
+	if (len > max_body_size) {
+		_status_code = 413;
+		return (1);
+	}
 	if (_body.size() >= len) {
 		_body.erase(_body.begin() + len, _body.end());
 		return (1);
@@ -347,33 +353,14 @@ int Request::readAndParseHeader() {
 	return (1);
 }
 
-int Request::readAndParseBody() {
+int Request::readAndParseBody(size_t max_body_size) {
 	int status;
 
 	status = 1;
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
-		status = readChunkedBody(status);
+		status = readChunkedBody(status, max_body_size);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())
-		status = readBody(stoi(_header_fields["Content-Length"]));
-	if (status < 1)
-		return (status);
-	return (1);
-}
-
-int Request::handle() {
-	std::string header;
-	int status;
-
-	status = readHeader(header);
-	if (status < 1)
-		return (status);
-	parseHeader((char *)header.c_str());
-	if (_status_code != 200)
-		return (1);
-	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
-		status = readChunkedBody(status);
-	else if (_header_fields.find("Content-Length") != _header_fields.end())
-		status = readBody(stoi(_header_fields["Content-Length"]));
+		status = readBody(stoi(_header_fields["Content-Length"]), max_body_size);
 	if (status < 1)
 		return (status);
 	return (1);
