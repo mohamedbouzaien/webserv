@@ -1,6 +1,6 @@
 
 <?php
-$uploaddir = '//Users/adriencastelbou/Desktop/42/webserv/tests/www/uploads/';
+$uploaddir = getenv('UPLOADS_DIR');
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
 
 echo '<pre>';
