@@ -130,7 +130,7 @@ void Cgi::setCgiEnv(Request &request) {
 	}
 
 	mapped_cgi_env["REDIRECT_STATUS"] = "200";
-
+	mapped_cgi_env["UPLOADS_DIR"] = "uploads/";
 	it = header_fields.begin();
 	ite = header_fields.end();
 	for(;it != ite; it++)
