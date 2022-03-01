@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/01 15:51:17 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/01 17:07:05 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,14 +101,18 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 {
 	Request request(_client_socket);
 	int status;
+	size_t max_body_size = 0;
 
 	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
 	if ((status = request.readAndParseHeader()) < 1)
 		return (status);
 	const Server_t &current_serv = (choose_serv(servs, request.getHost().first));
-	std::pair<std::string, size_t> max =  current_serv.get_best_client_max_body_size(request.getPath());
-	std::cout << "Result : " << max.first << " : " << max.second << std::endl;
-	if ((status = request.readAndParseBody(status, max.second)) < 1)
+	std::pair<bool, Location_t> best = current_serv.get_best_location_block(request.getPath());
+	if (best.first == true)
+		max_body_size = best.second.get_client_max_body_size();
+	else
+		current_serv.get_client_max_body_size();
+	if ((status = request.readAndParseBody(status, max_body_size)) < 1)
 		return (status);
 	std::cout << request << std::endl;
 

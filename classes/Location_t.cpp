@@ -53,24 +53,19 @@ const std::string &Location_t::get_uri() const
     return _uri;
 }
 
-#include <iostream>
-
-std::pair<std::string, size_t> Location_t::get_loc_best_client_max_body_size(std::string path) const {
+Location_t Location_t::get_best_location_block(std::string path) const {
 	std::string path_tried;
 	std::string uri;
-	size_t best;
 	size_t pos;
 
 	path_tried = path;
-	best = get_client_max_body_size();
 	if (_locations.begin() == _locations.end())
-		return (std::make_pair<std::string, size_t>(get_uri(), best));
+		return (*this);
 	while (1) {
 		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
 			uri = it->get_uri();
 			if (uri == path_tried || uri == path_tried + "/") {
-				best = it->get_client_max_body_size();
-				return (it->get_loc_best_client_max_body_size(path));
+				return (it->get_best_location_block(path));
 			}
 		}
 		if (path_tried.empty())
@@ -80,8 +75,9 @@ std::pair<std::string, size_t> Location_t::get_loc_best_client_max_body_size(std
 			pos = 0;
 		path_tried.erase(pos);
 	}
-	return (std::make_pair<std::string, size_t>(get_uri(), best));
+	return (*this);
 }
+
 
 #include <iostream>
 void Location_t::print() const {
