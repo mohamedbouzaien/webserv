@@ -37,6 +37,7 @@ class Server_t : public Context_t
         const std::set<listen_pair_t> &get_listen() const;
          std::vector<Location_t> &get_locations();
 
+		std::pair<std::string, size_t> get_best_client_max_body_size(std::string path) const;
 // checks --------------------
         bool has_name(const std::string &name) const;
         bool has_listen(const listen_pair_t &listen_pair) const;

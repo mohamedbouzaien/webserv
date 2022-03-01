@@ -53,6 +53,36 @@ std::vector<Location_t> &Server_t::get_locations(){
     return _locations;
 }
 
+#include <iostream>
+
+std::pair<std::string, size_t> Server_t::get_best_client_max_body_size(std::string path) const {
+	std::string location;
+	std::string uri;
+	size_t best;
+	size_t pos;
+
+	best = get_client_max_body_size();
+	while (1) {
+		std::cout << "searching for : |" << path << "|" << std::endl;
+		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
+			uri = it->get_uri();
+			std::cout << "uri : " << uri << std::endl;
+			if (uri.find(path) == 0 && (uri == path || uri[path.size()] == '/' || (path.empty() && uri == "/"))) {
+				best = it->get_client_max_body_size();
+				std::cout << uri << " : " << best << std::endl;
+				return (std::make_pair<std::string, size_t>(uri, best));
+			}
+		}
+		if (path.empty())
+			break;
+		pos = path.find_last_of('/');
+		if (pos == std::string::npos)
+			pos = 0;
+		path.erase(pos);
+	}
+	return (std::make_pair<std::string, size_t>(location, best));
+}
+
 
 // checks --------------------
 bool Server_t::has_name(const std::string &name) const

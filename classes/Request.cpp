@@ -321,6 +321,7 @@ int Request::readBody(size_t len, size_t max_body_size) {
 	int to_read;
 	int	bytesRead;
 
+	std::cout << "Max body size : " << max_body_size << std::endl;
 	if (len > max_body_size) {
 		_status_code = 413;
 		return (1);
