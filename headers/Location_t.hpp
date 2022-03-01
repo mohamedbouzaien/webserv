@@ -31,7 +31,7 @@ class Location_t : public Context_t
         std::vector<Location_t> &get_locations();
         const std::string &get_uri() const;
         const std::string &get_alias() const;
-
+		std::pair<std::string, size_t> get_loc_best_client_max_body_size(std::string path) const;
         //testing
         void print() const;
 };

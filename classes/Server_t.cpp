@@ -53,34 +53,32 @@ std::vector<Location_t> &Server_t::get_locations(){
     return _locations;
 }
 
-#include <iostream>
-
 std::pair<std::string, size_t> Server_t::get_best_client_max_body_size(std::string path) const {
-	std::string location;
+	std::string path_tried;
 	std::string uri;
 	size_t best;
 	size_t pos;
 
+	path_tried = path;
 	best = get_client_max_body_size();
+	if (_locations.begin() == _locations.end())
+		return (std::make_pair<std::string, size_t>("", best));
 	while (1) {
-		std::cout << "searching for : |" << path << "|" << std::endl;
 		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
 			uri = it->get_uri();
-			std::cout << "uri : " << uri << std::endl;
-			if (uri.find(path) == 0 && (uri == path || uri[path.size()] == '/' || (path.empty() && uri == "/"))) {
+			if (uri == path_tried || uri == path_tried + "/") {
 				best = it->get_client_max_body_size();
-				std::cout << uri << " : " << best << std::endl;
-				return (std::make_pair<std::string, size_t>(uri, best));
+				return (it->get_loc_best_client_max_body_size(path));
 			}
 		}
-		if (path.empty())
+		if (path_tried.empty())
 			break;
-		pos = path.find_last_of('/');
+		pos = path_tried.find_last_of('/');
 		if (pos == std::string::npos)
 			pos = 0;
-		path.erase(pos);
+		path_tried.erase(pos);
 	}
-	return (std::make_pair<std::string, size_t>(location, best));
+	return (std::make_pair<std::string, size_t>("", best));
 }
 
 

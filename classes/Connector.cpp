@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/01 10:39:15 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/01 15:51:17 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,9 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	if ((status = request.readAndParseHeader()) < 1)
 		return (status);
 	const Server_t &current_serv = (choose_serv(servs, request.getHost().first));
-	if ((status = request.readAndParseBody(status, current_serv.get_best_client_max_body_size(request.getPath()).second)) < 1)
+	std::pair<std::string, size_t> max =  current_serv.get_best_client_max_body_size(request.getPath());
+	std::cout << "Result : " << max.first << " : " << max.second << std::endl;
+	if ((status = request.readAndParseBody(status, max.second)) < 1)
 		return (status);
 	std::cout << request << std::endl;
 
