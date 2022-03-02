@@ -1,5 +1,5 @@
 #include "../headers/Config.hpp"
-#include <iostream>
+
 
 /**************************************\
 |* Private Functions used for parsing *|
@@ -171,8 +171,15 @@ void Config::parse_error_page(args_t &args, Context_t &context, std::fstream &fi
     for (args_t::iterator it = ++args.begin(); it != --args.end(); ++it)
     {
         for (std::string::iterator str_it = it->begin(); str_it != it->end(); ++str_it)
+        {
             if (!ft_isdigit(*str_it))
-                throw_close(CONF_ERR_ERPAGE_VARG, file);
+                throw_close(CONF_ERR_ERPAGE_NAN, file);
+        }
+        int err = ft_atoi(it->c_str());
+        if (err < 300 || err > 599)
+            throw_close(CONF_ERR_ERPAGE_WRG_ERR, file);
+        if (err == 499)
+            throw_close(CONF_ERR_ERPAGE_499, file);
         context.add_error_page(*it, args.back());
     }
 }
