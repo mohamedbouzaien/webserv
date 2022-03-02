@@ -39,6 +39,7 @@ class Server_t : public Context_t
 
 		std::pair<bool, Location_t> get_best_location_block(std::string) const;
 		unsigned long get_best_client_max_body_size(std::string) const;
+		std::pair<std::string, std::string> get_best_cgi(std::string) const;
 // checks --------------------
         bool has_name(const std::string &name) const;
         bool has_listen(const listen_pair_t &listen_pair) const;

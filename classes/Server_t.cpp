@@ -88,6 +88,16 @@ unsigned long Server_t::get_best_client_max_body_size(std::string path) const {
 		return (best_location.second.get_client_max_body_size());
 }
 
+std::pair<std::string, std::string> Server_t::get_best_cgi(std::string path) const {
+	std::pair<bool, Location_t> best_location;
+
+	best_location = get_best_location_block(path);
+	if (best_location.first == false)
+		return (std::make_pair<std::string, std::string>(get_cgi_path(), get_cgi_type()));
+	else
+		return (std::make_pair<std::string, std::string>(best_location.second.get_cgi_path(), best_location.second.get_cgi_type()));
+}
+
 // checks --------------------
 bool Server_t::has_name(const std::string &name) const
 {

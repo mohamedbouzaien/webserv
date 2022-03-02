@@ -21,7 +21,7 @@ class Cgi {
 		char **_cgi_env;
 
 	public:
-		Cgi(char *cgi_path, std::string t_path, Request &request);
+		Cgi(std::string cgi_path, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
