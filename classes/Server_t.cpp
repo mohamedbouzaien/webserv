@@ -60,7 +60,7 @@ std::pair<bool, Location_t>  Server_t::get_best_location_block(std::string path)
 
 	path_tried = path;
 	if (_locations.begin() == _locations.end())
-		return (std::make_pair<bool, Location_t>(false, *_locations.end()));
+		return (std::make_pair<bool, Location_t>(false, Location_t()));
 	while (1) {
 		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
 			uri = it->get_uri();
@@ -75,7 +75,17 @@ std::pair<bool, Location_t>  Server_t::get_best_location_block(std::string path)
 			pos = 0;
 		path_tried.erase(pos);
 	}
-	return (std::make_pair<bool, Location_t>(false, *_locations.end()));
+	return (std::make_pair<bool, Location_t>(false, Location_t()));
+}
+
+unsigned long Server_t::get_best_client_max_body_size(std::string path) const {
+	std::pair<bool, Location_t> best_location;
+
+	best_location = get_best_location_block(path);
+	if (best_location.first == false)
+		return (this->get_client_max_body_size());
+	else
+		return (best_location.second.get_client_max_body_size());
 }
 
 // checks --------------------
