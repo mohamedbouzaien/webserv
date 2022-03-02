@@ -4,8 +4,7 @@ const char* Cgi::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-
-Cgi::Cgi(char *path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
+Cgi::Cgi(std::string path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
 	std::vector<char> vbody = request.getBody();
 	_body_size = vbody.size();
 	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
@@ -169,7 +168,7 @@ void Cgi::setCgiPath(char *path) {
 void Cgi::setStatusCode(std::string buffer) {
 	if (buffer.find("Status:") == 0)
 		_status_code = stoi(buffer.erase(0, 8));
-	else 
+	else if (_status_code == 0)
 		_status_code = OK;
 	if (!(_status_code >= 100 && _status_code <= 103) &&
 			!(_status_code >= 200 && _status_code <= 208) &&

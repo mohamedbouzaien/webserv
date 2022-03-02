@@ -53,6 +53,32 @@ const std::string &Location_t::get_uri() const
     return _uri;
 }
 
+Location_t Location_t::get_best_location_block(std::string path) const {
+	std::string path_tried;
+	std::string uri;
+	size_t pos;
+
+	path_tried = path;
+	if (_locations.begin() == _locations.end())
+		return (*this);
+	while (1) {
+		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
+			uri = it->get_uri();
+			if (uri == path_tried || uri == path_tried + "/") {
+				return (it->get_best_location_block(path));
+			}
+		}
+		if (path_tried.empty())
+			break;
+		pos = path_tried.find_last_of('/');
+		if (pos == std::string::npos)
+			pos = 0;
+		path_tried.erase(pos);
+	}
+	return (*this);
+}
+
+
 #include <iostream>
 void Location_t::print() const {
     std::cout << "  Location content:\n";

@@ -49,10 +49,54 @@ const std::set<std::string>   &Server_t::get_names() const{
 const std::set<Server_t::listen_pair_t> &Server_t::get_listen() const {
     return _listen;
 }
-std::vector<Location_t> &Server_t::get_locations(){
+std::vector<Location_t> &Server_t::get_locations() {
     return _locations;
 }
 
+std::pair<bool, Location_t>  Server_t::get_best_location_block(std::string path) const {
+	std::string path_tried;
+	std::string uri;
+	size_t pos;
+
+	path_tried = path;
+	if (_locations.begin() == _locations.end())
+		return (std::make_pair<bool, Location_t>(false, Location_t()));
+	while (1) {
+		for(std::vector<Location_t>::const_iterator it = _locations.begin(); it != _locations.end(); it++) {
+			uri = it->get_uri();
+			if (uri == path_tried || uri == path_tried + "/") {
+				return (std::make_pair<bool, Location_t>(true, it->get_best_location_block(path)));
+			}
+		}
+		if (path_tried.empty())
+			break;
+		pos = path_tried.find_last_of('/');
+		if (pos == std::string::npos)
+			pos = 0;
+		path_tried.erase(pos);
+	}
+	return (std::make_pair<bool, Location_t>(false, Location_t()));
+}
+
+unsigned long Server_t::get_best_client_max_body_size(std::string path) const {
+	std::pair<bool, Location_t> best_location;
+
+	best_location = get_best_location_block(path);
+	if (best_location.first == false)
+		return (this->get_client_max_body_size());
+	else
+		return (best_location.second.get_client_max_body_size());
+}
+
+std::pair<std::string, std::string> Server_t::get_best_cgi(std::string path) const {
+	std::pair<bool, Location_t> best_location;
+
+	best_location = get_best_location_block(path);
+	if (best_location.first == false)
+		return (std::make_pair<std::string, std::string>(get_cgi_path(), get_cgi_type()));
+	else
+		return (std::make_pair<std::string, std::string>(best_location.second.get_cgi_path(), best_location.second.get_cgi_type()));
+}
 
 // checks --------------------
 bool Server_t::has_name(const std::string &name) const

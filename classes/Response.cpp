@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/28 11:31:32 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/02 10:28:59 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,13 +315,14 @@ void		Response::deleteMethod(std::string const &path)
 
 void		Response::getMethod(Request &request)
 {
-	if (endsWith(request.getPath(), ".php"))
+	std::string path = request.getPath();
+
+	if (endsWith(path, _conf.get_best_cgi(path).second))
 	{
-		std::string s("bin/php-cgi"); // Path to cgi binary
-		std::string t_path(request.getPath());
+		std::string t_path(path);
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
-		Cgi cgi((char *)s.c_str(), t_path, request);
+		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
 		cgi.runCgi(request);
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
@@ -337,13 +338,14 @@ void		Response::getMethod(Request &request)
 
 void		Response::postMethod(Request &request)
 {
-	if (endsWith(request.getPath(), ".php"))
+	std::string path = request.getPath();
+
+	if (endsWith(path, _conf.get_best_cgi(path).second))
 	{
-		std::string s("bin/php-cgi"); // Path to cgi binary
-		std::string t_path(request.getPath());
+		std::string t_path(path);
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
-		Cgi cgi((char *)s.c_str(), t_path, request);
+		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
 		cgi.runCgi(request);
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
