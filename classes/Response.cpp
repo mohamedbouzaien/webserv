@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/02 10:28:59 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/03 14:53:30 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -323,6 +323,9 @@ void		Response::getMethod(Request &request)
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
+		Cgi cgi2;
+		cgi = cgi2;
+		std::cout << cgi << std::endl;
 		cgi.runCgi(request);
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
@@ -346,6 +349,9 @@ void		Response::postMethod(Request &request)
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
+		Cgi cgi2;
+		cgi = cgi2;
+		std::cout << cgi << std::endl;
 		cgi.runCgi(request);
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());

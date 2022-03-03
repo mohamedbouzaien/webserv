@@ -21,6 +21,7 @@ class Cgi {
 		char **_cgi_env;
 
 	public:
+		Cgi();
 		Cgi(std::string cgi_path, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
@@ -41,4 +42,8 @@ class Cgi {
 			public:
 				virtual const char* what() const throw();
 		};
+
+		friend std::ostream& operator<<(std::ostream& os, const Cgi& cgi);
+
+		void free_cgi_env();
 };
