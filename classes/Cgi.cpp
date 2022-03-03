@@ -12,16 +12,8 @@ Cgi::Cgi() : _cgi_path(), _translated_path(), _output(), _body_size(), _status_c
 Cgi::Cgi(std::string path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
 	_body = NULL;
 	_cgi_env = NULL;
-	std::vector<char> vbody = request.getBody();
-	_body_size = vbody.size();
-	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
-		_status_code = INTERNAL_SERVER_ERROR;
-		throw Cgi::MallocFailedException();
-	}
-	int i = 0;
-	for (std::vector<char>::iterator it = vbody.begin(); it !=  vbody.end(); it++)
-		_body[i++] = *it;
-	_body[i] = 0;
+	setBody(request.getBody());
+	_body_size = request.getBody().size();
 	setCgiEnv(request);
 }
 
@@ -50,8 +42,21 @@ Cgi &Cgi::operator=(const Cgi &other) {
 			_status_code = INTERNAL_SERVER_ERROR;
 			throw Cgi::MallocFailedException();
 		}
-		for (int i = 0; i < _body_size; i++)
+		for (size_t i = 0; i < _body_size; i++)
 			_body[i] = other._body[i];
+		free_cgi_env();
+		if (other._cgi_env) {
+			int size = 0;
+			for (;other._cgi_env[size]; size++)
+				;
+			if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
+				_status_code = INTERNAL_SERVER_ERROR;
+				throw Cgi::MallocFailedException();
+			}
+			for (int i = 0; i < size; i++)
+				_cgi_env[i] = strdup(other._cgi_env[i]);
+			_cgi_env[size] = NULL;
+		}
 		_body[_body_size] = 0;
 		_status_code = other._status_code;
 	}
@@ -158,6 +163,7 @@ void Cgi::setCgiEnv(Request &request) {
 	for(;it != ite; it++)
 		mapped_cgi_env["HTTP_" + upper_key(it->first)] = it->second;
 	int size = mapped_cgi_env.size();
+	free_cgi_env();
 	if (!(_cgi_env = static_cast<char **>(malloc(sizeof(char *) * (size + 1))))) {
 			_status_code = INTERNAL_SERVER_ERROR;
 			throw Cgi::MallocFailedException();
@@ -184,8 +190,37 @@ std::string Cgi::upper_key(std::string key) const {
 
 //Setter
 
-void Cgi::setCgiPath(char *path) {
+void Cgi::setCgiPath(std::string path) {
 	_cgi_path = path;
+}
+
+void Cgi::setTranslatedPath(std::string path) {
+	_translated_path = path;
+}
+
+void Cgi::setOutput(std::string output) {
+	_output = output;
+}
+
+void Cgi::setBody(const std::vector<char> vbody) {
+	if (_body)
+		free(_body);
+	_body_size = vbody.size();
+	if (!(_body = static_cast<char *>(malloc(sizeof(char) * (_body_size + 1))))) {
+		_status_code = INTERNAL_SERVER_ERROR;
+		throw Cgi::MallocFailedException();
+	}
+	int i = 0;
+	for (std::vector<char>::const_iterator it = vbody.begin(); it !=  vbody.end(); it++)
+		_body[i++] = *it;
+	_body[i] = 0;
+}
+
+void Cgi::setBodySize(size_t size) {
+	if (size > _body_size)
+		return ;
+	_body[size] = 0;
+	_body_size = size;
 }
 
 void Cgi::setStatusCode(std::string buffer) {
@@ -210,16 +245,32 @@ void Cgi::setStatusCode(std::string buffer) {
 
 //Getter
 
-std::string Cgi::getOutput() const {
-	return (_output);
-} 
-
 std::string Cgi::getCgiPath() const {
 	return (_cgi_path);
 }
 
+std::string Cgi::getTranslatedPath() const {
+	return (_translated_path);
+}
+
+std::string Cgi::getOutput() const {
+	return (_output);
+}
+
+char *Cgi::getBody() const {
+	return (_body);
+}
+
+int Cgi::getBodySize() const {
+	return (_body_size);
+}
+
 int Cgi::getStatusCode() const {
 	return (_status_code);
+}
+
+char **Cgi::getCgiEnv() const {
+	return (_cgi_env);
 }
 
 // << OVERLOAD
@@ -231,7 +282,7 @@ std::ostream& operator<<(std::ostream& os, const Cgi& cgi) {
 	os << "_output : " << cgi._output << std::endl;
 	os << "_body_size : " << cgi._body_size << std::endl;
 	os << "_body : " << std::endl;
-	for (int i = 0; i < cgi._body_size; i++)
+	for (size_t i = 0; i < cgi._body_size; i++)
 		os << cgi._body[i];
 	os << std::endl;
 	os << "_status_code  : " << cgi._status_code << std::endl;
