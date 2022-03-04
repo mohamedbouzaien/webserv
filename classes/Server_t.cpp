@@ -161,6 +161,8 @@ void Server_t::print() const{
     std::cout << "  _cgi_path: " << get_cgi_path() << '\n';
     std::cout << "  _cgi_type: " << get_cgi_type() << '\n';
 
+    std::cout << "  _upload_to: " << get_upload_to() << '\n';
+
 
     if  (_locations.size())
         std::cout << "  locations: \n";

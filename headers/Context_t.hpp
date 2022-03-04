@@ -9,7 +9,7 @@
 # include "default_conf.hpp"
 
 // is_set bool vector correspondance
-# define IS_BOOL_SIZE     7
+# define IS_BOOL_SIZE     8
 # define IS_ROOT          0
 # define IS_INDEX         1
 # define IS_AUTO_INDEX    2
@@ -17,6 +17,7 @@
 # define IS_ERROR_PAGES   4
 # define IS_ALLOW_METHOD  5
 # define IS_CGI           6
+# define IS_UPLOAD_TO     7
 
 // allow_method bool vector correspondance
 # define METH_SIZE   3
@@ -38,6 +39,7 @@ class Context_t
         std::map<int, std::string> _error_pages;
         std::vector<bool>      _allow_method;
         std::pair<std::string, std::string> _cgi;
+        std::string            _upload_to;
 
     public:
         Context_t();
@@ -61,6 +63,7 @@ class Context_t
         void allow_post();
         void allow_delete();
         void set_cgi(std::string &path, std::string &type);
+        void set_upload_to(const std::string s);
 
         virtual void add_location(const Location_t*) = 0;
 
@@ -75,6 +78,7 @@ class Context_t
         bool is_allowed_delete()        const;
         const std::string &get_cgi_path() const ;
         const std::string &get_cgi_type() const;
+        const std::string &get_upload_to() const;
 };
 
 #endif
