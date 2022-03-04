@@ -10,7 +10,7 @@
 # define DEFAULT_ALIAS ""
 
 // Common directives
-# define DEFAULT_ROOT "./html"
+# define DEFAULT_ROOT ""
 
 # define DEFAULT_AUTOINDEX false
 
@@ -18,5 +18,7 @@
 
 # define DEFAULT_CGI_PATH "./bin/php-cgi"
 # define DEFAULT_CGI_TYPE ".php"
+
+# define DEFAULT_UPLOAD_TO ""
 
 #endif

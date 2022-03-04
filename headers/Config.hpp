@@ -1,6 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
+# include <iostream>
 # include <vector>
 # include <fstream>
 # include <sstream>
@@ -26,7 +27,9 @@
 
 # define CONF_ERR_MAXSZ_VARG  "wrong arg value on client_max_body_size directive"
 
-# define CONF_ERR_ERPAGE_VARG  "wrong value of args on error_page directive"
+# define CONF_ERR_ERPAGE_NAN     "argument value is not an error number in error page directive"
+# define CONF_ERR_ERPAGE_WRG_ERR "error value must be between 300 and 599"
+# define CONF_ERR_ERPAGE_499     "wrong error value: 499"
 
 # define CONF_ERR_METH_VARG  "unrecognized method in allow_method directive"
 
@@ -69,6 +72,7 @@ class Config
         void parse_error_page(args_t &args, Context_t &context, std::fstream &file);
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
         void parse_set_cgi(args_t &args, Context_t &context, std::fstream &file);
+        void parse_upload_to(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Location Directive(s)
         void parse_alias(args_t &args, Location_t &loc, std::fstream &file);

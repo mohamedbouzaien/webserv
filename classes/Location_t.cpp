@@ -53,6 +53,11 @@ const std::string &Location_t::get_uri() const
     return _uri;
 }
 
+const std::string &Location_t::get_alias() const
+{
+    return _alias;
+}
+
 Location_t Location_t::get_best_location_block(std::string path) const {
 	std::string path_tried;
 	std::string uri;
@@ -99,6 +104,7 @@ void Location_t::print() const {
 
     std::cout << "    _cgi_path: " << get_cgi_path() << '\n';
     std::cout << "    _cgi_type: " << get_cgi_type() << '\n';
+    std::cout << "    _upload_to: " << get_upload_to() << '\n';
 
     std::cout << "    index:\n";
     for (std::list<std::string>::const_iterator it = _index.begin();

@@ -6,28 +6,28 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/04 16:20:30 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/04 18:05:14 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../headers/Response.hpp"
 
-Response::Response(const Server_t &conf) : _conf(conf), _autoindex(false)
+Response::Response(const Server_t &conf) : _conf(conf)
 {
 	this->initMime();
 	this->initCodes();
 }
 
-Response::Response(const Response &copy)
+Response::Response(const Response &copy) : _codes(copy._codes), _mime(copy._mime)
 {
-	(void)copy;
-	this->initMime();
-	this->initCodes();
+
 }
 
 Response	&Response::operator=(const Response &other)
 {
-	(void)other;
+	if (this == &other)
+		return (*this);
+	*this = other;
 	return (*this);
 }
 
@@ -127,7 +127,8 @@ void		Response::initCodes()
 	this->_codes.insert(std::make_pair<int, std::string>(100, "Continue"));
 	this->_codes.insert(std::make_pair<int, std::string>(200, "OK"));
 	this->_codes.insert(std::make_pair<int, std::string>(201, "Created"));
-	this->_codes.insert(std::make_pair<int, std::string>(204, "No content"));
+	this->_codes.insert(std::make_pair<int, std::string>(204, "No Content"));
+	this->_codes.insert(std::make_pair<int, std::string>(301, "Moved Permanently"));
 	this->_codes.insert(std::make_pair<int, std::string>(400, "Bad Request"));
 	this->_codes.insert(std::make_pair<int, std::string>(403, "Forbidden"));
 	this->_codes.insert(std::make_pair<int, std::string>(404, "Not Found"));
@@ -161,7 +162,7 @@ void		Response::handleHeader(std::string path, int code)
 	if (code == 405 || code == 413)
 	{
 		std::string	alloud;
-		for (std::vector<std::string>::iterator it = _allowed_methods.begin(); it != _allowed_methods.end(); it++)
+		for (std::vector<std::string>::iterator it = _allowed_methods.begin(); it != _allowed_methods.end(); ++it)
 		{
 			alloud += *it;
 			if (it != _allowed_methods.end() - 1)
@@ -190,7 +191,7 @@ void		Response::retreiveBody(std::string path, int code)
 	{
 		indata.open(path.substr(1), std::ifstream::in);
 		if (!indata.is_open())
-			this->retreiveBody(_error_pages[403], 403);
+			this->retreiveBody(_context->get_error_page()[403], 403);
 		else
 		{
 			this->handleHeader(path, code);
@@ -201,26 +202,29 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 	else if (path_type == 0)
 	{
-		std::vector<std::string>	dir_conts = getDirContents(path);
-		std::string index = findIndex(dir_conts);
-		if (!index.empty())
+		if (path.back() != '/')
 		{
-			if (!(path.back() == '/'))
-				path += '/';
-			this->retreiveBody(path + index, 200);
+			this->addHeader("Location: ", path + "/");
+			this->retreiveBody(_context->get_error_page()[301], 301);
 		}
-		else if (_autoindex)
+		else
 		{
-			this->addHeader(std::to_string(code) + " ", _codes[code]);
-			this->addHeader("Content-type: ", "text/html");
-			this->listDirectory(path, dir_conts);
+			std::vector<std::string>	dir_conts = getDirContents(path);
+			std::string index = findIndex(dir_conts);
+			if (!index.empty())
+				this->retreiveBody(path + index, 200);
+			else if (_context->get_autoindex())
+			{
+				this->addHeader(std::to_string(code) + " ", _codes[code]);
+				this->addHeader("Content-type: ", "text/html");
+				this->listDirectory(path, dir_conts);
+			}
 		}
 	}
 	else
-	{		
-		std::cerr << _autoindex <<" File not found => \"" << path.substr(1) << "\"" << std::endl;
-		this->retreiveBody(_error_pages[404], 404);
-
+	{
+		std::cerr << " File not found => \"" << path.substr(1) << "\"" << std::endl;
+		this->retreiveBody(_context->get_error_page()[404], 404);
 	}
 }
 
@@ -258,16 +262,10 @@ std::vector<std::string>	Response::getDirContents(std::string const &path)
 
 void		Response::listDirectory(std::string const &path, std::vector<std::string> dir_cont)
 {
-		std::string	clean_p;
-		
-		if (path.back() == '/')
-			clean_p = path.substr(0, path.length() - 1);
-		else
-			clean_p = path;
-		this->_body ="<!DOCTYPE html><html><head><title>" + clean_p + "</title>\
+		this->_body ="<!DOCTYPE html><html><head><title>" + path + "</title>\
 		</head><body><h1>Index of " + path + "</h1><p>";
-		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); it++)
-			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + clean_p + "/"\
+		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
+			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + path\
 			+ *it + "\">" + *it + "</a></p>";
 		this->_body += "</p></body></html>";
 }
@@ -276,7 +274,7 @@ std::string		Response::findIndex(std::vector<std::string> dir_cont)
 {
 	std::string							find_index;
 
-	for (std::list<std::string>::iterator itl = _index_list.begin(); itl != _index_list.end(); ++itl)
+	for (std::list<std::string>::const_iterator itl = _context->get_index().begin(); itl !=  _context->get_index().end(); ++itl)
 		if (std::find(dir_cont.begin(), dir_cont.end(), *itl) != dir_cont.end())
 			return (*itl);
 	return (std::string());
@@ -307,10 +305,10 @@ void		Response::deleteMethod(std::string const &path)
 		if (remove(path.substr(1).c_str()) == 0)
 			this->handleHeader(path, 204);
 		else
-			retreiveBody(_error_pages[403], 403);
+			retreiveBody(_context->get_error_page()[403], 403);
 	}
 	else
-		retreiveBody(_error_pages[404], 404);
+		retreiveBody(_context->get_error_page()[404], 404);
 }
 
 void		Response::getMethod(Request &request)
@@ -325,7 +323,7 @@ void		Response::getMethod(Request &request)
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
 		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
-			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
 			this->handleHeader(request.getPath(), cgi.getStatusCode());
@@ -348,7 +346,7 @@ void		Response::postMethod(Request &request)
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
 		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
-			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
+			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
 			this->handleHeader(request.getPath(), cgi.getStatusCode());
@@ -374,26 +372,23 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(DELETE);
 	if (setLocationBlock(request.getPath()))
 	{
-		_error_pages = _loc.get_error_page();
-		_autoindex = _loc.get_autoindex();
-		_index_list = _loc.get_index();
+		_context = &_loc;
+		if (!(_loc.get_alias().empty()))
+			request.setPath(_loc.get_alias() + request.getPath().substr(_loc.get_uri().size()));
 	}
 	else
-	{
-		_error_pages = _conf.get_error_page();
-		_autoindex = _conf.get_autoindex();
-		_index_list = _conf.get_index();
-	}
+		_context = &_conf;
 	if (request.getStatusCode() == 414)
-		this->retreiveBody(_error_pages[414], 414);
+		this->retreiveBody(_context->get_error_page()[414], 414);
 	else if (request.getStatusCode() == 400)
-		this->retreiveBody(_error_pages[400], 400);
+		this->retreiveBody(_context->get_error_page()[400], 400);
 	else if (std::find(_allowed_methods.begin(), _allowed_methods.end(), request.getMethod()) == _allowed_methods.end())
-		this->retreiveBody(_error_pages[405], 405);
+		this->retreiveBody(_context->get_error_page()[405], 405);
 	else if (request.getStatusCode() == 413)
-		this->retreiveBody(_error_pages[413], 413);
+		this->retreiveBody(_context->get_error_page()[413], 413);
 	else
 	{
+		request.setPath(_context->get_root() + request.getPath());
 		if (request.getMethod() == GET)
 			this->getMethod(request);
 		else if (request.getMethod() == POST)
