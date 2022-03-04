@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/04 10:31:04 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/04 14:06:41 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	Response	response(choose_serv(servs, request.getHost().first));
 	response.prepare(request);
 	std::string hello = response.parse();
+	std::cout << hello << std::endl;
 	send(_client_socket, hello.c_str(), hello.size(), 0);
 	std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
 	if (request.search("Connection") == "keep-alive")

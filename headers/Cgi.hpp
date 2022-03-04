@@ -19,6 +19,7 @@ class Cgi {
 		int _body_size;
 		int _status_code;
 		char **_cgi_env;
+		std::map<std::string, std::string> _response_header;
 
 	public:
 		Cgi(std::string cgi_path, std::string t_path, Request &request);
@@ -27,14 +28,23 @@ class Cgi {
 		Cgi &operator=(const Cgi &other);
 
 		void runCgi();
+		void processOutput();
+		void readHeader();
+		void parseHeader(std::string &);
+		void readBody();
+		// Setters
 		void setCgiPath(char *path);
 		void setTranslatedPath(std::string t_path);
+		void setResponseHeader(std::map<std::string, std::string>);
+		void setStatusCode(int code);
+		void setCgiEnv(Request &request);
+
+		//Getters
 		std::string getTranslatedPath() const ;
 		std::string getCgiPath() const;
 		std::string getOutput() const;
 		int getStatusCode() const;
-		void setStatusCode(std::string buffer);
-		void setCgiEnv(Request &request);
+		std::map<std::string, std::string> getResponseHeader() const;
 		std::string upper_key(std::string key) const;
 		class MallocFailedException : public std::exception
 		{
