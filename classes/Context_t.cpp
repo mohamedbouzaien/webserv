@@ -74,6 +74,7 @@ void Context_t::init_not_set()
         allow_post();
         allow_delete();
     }
+	_error_pages.insert(std::make_pair<int, std::string>(301, "/error_page/300_error/301.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(400, "/error_page/400_error/400.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(403, "/error_page/400_error/403.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(404, "/error_page/400_error/404.html"));

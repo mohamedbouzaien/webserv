@@ -53,6 +53,11 @@ const std::string &Location_t::get_uri() const
     return _uri;
 }
 
+const std::string &Location_t::get_alias() const
+{
+    return _alias;
+}
+
 Location_t Location_t::get_best_location_block(std::string path) const {
 	std::string path_tried;
 	std::string uri;
