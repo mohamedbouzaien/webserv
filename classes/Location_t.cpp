@@ -104,6 +104,7 @@ void Location_t::print() const {
 
     std::cout << "    _cgi_path: " << get_cgi_path() << '\n';
     std::cout << "    _cgi_type: " << get_cgi_type() << '\n';
+    std::cout << "    _upload_to: " << get_upload_to() << '\n';
 
     std::cout << "    index:\n";
     for (std::list<std::string>::const_iterator it = _index.begin();
