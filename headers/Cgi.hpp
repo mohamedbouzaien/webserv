@@ -16,29 +16,40 @@ class Cgi {
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
 		char *_body;
-		int _body_size;
+		size_t _body_size;
 		int _status_code;
 		char **_cgi_env;
 
 	public:
-		Cgi(char *cgi_path, std::string t_path, Request &request);
+		Cgi();
+		Cgi(std::string cgi_path, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
 		void runCgi(Request &request);
-		void setCgiPath(char *path);
+		void setCgiPath(std::string path);
 		void setTranslatedPath(std::string t_path);
-		std::string getTranslatedPath() const ;
-		std::string getCgiPath() const;
-		std::string getOutput() const;
-		int getStatusCode() const;
+		void setOutput(std::string output);
+		void setBody(const std::vector<char> vbody);
+		void setBodySize(size_t size);
 		void setStatusCode(std::string buffer);
 		void setCgiEnv(Request &request);
+		std::string getCgiPath() const;
+		std::string getTranslatedPath() const ;
+		std::string getOutput() const;
+		char *getBody() const;
+		int getBodySize() const;
+		int getStatusCode() const;
+		char **getCgiEnv() const;
 		std::string upper_key(std::string key) const;
 		class MallocFailedException : public std::exception
 		{
 			public:
 				virtual const char* what() const throw();
 		};
+
+		friend std::ostream& operator<<(std::ostream& os, const Cgi& cgi);
+
+		void free_cgi_env();
 };

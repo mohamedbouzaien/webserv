@@ -31,7 +31,7 @@ class Location_t : public Context_t
         std::vector<Location_t> &get_locations();
         const std::string &get_uri() const;
         const std::string &get_alias() const;
-
+		Location_t get_best_location_block(std::string) const;
         //testing
         void print() const;
 };

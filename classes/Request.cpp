@@ -296,10 +296,15 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
 	size_t client_body_size;
 	std::vector<char> body_buffer = _body;
+	bool is_limit = true;
 
 	_body.clear();
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	client_body_size = body_buffer.size();
+	if (max_body_size == 0) {
+		is_limit = false;
+		max_body_size = client_body_size + 1;
+	}
 	while (client_body_size < max_body_size) {
 		if (unchunkBody(body_buffer) == 0 || status != BUFFER_SIZE)
 			break;
@@ -309,7 +314,10 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 			return (-1);
 		body_buffer.insert(body_buffer.end(), buffer, buffer + status);
 		client_body_size += status;
+		if (is_limit == false)
+			max_body_size = client_body_size + 1;
 	}
+
 	if (client_body_size > max_body_size)
 		_status_code = 413;
 	return (1);
@@ -321,7 +329,8 @@ int Request::readBody(size_t len, size_t max_body_size) {
 	int to_read;
 	int	bytesRead;
 
-	if (len > max_body_size) {
+	std::cout << "Max body size : " << max_body_size << std::endl;
+	if ( max_body_size > 0 && len > max_body_size) {
 		_status_code = 413;
 		return (1);
 	}
