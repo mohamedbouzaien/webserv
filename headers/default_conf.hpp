@@ -19,4 +19,6 @@
 # define DEFAULT_CGI_PATH "./bin/php-cgi"
 # define DEFAULT_CGI_TYPE ".php"
 
+# define DEFAULT_UPLOAD_TO ""
+
 #endif

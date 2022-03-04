@@ -215,6 +215,18 @@ void Config::parse_set_cgi(args_t &args, Context_t &context, std::fstream &file)
         throw_close(CONF_ERR_CGI_WRG_TYPE, file);
     context.set_cgi(args[1], args[2]);
 }
+
+/***********************\
+|* upload_to directive *|
+\***********************/
+
+void Config::parse_upload_to(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 2)
+        throw_close_narg("upload_to", file);
+    context.set_upload_to(args[1]);
+}
+
+
 /*************************\
 |* server_name directive *|
 \*************************/
@@ -325,6 +337,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_allow_method(args, context, file);
     else if (args[0] == "set_cgi")
         parse_set_cgi(args, context, file);
+    else if (args[0] == "upload_to")
+        parse_upload_to(args, context, file);
     else
         return false;
     return true;
