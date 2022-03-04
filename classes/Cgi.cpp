@@ -44,13 +44,13 @@ Cgi &Cgi::operator=(const Cgi &other) {
 	return (*this);
 }
 
-void Cgi::runCgi(Request &request) {
+void Cgi::runCgi() {
 	int pid;
 	char *argv[3];
 	char buffer[CGI_BUFFER_SIZE + 1];
 
 	argv[0] = const_cast<char *>(_cgi_path.c_str());
-	argv[1] = (char *)request.getPath().c_str();
+	argv[1] = const_cast<char *>(_translated_path.c_str());
 	argv[2] = NULL;
 	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {

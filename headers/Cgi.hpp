@@ -26,7 +26,7 @@ class Cgi {
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
-		void runCgi(Request &request);
+		void runCgi();
 		void setCgiPath(char *path);
 		void setTranslatedPath(std::string t_path);
 		std::string getTranslatedPath() const ;

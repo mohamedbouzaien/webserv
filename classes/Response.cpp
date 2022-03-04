@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/02 10:28:59 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/04 10:12:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -323,7 +323,7 @@ void		Response::getMethod(Request &request)
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
-		cgi.runCgi(request);
+		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
@@ -346,7 +346,7 @@ void		Response::postMethod(Request &request)
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
 		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
-		cgi.runCgi(request);
+		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_error_pages[cgi.getStatusCode()], cgi.getStatusCode());
 		else
