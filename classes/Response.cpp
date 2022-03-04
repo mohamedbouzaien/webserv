@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/04 16:35:08 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/04 16:40:20 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Response::Response(const Server_t &conf) : _conf(conf)
 	this->initCodes();
 }
 
-Response::Response(const Response &copy) : _mime(copy._mime), _codes(copy._codes)
+Response::Response(const Response &copy) : _codes(copy._codes), _mime(copy._mime)
 {
 
 }
