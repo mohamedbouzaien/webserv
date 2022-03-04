@@ -53,6 +53,11 @@ const std::string &Location_t::get_uri() const
     return _uri;
 }
 
+const std::string &Location_t::get_alias() const
+{
+    return _alias;
+}
+
 #include <iostream>
 void Location_t::print() const {
     std::cout << "  Location content:\n";

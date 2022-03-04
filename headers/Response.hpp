@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/24 18:02:31 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/03 13:23:03 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,10 @@ class Response
 		std::vector<std::string>			_allowed_methods;
 		Server_t							_conf;
 		Location_t							_loc;
-		std::map<int, std::string>			_error_pages;
-		int									_autoindex;
 		std::string							_host;
 		int									_port;
-		std::list<std::string>				_index_list;
+		Context_t							*_context;
+		std::string							_true_p;
 		
 
 		void		addHeader(std::string key, std::string value);
