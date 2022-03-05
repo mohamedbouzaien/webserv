@@ -18,6 +18,7 @@
 # define CONF_ERR_NO_BRKT  "expected closing bracket }"
 # define CONF_ERR_UNEX_CBRKT  "unexpected closing bracket }"
 # define CONF_ERR_UNEX_OBRKT  "unexpected opening bracket {"
+# define CONF_ERR_UNEX_SEMICOL  "unexpected semicolon ;"
 
 # define CONF_ERR_LIST_VARG  "wrong argument value on listen directive"
 

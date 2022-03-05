@@ -101,6 +101,7 @@ void Config::parse_location(args_t &args, Context_t &context, std::fstream &file
         next_word(file, word);
     else
         word.erase(0, 1);
+    //std::cout << "word after loc end:" << word << "\n";
     /*
     if (loc.names_empty()) // add empty name if no name has been provided
         loc.add_name("");
@@ -350,6 +351,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
     args_t args;
     size_t pos = word.find(';', 0);
     _last_dir = _line_number;
+    if (word == ";")
+        throw_close(CONF_ERR_UNEX_SEMICOL, file);
     while (pos == std::string::npos && file.good())
     {
         if (word.find('}', 0) != std::string::npos)
@@ -374,7 +377,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
     }
     if (args.back().empty()) // "; directly followd by } case
         args.pop_back();
-    /*
+
+/*
     //
     //DEBUG
     std::cout << "args:";
@@ -384,7 +388,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
     std::cout << "word:" << word << "\n";
     //END DEBUG
     //
-    */
+*/
+
     if (args[0] == "location")
         parse_location(args, context, file, word);
     else if (parse_common_directive(file, args, context))
@@ -444,7 +449,7 @@ void Config::parse_server(std::fstream &file, std::string &word)
 //std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-//std::cout << "}" << std::endl;
+//std::cout << "}(serv)" << std::endl;
 
     if (!file.good())
         throw_close(CONF_ERR_NO_BRKT, file);
