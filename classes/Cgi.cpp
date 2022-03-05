@@ -72,15 +72,13 @@ void Cgi::free_cgi_env() {
 	_cgi_env = NULL;
 }
 
-void Cgi::runCgi(Request &request) {
+void Cgi::runCgi() {
 	int pid;
 	char *argv[3];
-	char buffer[CGI_BUFFER_SIZE + 1];
 
 	argv[0] = const_cast<char *>(_cgi_path.c_str());
-	argv[1] = (char *)request.getPath().c_str();
+	argv[1] = const_cast<char *>(_translated_path.c_str());
 	argv[2] = NULL;
-	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
 	if (pipe((int *)_body_pipe) < 0 || pipe((int *)_output_pipe)) {
 		std::cout << "Pipe error" << std::endl;
 		_status_code = INTERNAL_SERVER_ERROR;
@@ -106,17 +104,90 @@ void Cgi::runCgi(Request &request) {
 		close(_body_pipe[SIDE_OUT]);
 		close(_output_pipe[SIDE_OUT]);
 		waitpid(pid, &_status_code, 0);
-
 		if (WIFEXITED(_status_code) && WEXITSTATUS(_status_code) != 0)
 			_status_code = INTERNAL_SERVER_ERROR;
-		while (read(_output_pipe[SIDE_IN], buffer, CGI_BUFFER_SIZE) > 0){
-			_output += buffer;
-			memset(buffer, 0, CGI_BUFFER_SIZE + 1);
-		}
+		processOutput();
 		close(_output_pipe[SIDE_IN]);
 	}
-	setStatusCode(_output);
-	_output.erase(0, _output.find("\r\n\r\n") + 4);
+}
+
+void Cgi::parseHeader(std::string &header) {
+	std::string field;
+	std::string key;
+	std::string value;
+	size_t endline;
+	size_t colon;
+
+	while (header.size()) {
+		endline = header.find("\r\n");
+		if (endline == std::string::npos)
+			break;
+		field = header.substr(0, endline);
+		if ((colon = field.find(": ")) != std::string::npos) {
+			key = field.substr(0, colon);
+			value = field.substr(colon + 2);
+			if (key == "Status")
+				setStatusCode(stoi(value));
+			else
+				_response_header[key] =  value;
+		}
+		header.erase(0, endline + 2);
+	}
+	if (_status_code == 0)
+		_status_code = OK;
+}
+
+void Cgi::readHeader() {
+	char buffer[CGI_BUFFER_SIZE + 1];
+	int readed;
+	size_t pos;
+	std::string header;
+
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	while ((pos = header.find("\r\n\r\n")) == std::string::npos && (readed = read(_output_pipe[SIDE_IN], buffer, CGI_BUFFER_SIZE)) > 0){
+		header += buffer;
+		memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	}
+	if (pos != std::string::npos) {
+		_output = header.substr(pos + 4);
+		header.erase(pos);
+	}
+	parseHeader(header);
+}
+
+void Cgi::processOutput() {
+	readHeader();
+	readBody();
+}
+
+void Cgi::readBody() {
+	char buffer[CGI_BUFFER_SIZE + 1];
+	int to_read;
+	int size;
+
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	std::map<std::string, std::string>::iterator content_length = _response_header.find("Content-Length");
+	if (content_length == _response_header.end())
+		size = -1;
+	else
+		size = stoi(content_length->second);
+	if (size != -1 && (int)_output.size() >= size) {
+		_output.erase(size);
+		return;
+	}
+	if (size != -1 && size - _output.size() <= CGI_BUFFER_SIZE)
+		to_read = size - _output.size();
+	else
+		to_read = CGI_BUFFER_SIZE;
+	while (read(_output_pipe[SIDE_IN], buffer, to_read) > 0) {
+		_output += buffer;
+		memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+		if (size != -1 && size - _output.size() <= CGI_BUFFER_SIZE)
+			to_read = size - _output.size();
+		else
+			to_read = CGI_BUFFER_SIZE;
+	}
+	_response_header["Content-Length"] = std::to_string(_output.size());
 }
 
 void Cgi::setCgiEnv(Request &request) {
@@ -223,11 +294,8 @@ void Cgi::setBodySize(size_t size) {
 	_body_size = size;
 }
 
-void Cgi::setStatusCode(std::string buffer) {
-	if (buffer.find("Status:") == 0)
-		_status_code = stoi(buffer.erase(0, 8));
-	else if (_status_code == 0)
-		_status_code = OK;
+void Cgi::setStatusCode(int code) {
+	_status_code = code;
 	if (!(_status_code >= 100 && _status_code <= 103) &&
 			!(_status_code >= 200 && _status_code <= 208) &&
 			_status_code != 210 && _status_code != 226 &&
@@ -241,6 +309,10 @@ void Cgi::setStatusCode(std::string buffer) {
 			!(_status_code >= 500 && _status_code <= 511))
 		_status_code = INTERNAL_SERVER_ERROR;
 	std::cout << "Status: " << _status_code << std::endl;
+}
+
+void Cgi::setResponseHeader(std::map<std::string, std::string> header) {
+	_response_header = header;
 }
 
 //Getter
@@ -267,6 +339,10 @@ int Cgi::getBodySize() const {
 
 int Cgi::getStatusCode() const {
 	return (_status_code);
+}
+
+std::map<std::string, std::string> Cgi::getResponseHeader() const {
+	return (_response_header);
 }
 
 char **Cgi::getCgiEnv() const {
