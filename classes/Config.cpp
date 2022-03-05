@@ -34,7 +34,16 @@ void Config::next_word(std::fstream &file, std::string &word)
         //std::cout << _line_number << "|" <<  _line << '\n';
         if (!file.good())
         {
-            word = "";
+            //std::cout << "fin du game\n";
+            if (_line.size())
+            {
+                size_t start = _line.find_first_not_of(" \t\n\r\f\v");
+                size_t end = _line.find_first_of(" \t\n\r\f\v", start);
+                word = _line.substr(start, end - start);
+                _line.erase(0, end);
+            }
+            else
+                word = "";
             return;
         }
     }
@@ -449,10 +458,13 @@ void Config::parse_server(std::fstream &file, std::string &word)
 //std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-//std::cout << "}(serv)" << std::endl;
+std::cout << "}(serv)" << std::endl;
 
-    if (!file.good())
+    if (!file.good() && word != "}")
+    {
+        std::cout << "file not good. word:"<< word << "\n";
         throw_close(CONF_ERR_NO_BRKT, file);
+    }
 
     serv.init_not_set(); // to set varaiables that haven't been set already
     for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
