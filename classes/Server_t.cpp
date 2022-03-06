@@ -163,6 +163,9 @@ void Server_t::print() const{
 
     std::cout << "  _upload_to: " << get_upload_to() << '\n';
 
+    std::cout << "  _redir: " << get_redir() << '\n';
+
+
 
     if  (_locations.size())
         std::cout << "  locations: \n";

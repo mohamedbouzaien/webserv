@@ -21,4 +21,6 @@
 
 # define DEFAULT_UPLOAD_TO ""
 
+# define DEFAULT_REDIR ""
+
 #endif

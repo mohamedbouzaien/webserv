@@ -9,7 +9,8 @@ Context_t::Context_t():
     _error_pages(std::map<int, std::string>()),
     _allow_method(std::vector<bool>(IS_BOOL_SIZE, false)),
     _cgi(std::make_pair(DEFAULT_CGI_PATH, DEFAULT_CGI_TYPE)),
-    _upload_to(DEFAULT_UPLOAD_TO)
+    _upload_to(DEFAULT_UPLOAD_TO),
+    _redir(DEFAULT_REDIR)
 {
 }
 
@@ -22,7 +23,8 @@ Context_t::Context_t(const Context_t &copy):
     _error_pages(copy._error_pages),
     _allow_method(copy._allow_method),
     _cgi(copy._cgi),
-    _upload_to(copy._upload_to)
+    _upload_to(copy._upload_to),
+    _redir(copy._redir)
 {
 }
 
@@ -40,6 +42,7 @@ Context_t	&Context_t::operator=(const Context_t &other)
     _allow_method           = other._allow_method;
     _cgi                    = other._cgi;
     _upload_to              = other._upload_to;
+    _redir                  = other._redir;
 	return *this;
 }
 
@@ -66,6 +69,8 @@ void Context_t::inherit(Context_t &parent) {
             _error_pages[it->first] = it->second;
     if (!_is_set[IS_UPLOAD_TO])
         _upload_to = parent._upload_to;
+    if (!_is_set[IS_REDIR])
+        _redir = parent._redir;
 }
 
 // Unset directives default values ---------
@@ -141,6 +146,11 @@ void Context_t::set_upload_to(const std::string s)
     _is_set[IS_UPLOAD_TO] = true;
     _upload_to = s;
 }
+void Context_t::set_redir(const std::string s)
+{
+    _is_set[IS_REDIR] = true;
+    _redir = s;
+}
 
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
@@ -196,4 +206,9 @@ const std::string &Context_t::get_cgi_type() const
 const std::string &Context_t::get_upload_to() const
 {
     return _upload_to;
+}
+
+const std::string &Context_t::get_redir() const
+{
+    return _redir;
 }
