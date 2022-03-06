@@ -372,6 +372,8 @@ void Config::parse_directive(std::fstream &file, std::string &word, Context_t &c
         pos = word.find(';', 0);
         if (pos == std::string::npos)
             pos = word.find('{', 0);
+        if (word.find('}', 0) < pos)
+            throw_close(CONF_ERR_UNEX_CBRKT, file);
     }
     if (pos == word.find('{', 0) && args[0] != "location")
         throw_close(CONF_ERR_UNEX_OBRKT, file);
@@ -458,13 +460,11 @@ void Config::parse_server(std::fstream &file, std::string &word)
 //std::cout << "server {";
     while (word[0] != '}' && file.good())
         parse_directive(file, word, serv);
-std::cout << "}(serv)" << std::endl;
+//std::cout << "}(serv)" << std::endl;
 
+    //std::cout << "last line:" << _line << '\n';
     if (!file.good() && word != "}")
-    {
-        std::cout << "file not good. word:"<< word << "\n";
         throw_close(CONF_ERR_NO_BRKT, file);
-    }
 
     serv.init_not_set(); // to set varaiables that haven't been set already
     for (std::vector<Location_t>::iterator it = serv.get_locations().begin(); it != serv.get_locations().end(); ++it)
@@ -506,17 +506,13 @@ Config::Config(const char * path): _servers(std::vector<Server_t>()),
 
     if (file.fail())
         throw (FileOpenException());
-    try
+    while (file.good())
     {
-        while (file.good())
-        {
-            next_word(file, word);
-            if (!word.empty()){
-                parse_server(file, word);
-            }
+        next_word(file, word);
+        if (!word.empty()){
+            parse_server(file, word);
         }
     }
-    catch (const ParseErrException &e) {}
     file.close();
 }
 
