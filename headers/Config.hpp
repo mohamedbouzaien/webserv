@@ -74,6 +74,7 @@ class Config
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
         void parse_set_cgi(args_t &args, Context_t &context, std::fstream &file);
         void parse_upload_to(args_t &args, Context_t &context, std::fstream &file);
+        void parse_redir(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Location Directive(s)
         void parse_alias(args_t &args, Location_t &loc, std::fstream &file);

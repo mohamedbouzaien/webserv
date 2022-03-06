@@ -236,6 +236,15 @@ void Config::parse_upload_to(args_t &args, Context_t &context, std::fstream &fil
     context.set_upload_to(args[1]);
 }
 
+/**********************\
+|* redirect directive *|
+\**********************/
+
+void Config::parse_redir(args_t &args, Context_t &context, std::fstream &file){
+    if (args.size() != 2)
+        throw_close_narg("redirect", file);
+    context.set_redir(args[1]);
+}
 
 /*************************\
 |* server_name directive *|
@@ -349,6 +358,8 @@ bool Config::parse_common_directive(std::fstream &file, args_t &args, Context_t 
         parse_set_cgi(args, context, file);
     else if (args[0] == "upload_to")
         parse_upload_to(args, context, file);
+    else if (args[0] == "redirect")
+        parse_redir(args, context, file);
     else
         return false;
     return true;
