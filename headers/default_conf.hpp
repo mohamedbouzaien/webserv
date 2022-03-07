@@ -10,7 +10,7 @@
 # define DEFAULT_ALIAS ""
 
 // Common directives
-# define DEFAULT_ROOT "/html/"
+# define DEFAULT_ROOT "/html"
 
 # define DEFAULT_AUTOINDEX false
 
