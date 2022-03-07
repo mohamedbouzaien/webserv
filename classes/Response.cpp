@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/05 11:50:21 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/07 19:24:14 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -366,6 +366,7 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(POST);
 	if (_conf.is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
+	std::cout << "here" << std::endl;
 	std::string	real_path = request.getPath();
 	if (setLocationBlock(request.getPath()))
 	{
@@ -383,6 +384,11 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_context->get_error_page()[405], 405);
 	else if (request.getStatusCode() == 413)
 		this->retreiveBody(_context->get_error_page()[413], 413);
+	else if (_context->get_redir() != "")
+	{
+		this->addHeader("Location: ", _context->get_redir() + "/");
+		this->retreiveBody(_context->get_error_page()[301], 301);
+	}
 	else
 	{
 		real_path = _context->get_root() + real_path;

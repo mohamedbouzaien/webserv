@@ -8,9 +8,7 @@ Context_t::Context_t():
     _client_max_body_size(DEFAULT_MAX_BODY_SIZE ),
     _error_pages(std::map<int, std::string>()),
     _allow_method(std::vector<bool>(IS_BOOL_SIZE, false)),
-    _cgi(std::make_pair(DEFAULT_CGI_PATH, DEFAULT_CGI_TYPE)),
-    _upload_to(DEFAULT_UPLOAD_TO),
-    _redir(DEFAULT_REDIR)
+    _cgi(std::make_pair(DEFAULT_CGI_PATH, DEFAULT_CGI_TYPE))
 {
 }
 
@@ -22,9 +20,7 @@ Context_t::Context_t(const Context_t &copy):
     _client_max_body_size(copy._client_max_body_size),
     _error_pages(copy._error_pages),
     _allow_method(copy._allow_method),
-    _cgi(copy._cgi),
-    _upload_to(copy._upload_to),
-    _redir(copy._redir)
+    _cgi(copy._cgi)
 {
 }
 
@@ -36,13 +32,11 @@ Context_t	&Context_t::operator=(const Context_t &other)
     _is_set                 = other._is_set;
     _root                   = other._root;
     _index                  = other._index;
-    _autoindex              = other._autoindex;
+    _autoindex             = other._autoindex;
     _client_max_body_size   = other._client_max_body_size;
     _error_pages            = other._error_pages;
     _allow_method           = other._allow_method;
     _cgi                    = other._cgi;
-    _upload_to              = other._upload_to;
-    _redir                  = other._redir;
 	return *this;
 }
 
@@ -67,10 +61,6 @@ void Context_t::inherit(Context_t &parent) {
     for (std::map<int, std::string>::iterator it = parent._error_pages.begin(); it != parent._error_pages.end(); it++)
         if (_error_pages.find(it->first) == _error_pages.end())
             _error_pages[it->first] = it->second;
-    if (!_is_set[IS_UPLOAD_TO])
-        _upload_to = parent._upload_to;
-    if (!_is_set[IS_REDIR])
-        _redir = parent._redir;
 }
 
 // Unset directives default values ---------
@@ -84,7 +74,6 @@ void Context_t::init_not_set()
         allow_post();
         allow_delete();
     }
-	_error_pages.insert(std::make_pair<int, std::string>(301, "/error_page/300_error/301.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(400, "/error_page/400_error/400.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(403, "/error_page/400_error/403.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(404, "/error_page/400_error/404.html"));
@@ -141,17 +130,6 @@ void  Context_t::set_cgi(std::string &path, std::string &type) {
     _cgi.second = type;
 }
 
-void Context_t::set_upload_to(const std::string s)
-{
-    _is_set[IS_UPLOAD_TO] = true;
-    _upload_to = s;
-}
-void Context_t::set_redir(const std::string s)
-{
-    _is_set[IS_REDIR] = true;
-    _redir = s;
-}
-
 // Getters ----------------------------------
 const std::string &Context_t::get_root()
 {
@@ -201,14 +179,4 @@ const std::string &Context_t::get_cgi_path() const
 const std::string &Context_t::get_cgi_type() const
 {
     return _cgi.second;
-}
-
-const std::string &Context_t::get_upload_to() const
-{
-    return _upload_to;
-}
-
-const std::string &Context_t::get_redir() const
-{
-    return _redir;
 }
