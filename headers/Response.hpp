@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/03 13:23:03 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/05 11:39:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ class Response
 		std::string							_host;
 		int									_port;
 		Context_t							*_context;
-		std::string							_true_p;
 		
 
 		void		addHeader(std::string key, std::string value);
@@ -53,9 +52,9 @@ class Response
 		bool 		endsWith(std::string const & value, std::string const & ending);
 		int			pathIsFile(std::string const &path);
 		int			setLocationBlock(std::string const &path);
-		void		getMethod(Request &request);
+		void		getMethod(Request &request, std::string &real_path);
 		void		deleteMethod(std::string const &path);
-		void		postMethod(Request &request);
+		void		postMethod(Request &request, std::string &real_path);
 		void		listDirectory(std::string const &path, std::vector<std::string> dir_cont);
 		std::string	findIndex(std::vector<std::string> dir_cont);
 		std::vector<std::string>	getDirContents(std::string const &path);

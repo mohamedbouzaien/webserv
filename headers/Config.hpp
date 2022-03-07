@@ -18,6 +18,7 @@
 # define CONF_ERR_NO_BRKT  "expected closing bracket }"
 # define CONF_ERR_UNEX_CBRKT  "unexpected closing bracket }"
 # define CONF_ERR_UNEX_OBRKT  "unexpected opening bracket {"
+# define CONF_ERR_UNEX_SEMICOL  "unexpected semicolon ;"
 
 # define CONF_ERR_LIST_VARG  "wrong argument value on listen directive"
 
@@ -73,6 +74,7 @@ class Config
         void parse_allow_method(args_t &args, Context_t &context, std::fstream &file);
         void parse_set_cgi(args_t &args, Context_t &context, std::fstream &file);
         void parse_upload_to(args_t &args, Context_t &context, std::fstream &file);
+        void parse_redir(args_t &args, Context_t &context, std::fstream &file);
 
         // *** Location Directive(s)
         void parse_alias(args_t &args, Location_t &loc, std::fstream &file);

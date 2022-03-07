@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/04 18:05:14 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/05 11:50:21 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,50 +311,46 @@ void		Response::deleteMethod(std::string const &path)
 		retreiveBody(_context->get_error_page()[404], 404);
 }
 
-void		Response::getMethod(Request &request)
+void		Response::getMethod(Request &request, std::string &real_path)
 {
-	std::string path = request.getPath();
-
-	if (endsWith(path, _conf.get_best_cgi(path).second))
+	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
-		std::string t_path(path);
+		std::string t_path(real_path);
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
-		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
+		Cgi cgi(_conf.get_best_cgi(real_path).first, t_path, request);
 		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
-			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->handleHeader(real_path, cgi.getStatusCode());
 			this->_body = cgi.getOutput();
 		}
 	}
 	else
-		retreiveBody(request.getPath(), 200);
+		retreiveBody(real_path, 200);
 }
 
-void		Response::postMethod(Request &request)
+void		Response::postMethod(Request &request, std::string &real_path)
 {
-	std::string path = request.getPath();
-
-	if (endsWith(path, _conf.get_best_cgi(path).second))
+	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
-		std::string t_path(path);
+		std::string t_path(real_path);
 		if (t_path[0] == '/')
 			t_path.erase(0, 1);
-		Cgi cgi(_conf.get_best_cgi(path).first, t_path, request);
+		Cgi cgi(_conf.get_best_cgi(real_path).first, t_path, request);
 		cgi.runCgi();
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
-			this->handleHeader(request.getPath(), cgi.getStatusCode());
+			this->handleHeader(real_path, cgi.getStatusCode());
 			this->_body = cgi.getOutput();
 		}
 	}
 	else
-		this->handleHeader(request.getPath(), 204);
+		this->handleHeader(real_path, 204);
 }
 
 void		Response::prepare(Request &request)
@@ -370,11 +366,12 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(POST);
 	if (_conf.is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
+	std::string	real_path = request.getPath();
 	if (setLocationBlock(request.getPath()))
 	{
 		_context = &_loc;
 		if (!(_loc.get_alias().empty()))
-			request.setPath(_loc.get_alias() + request.getPath().substr(_loc.get_uri().size()));
+			real_path = _loc.get_alias() + real_path.substr(_loc.get_uri().size());
 	}
 	else
 		_context = &_conf;
@@ -388,13 +385,13 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_context->get_error_page()[413], 413);
 	else
 	{
-		request.setPath(_context->get_root() + request.getPath());
+		real_path = _context->get_root() + real_path;
 		if (request.getMethod() == GET)
-			this->getMethod(request);
+			this->getMethod(request, real_path);
 		else if (request.getMethod() == POST)
-			this->postMethod(request);
+			this->postMethod(request, real_path);
 		else if (request.getMethod() == DELETE)
-			this->deleteMethod(request.getPath());
+			this->deleteMethod(real_path);
 	}
 }
 
