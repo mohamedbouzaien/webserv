@@ -98,6 +98,16 @@ std::pair<std::string, std::string> Server_t::get_best_cgi(std::string path) con
 		return (std::make_pair<std::string, std::string>(best_location.second.get_cgi_path(), best_location.second.get_cgi_type()));
 }
 
+std::string Server_t::get_best_upload_to(std::string path) const {
+	std::pair<bool, Location_t> best_location;
+
+	best_location = get_best_location_block(path);
+	if (best_location.first == false)
+		return (get_upload_to());
+	else
+		return (best_location.second.get_upload_to());
+}
+
 // checks --------------------
 bool Server_t::has_name(const std::string &name) const
 {
