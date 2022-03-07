@@ -41,141 +41,106 @@ void Request::clear() {
 	_header_fields.clear();
 }
 
-int	Request::getWordEnd(const char *s) const {
-	int i = 0;
-	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r' && s[i] != '\n')
-		i++;
-	return (i);
-}
 
-int Request::setRequestLine(char *buffer) {
-	int pos = getWordEnd(buffer);
-	std::string keyword(buffer, pos);
+int Request::setRequestLine(std::string line) {
+	size_t pos;
 
-	if (keyword == "GET")
-		_method = GET;
-	else if (keyword == "POST")
-		_method = POST;
-	else if (keyword == "DELETE")
-		_method = DELETE;
+	pos = line.find(" ");
+	std::string word = line.substr(0, pos);
+	if (word == "GET" || word == "POST" || word == "DELETE" || word == "PUT")
+		_method = word;
 	else
 		_status_code = 400;
-	buffer += pos;
-	if (*buffer == ' ')
-		buffer++;
-	if (*buffer != '/')
+	line.erase(0, pos + (pos != std::string::npos ? 1 : 0));
+	if (line.size() == 0)
+		return (0);
+	if (line[0] != '/')
 		_status_code = 400;
-
-	pos = 0;
-	while (buffer[pos] && buffer[pos] != '?' && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n')
-		pos++;
-	_path = std::string(buffer, pos);
-	buffer += pos;
-	if (*buffer == '?') {
-		buffer++;
-		pos = getWordEnd(buffer);
-		_query_string = std::string(buffer, pos);
-		buffer += pos;
-	}
-	if (*buffer == ' ')
-		buffer++;
-	pos = getWordEnd(buffer);
-	if (pos == 0)
+	pos = line.find(" ");
+	word = line.substr(0, pos);
+	_path = word.substr(0, word.find("?"));
+	if (word.find("?") != std::string::npos)
+		_query_string = word.substr(word.find("?") + 1);
+	line.erase(0, pos + (pos != std::string::npos ? 1 : 0));
+	if (line.size() == 0)
+		return (0);
+	_protocol = line;
+	if (_protocol != "HTTP/1.1")
 		_status_code = 400;
-	_protocol = std::string(buffer, pos);
-	buffer += pos;
-	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1)  != '\n')) || ! _path.size() || ! _protocol.size())
-		_status_code = 400;
-	while (*buffer && *buffer != '\n')
-		buffer++;
 	return (1);
 }
 
-int Request::setHostField(char *buffer) {
-	int pos = 0;
-	bool is_port = false;
-	std::string host_name;
-	std::string host_port;
-
+int Request::setHostField(std::string host) {
+	size_t pos;
 
 	if (_host.first.size())
 	{
 		_status_code = 400;
 		return (0);
 	}
-	while (*buffer == ' ')
-		buffer++;
-	while (buffer[pos] && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ':')
-		pos++;
-	if (buffer[pos] == ':')
-		is_port = true;
-	host_name = std::string(buffer, pos);
-	buffer += pos;
-	if (is_port)
-	{
-		buffer++;
-		pos = getWordEnd(buffer);
-		host_port = std::string(buffer, pos);
-		buffer += pos;
-	}
-	_host = std::make_pair(host_name, host_port);
-	while (*buffer == ' ')
-		buffer++;
-	if (((*buffer != '\r' && *buffer != '\n') || (*buffer == '\r' && *(buffer + 1) != 10)) )
+	pos = host.find_first_not_of(' ');
+	host.erase(0, pos);
+	pos = host.find(':');
+	_host.first = host.substr(0, pos);
+	if (pos != std::string::npos)
+		_host.second = host.substr(pos + 1);
+	if (_host.first.find('	') != std::string::npos || _host.second.find_first_not_of("0123456789") != std::string::npos)
 		_status_code = 400;
 	return (1);
 }
 
-void Request::setHeaderField(std::string keyword, char *buffer) {
-	while (*buffer == ' ')
-		buffer++;
-	int pos = 0;
-	while (buffer[pos] && buffer[pos] != '\r' && buffer[pos] != '\n')
-		pos++;
-	if (buffer[pos] == '\r' && buffer[pos + 1] != '\n') {
-		_status_code = 400;
-		return ;
-	}
-	pos--;
-	while (buffer[pos] == ' ')
-		pos--;
-	_header_fields[keyword] = std::string(buffer, pos + 1);
+void Request::setHeaderField(std::string keyword, std::string value) {
+	size_t pos;
+
+	pos = value.find_first_not_of(' ');
+	value.erase(0, pos);
+	value.erase(value.find_last_not_of(' ') + 1);
+	_header_fields[keyword] = value;
 }
 
-int Request::setRequestField(char *buffer) {
-	int pos = 0;
-	while (buffer[pos] && buffer[pos] != ' ' && buffer[pos] != '	' && buffer[pos] != '\r' && buffer[pos] != '\n' && buffer[pos] != ':')
-		pos++;
-	std::string keyword(buffer, pos);
-	if (buffer[pos] != ':')
+int Request::setRequestField(std::string buffer) {
+	size_t pos;
+	std::string keyword;
+
+	pos = buffer.find(":");
+	if (pos == std::string::npos) {
+		_status_code = 400;
+		return (1);
+	}
+	keyword = buffer.substr(0, pos);
+	if (keyword.find('	') != std::string::npos || keyword.find(' ') != std::string::npos)
 	{
 		_status_code = 400;
 		return (1);
 	}
-	pos++;
 	if (keyword == "Host")
-		setHostField(buffer + pos);
+		setHostField(buffer.substr(pos + 1));
 	else
-		setHeaderField(keyword, buffer + pos);
+		setHeaderField(keyword, buffer.substr(pos + 1));
 	return (1);
 }
 
-void Request::parseHeader(char *buffer) {
-	this->setRequestLine(buffer);
-	buffer = strchr(buffer, '\n');
-	if (!buffer || !*buffer)
-		return;
-	buffer++;
-	while (buffer && *buffer && *buffer != '\n' && *buffer != '\r')
+void Request::parseHeader(std::string header) {
+	size_t pos;
+
+	pos = header.find("\r\n");
+	this->setRequestLine(header.substr(0, pos));
+	if (pos == std::string::npos) {
+		_status_code = 400;
+		return ;
+	}
+	header.erase(0, pos + 2);
+	while (header.size())
 	{
-		setRequestField(buffer);
-		buffer = strchr(buffer, '\n');
-		if (buffer == NULL)
-		{
-			_status_code = 400;
+		pos = header.find("\r\n");
+		if (pos == 0)
 			break;
+		this->setRequestField(header.substr(0, pos));
+		if (pos == std::string::npos) {
+			_status_code = 400;
+			break ;
 		}
-		buffer++;
+		header.erase(0, pos + 2);
 	}
 	if (_path.size() + _host.first.size() > MAX_URI_SIZE)
 		_status_code = 414;
@@ -359,7 +324,7 @@ int Request::readAndParseHeader() {
 	status = readHeader(header);
 	if (status < 1)
 		return (status);
-	parseHeader((char *)header.c_str());
+	parseHeader(header);
 	return (1);
 }
 
