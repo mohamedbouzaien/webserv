@@ -12,6 +12,8 @@ Cgi::Cgi() : _cgi_path(), _translated_path(), _output(), _body_size(), _status_c
 Cgi::Cgi(std::string path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
 	_body = NULL;
 	_cgi_env = NULL;
+	if (_translated_path[0] == '/')
+		_translated_path.erase(0, 1);
 	setBody(request.getBody());
 	_body_size = request.getBody().size();
 	setCgiEnv(request);
@@ -120,8 +122,6 @@ void Cgi::parseHeader(std::string &header) {
 
 	while (header.size()) {
 		endline = header.find("\r\n");
-		if (endline == std::string::npos)
-			break;
 		field = header.substr(0, endline);
 		if ((colon = field.find(": ")) != std::string::npos) {
 			key = field.substr(0, colon);
@@ -131,6 +131,8 @@ void Cgi::parseHeader(std::string &header) {
 			else
 				_response_header[key] =  value;
 		}
+		if (endline == std::string::npos)
+			break;
 		header.erase(0, endline + 2);
 	}
 	if (_status_code == 0)
@@ -187,7 +189,7 @@ void Cgi::readBody() {
 		else
 			to_read = CGI_BUFFER_SIZE;
 	}
-	_response_header["Content-Length"] = std::to_string(_output.size());
+	_response_header.erase("Content-Length");
 }
 
 void Cgi::setCgiEnv(Request &request) {
@@ -355,7 +357,12 @@ std::ostream& operator<<(std::ostream& os, const Cgi& cgi) {
 	os << "--- Cgi ---" << std::endl;
 	os << "_cgi_path : " << cgi._cgi_path << std::endl;
 	os << "_translated_path : " << cgi._translated_path << std::endl;
+	os << "--- RESPONSE ELEMENTS ---" << std::endl;
+	os << "_response_header : " << std::endl;
+	for(std::map<std::string, std::string>::const_iterator it = cgi._response_header.begin(); it != cgi._response_header.end(); it++)
+		std::cout << it->first << " : " << it->second << std::endl;
 	os << "_output : " << cgi._output << std::endl;
+	os << "--- END OF RESPONSE ELEMENTS ---" << std::endl;
 	os << "_body_size : " << cgi._body_size << std::endl;
 	os << "_body : " << std::endl;
 	for (size_t i = 0; i < cgi._body_size; i++)
