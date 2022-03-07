@@ -3,7 +3,7 @@
 #include <unistd.h>
 #define SIDE_IN 0
 #define SIDE_OUT 1
-#define CGI_BUFFER_SIZE 96
+#define CGI_BUFFER_SIZE 30000
 #define INTERNAL_SERVER_ERROR 500
 #define OK 200
 

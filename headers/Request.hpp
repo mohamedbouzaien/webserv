@@ -35,11 +35,11 @@ class Request {
 
 		void clear();
 		int getWordEnd(const char *s) const; 
-		int setRequestLine(char *buffer);
-		int setRequestField(char *buffer);
-		int setHostField(char *buffer);
-		void parseHeader(char *buffer);
-		void setHeaderField(std::string, char *);
+		int setRequestLine(std::string buffer);
+		int setRequestField(std::string field);
+		int setHostField(std::string host);
+		void parseHeader(std::string header);
+		void setHeaderField(std::string, std::string);
 		int recvHeader(std::string& header);
 		int readHeader(std::string& header);
 		int readChunkedBody(int status, size_t max_body_size);
