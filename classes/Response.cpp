@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/07 09:19:43 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/07 09:39:37 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,6 @@ void		Response::deleteMethod(std::string const &path)
 
 void		Response::getMethod(Request &request, std::string &real_path)
 {
-	std::cout << real_path << std::endl;
 	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
 		Cgi cgi(_conf.get_best_cgi(real_path).first, real_path, request);
