@@ -41,15 +41,8 @@ void Request::clear() {
 	_header_fields.clear();
 }
 
-int	Request::getWordEnd(const char *s) const {
-	int i = 0;
-	while (s[i] && s[i] != ' ' && s[i] != '	' && s[i] != '\r' && s[i] != '\n')
-		i++;
-	return (i);
-}
 
 int Request::setRequestLine(std::string line) {
-	std::cout << line <<std::endl;
 	size_t pos;
 
 	pos = line.find(" ");
@@ -98,9 +91,10 @@ int Request::setHostField(std::string host) {
 
 void Request::setHeaderField(std::string keyword, std::string value) {
 	size_t pos;
+
 	pos = value.find_first_not_of(' ');
 	value.erase(0, pos);
-	value.erase(value.find_last_not_of(' '));
+	value.erase(value.find_last_not_of(' ') + 1);
 	_header_fields[keyword] = value;
 }
 
@@ -330,7 +324,7 @@ int Request::readAndParseHeader() {
 	status = readHeader(header);
 	if (status < 1)
 		return (status);
-	parseHeader((char *)header.c_str());
+	parseHeader(header);
 	return (1);
 }
 
