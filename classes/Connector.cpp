@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/07 15:00:04 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/07 22:05:40 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,8 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
 		return (status);
 	}
+    if(request.getMethod() == POST || GET || DELETE)
+        request.setStatusCode(200);
 	std::cout << request << std::endl;
 
 	Response	response(choose_serv(servs, request.getHost().first));
