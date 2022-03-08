@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/13 20:17:12 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 10:36:27 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,18 @@
 # include "headers/Lstn_collec.hpp"
 
 # include <string.h>
+#include <csignal>
 # include "headers/Request.hpp"
 
 
+void sig_handler(int signal) {
+	std::cout << "signal handled :" << signal << std::endl;
+	exit(1);
+}
 
 int main(int ac, char **av) {
     const char * conf_path = "./tests/default.conf";
+	signal(SIGINT, sig_handler);
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
     else
