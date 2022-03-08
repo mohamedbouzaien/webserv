@@ -83,6 +83,7 @@ void Context_t::init_not_set()
         allow_get();
         allow_post();
         allow_delete();
+        allow_put();
     }
 	_error_pages.insert(std::make_pair<int, std::string>(301, "/error_page/300_error/301.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(400, "/error_page/400_error/400.html"));
@@ -133,6 +134,11 @@ void Context_t::allow_post() {
 void Context_t::allow_delete() {
     _is_set[IS_ALLOW_METHOD] = true;
     _allow_method[METH_DELETE] = true;
+}
+
+void Context_t::allow_put() {
+    _is_set[IS_ALLOW_METHOD] = true;
+    _allow_method[METH_PUT] = true;
 }
 
 void  Context_t::set_cgi(std::string &path, std::string &type) {
@@ -191,6 +197,11 @@ bool Context_t::is_allowed_post()   const
 bool Context_t::is_allowed_delete() const
 {
     return _allow_method[METH_DELETE];
+}
+
+bool Context_t::is_allowed_put()    const
+{
+    return _allow_method[METH_PUT];
 }
 
 const std::string &Context_t::get_cgi_path() const

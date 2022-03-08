@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 10:12:15 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/08 12:36:27 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,13 +290,18 @@ bool 		Response::endsWith(std::string const &value, std::string const &ending)
 
 int			Response::setLocationBlock(std::string const &path)
 {
+	std::vector<Location_t>::iterator loc = _conf.get_locations().end();
+
 	for (std::vector<Location_t>::iterator	it = _conf.get_locations().begin();it != _conf.get_locations().end(); it++)
 		if (path.rfind(it->get_uri(), 0) == 0)
 		{
-			_loc = *it;
-			return (true);
+			if (loc == _conf.get_locations().end() || loc->get_uri().size() < it->get_uri().size())
+				loc = it;
 		}
-	return (false);
+	if (loc == _conf.get_locations().end())
+		return (false);
+	_loc = *loc;
+	return (true);
 }
 
 void		Response::deleteMethod(std::string const &path)
@@ -348,6 +353,51 @@ void		Response::postMethod(Request &request, std::string &real_path)
 		this->handleHeader(real_path, 204);
 }
 
+void		Response::putMethod(Request &request, std::string &real_path)
+{
+	std::ofstream	file;
+	std::string		ss(request.getBody().begin(), request.getBody().end());
+
+	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
+	{
+		std::string t_path(real_path);
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi(_conf, real_path, request);
+		cgi.runCgi();
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
+			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
+		else
+		{
+			this->handleHeader(real_path, cgi.getStatusCode());
+			this->_body = cgi.getOutput();
+		}
+	}
+	else
+	{	
+		std::cout << "path: " << real_path << std::endl;
+		if (pathIsFile(real_path.substr(1)) == 1)
+		{
+			file.open(real_path.substr(1).c_str());
+			file << ss;
+			file.close();
+			this->handleHeader(real_path, 204);
+		}
+		else
+		{
+			file.open(real_path.substr(1).c_str(), std::ofstream::out | std::ofstream::trunc);
+			if (!file.is_open())
+				this->retreiveBody(_context->get_error_page()[403], 403);
+			else
+			{
+				file << ss;
+				file.close();
+				this->handleHeader(real_path, 201);
+			}
+		}
+	}
+}
+
 void		Response::prepare(Request &request)
 {
 	_host = request.getHost().first;
@@ -372,6 +422,8 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(POST);
 	if (_context->is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
+	if (_context->is_allowed_put())
+		_allowed_methods.push_back(PUT);
 	if (request.getStatusCode() == 414)
 		this->retreiveBody(_context->get_error_page()[414], 414);
 	else if (request.getStatusCode() == 400)
@@ -394,6 +446,8 @@ void		Response::prepare(Request &request)
 			this->postMethod(request, real_path);
 		else if (request.getMethod() == DELETE)
 			this->deleteMethod(real_path);
+		else if (request.getMethod() == PUT)
+			this->putMethod(request, real_path);
 	}
 }
 

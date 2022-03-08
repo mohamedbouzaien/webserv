@@ -209,6 +209,8 @@ void Config::parse_allow_method(args_t &args, Context_t &context, std::fstream &
             context.allow_post();
         else if (*it == "DELETE")
             context.allow_delete();
+        else if (*it == "PUT")
+            context.allow_put();
         else
             throw_close(CONF_ERR_METH_VARG, file);
     }

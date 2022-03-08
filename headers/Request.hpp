@@ -8,6 +8,7 @@
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
+#define PUT	"PUT"
 #define BUFFER_SIZE 30000
 #define MAX_MALLOC_SIZE 16711568
 #define MAX_HEADER_SIZE 16000
