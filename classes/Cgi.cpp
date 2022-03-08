@@ -4,16 +4,19 @@ const char* Cgi::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Cgi::Cgi() : _cgi_path(), _translated_path(), _output(), _body_size(), _status_code() {
+Cgi::Cgi() : _conf(), _cgi_path(), _translated_path(), _output(), _upload_to(), _body_size(), _status_code() {
 	_body = NULL;
 	_cgi_env = NULL;
 }
 
-Cgi::Cgi(std::string path, std::string t_path, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
+Cgi::Cgi(Server_t &conf, std::string t_path, Request &request) : _translated_path(t_path), _status_code() {
+	_conf = conf;
+	_cgi_path = _conf.get_best_cgi(request.getPath()).first;
 	_body = NULL;
 	_cgi_env = NULL;
 	if (_translated_path[0] == '/')
 		_translated_path.erase(0, 1);
+	setUploadTo(_conf.get_best_upload_to(request.getPath()));
 	setBody(request.getBody());
 	_body_size = request.getBody().size();
 	setCgiEnv(request);
@@ -32,9 +35,11 @@ Cgi::~Cgi() {
 
 Cgi &Cgi::operator=(const Cgi &other) {
 	if (this != &other) {
+		_conf = other._conf;
 		_cgi_path = other._cgi_path;
 		_translated_path = other._translated_path;
 		_output = other._output;
+		_upload_to = other._upload_to;
 		if (_body) {
 			free(_body);
 			_body = NULL;
@@ -230,7 +235,7 @@ void Cgi::setCgiEnv(Request &request) {
 	}
 
 	mapped_cgi_env["REDIRECT_STATUS"] = "200";
-	mapped_cgi_env["UPLOADS_DIR"] = "uploads/";
+	mapped_cgi_env["UPLOADS_DIR"] = _upload_to;
 	it = header_fields.begin();
 	ite = header_fields.end();
 	for(;it != ite; it++)
@@ -263,6 +268,10 @@ std::string Cgi::upper_key(std::string key) const {
 
 //Setter
 
+void Cgi::setConf(Server_t conf) {
+	_conf = conf;
+}
+
 void Cgi::setCgiPath(std::string path) {
 	_cgi_path = path;
 }
@@ -273,6 +282,21 @@ void Cgi::setTranslatedPath(std::string path) {
 
 void Cgi::setOutput(std::string output) {
 	_output = output;
+}
+
+void Cgi::setUploadTo(std::string location) {
+	char buffer[CGI_BUFFER_SIZE + 1];
+
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	if (location.empty() || location[0] == '/')
+		_upload_to = location;
+	else {
+		if (getcwd(buffer, CGI_BUFFER_SIZE) == NULL)
+			return;
+		_upload_to = std::string(buffer) + "/" + location;
+	}
+	if (_upload_to[_upload_to.size() - 1] != '/')
+		_upload_to += "/";
 }
 
 void Cgi::setBody(const std::vector<char> vbody) {
@@ -319,6 +343,10 @@ void Cgi::setResponseHeader(std::map<std::string, std::string> header) {
 
 //Getter
 
+Server_t Cgi::getConf() const {
+	return (_conf);
+}
+
 std::string Cgi::getCgiPath() const {
 	return (_cgi_path);
 }
@@ -329,6 +357,10 @@ std::string Cgi::getTranslatedPath() const {
 
 std::string Cgi::getOutput() const {
 	return (_output);
+}
+
+std::string Cgi::getUploadTo() const {
+	return (_upload_to);
 }
 
 char *Cgi::getBody() const {
@@ -357,6 +389,7 @@ std::ostream& operator<<(std::ostream& os, const Cgi& cgi) {
 	os << "--- Cgi ---" << std::endl;
 	os << "_cgi_path : " << cgi._cgi_path << std::endl;
 	os << "_translated_path : " << cgi._translated_path << std::endl;
+	os << "_upload_to : " << cgi._upload_to << std::endl;
 	os << "--- RESPONSE ELEMENTS ---" << std::endl;
 	os << "_response_header : " << std::endl;
 	for(std::map<std::string, std::string>::const_iterator it = cgi._response_header.begin(); it != cgi._response_header.end(); it++)
