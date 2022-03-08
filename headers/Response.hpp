@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 10:14:07 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 18:12:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Response
 		std::string							_host;
 		int									_port;
 		Context_t							*_context;
+		std::string							_old_path;
 		
 
 		void		addHeader(std::string key, std::string value);
