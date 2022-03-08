@@ -203,6 +203,7 @@ void Cgi::setCgiEnv(Request &request) {
 	std::map<std::string, std::string>::iterator it = header_fields.begin();
 	std::map<std::string, std::string>::iterator ite = header_fields.end();
 
+	std::string full_path = getFullPath(_translated_path);
 	header_fields = request.getHeaderFields();
 	mapped_cgi_env["SERVER_SOFTWARE"] = "webserv/1.0";
 	mapped_cgi_env["SERVER_NAME"] = "localhost";
@@ -212,9 +213,9 @@ void Cgi::setCgiEnv(Request &request) {
 	mapped_cgi_env["SERVER_PORT"] = request.getHost().second;
 
 	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
-	mapped_cgi_env["PATH_INFO"] = request.getPath();
-	mapped_cgi_env["PATH_TRANSLATED"] = _translated_path;
-	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
+	mapped_cgi_env["PATH_INFO"] = full_path;
+	mapped_cgi_env["PATH_TRANSLATED"] = full_path;
+	mapped_cgi_env["SCRIPT_NAME"] = full_path;
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
 
@@ -265,6 +266,21 @@ std::string Cgi::upper_key(std::string key) const {
 	}
 	return (key);
 }
+
+std::string Cgi::getFullPath(std::string relative) {
+	char buffer[CGI_BUFFER_SIZE + 1];
+
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	if (relative.empty() || relative[0] == '/')
+		;
+	else {
+		if (getcwd(buffer, CGI_BUFFER_SIZE) == NULL)
+			return (relative);
+		relative = std::string(buffer) + "/" + relative;
+	}
+	return (relative);
+}
+
 
 //Setter
 

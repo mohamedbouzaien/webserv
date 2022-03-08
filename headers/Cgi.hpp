@@ -36,6 +36,7 @@ class Cgi {
 		void readHeader();
 		void parseHeader(std::string &);
 		void readBody();
+		std::string getFullPath(std::string);
 		// Setters
 		void setConf(Server_t);
 		void setCgiPath(std::string path);
