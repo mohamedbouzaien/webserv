@@ -11,6 +11,7 @@
 class Cgi {
 	private:
 
+		Server_t _conf;
 		std::string _cgi_path;
 		std::string _translated_path;
 		std::string _output;
@@ -25,7 +26,7 @@ class Cgi {
 
 	public:
 		Cgi();
-		Cgi(std::string cgi_path, std::string t_path, std::string upload_to, Request &request);
+		Cgi(Server_t &conf, std::string t_path, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
@@ -36,6 +37,7 @@ class Cgi {
 		void parseHeader(std::string &);
 		void readBody();
 		// Setters
+		void setConf(Server_t);
 		void setCgiPath(std::string path);
 		void setTranslatedPath(std::string t_path);
 		void setOutput(std::string output);
@@ -47,6 +49,7 @@ class Cgi {
 		void setCgiEnv(Request &request);
 
 		//Getters
+		Server_t getConf() const;
 		std::string getTranslatedPath() const ;
 		std::string getCgiPath() const;
 		std::string getOutput() const;

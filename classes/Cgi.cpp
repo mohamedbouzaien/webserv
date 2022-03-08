@@ -4,18 +4,20 @@ const char* Cgi::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
 }
 
-Cgi::Cgi() : _cgi_path(), _translated_path(), _output(), _upload_to(), _body_size(), _status_code() {
+Cgi::Cgi() : _conf(), _cgi_path(), _translated_path(), _output(), _upload_to(), _body_size(), _status_code() {
 	_body = NULL;
 	_cgi_env = NULL;
 }
 
-Cgi::Cgi(std::string path, std::string t_path, std::string upload_to, Request &request) : _cgi_path(path), _translated_path(t_path), _status_code() {
+Cgi::Cgi(Server_t &conf, std::string t_path, Request &request) : _translated_path(t_path), _status_code() {
+	_conf = conf;
+	_cgi_path = _conf.get_best_cgi(request.getPath()).first;
 	_body = NULL;
 	_cgi_env = NULL;
 	if (_translated_path[0] == '/')
 		_translated_path.erase(0, 1);
+	setUploadTo(_conf.get_best_upload_to(request.getPath()));
 	setBody(request.getBody());
-	setUploadTo(upload_to);
 	_body_size = request.getBody().size();
 	setCgiEnv(request);
 }
@@ -33,9 +35,11 @@ Cgi::~Cgi() {
 
 Cgi &Cgi::operator=(const Cgi &other) {
 	if (this != &other) {
+		_conf = other._conf;
 		_cgi_path = other._cgi_path;
 		_translated_path = other._translated_path;
 		_output = other._output;
+		_upload_to = other._upload_to;
 		if (_body) {
 			free(_body);
 			_body = NULL;
@@ -264,6 +268,10 @@ std::string Cgi::upper_key(std::string key) const {
 
 //Setter
 
+void Cgi::setConf(Server_t conf) {
+	_conf = conf;
+}
+
 void Cgi::setCgiPath(std::string path) {
 	_cgi_path = path;
 }
@@ -334,6 +342,10 @@ void Cgi::setResponseHeader(std::map<std::string, std::string> header) {
 }
 
 //Getter
+
+Server_t Cgi::getConf() const {
+	return (_conf);
+}
 
 std::string Cgi::getCgiPath() const {
 	return (_cgi_path);
