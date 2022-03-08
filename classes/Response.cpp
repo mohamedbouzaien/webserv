@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 12:06:00 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 12:29:42 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,24 +364,42 @@ void		Response::putMethod(Request &request, std::string &real_path)
 	std::ofstream	file;
 	std::string		ss(request.getBody().begin(), request.getBody().end());
 
-
-	if (pathIsFile(real_path) == 1)
+	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
-		file.open(real_path.c_str());
-		file << ss;
-		file.close();
-		this->handleHeader(real_path, 204);
-	}
-	else
-	{
-		file.open(real_path.c_str(), std::ofstream::out | std::ofstream::trunc);
-		if (!file.is_open())
-			this->retreiveBody(_context->get_error_page()[403], 403);
+		std::string t_path(real_path);
+		if (t_path[0] == '/')
+			t_path.erase(0, 1);
+		Cgi cgi(_conf.get_best_cgi(real_path).first, t_path, request);
+		cgi.runCgi();
+		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
+			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
 		{
+			this->handleHeader(real_path, cgi.getStatusCode());
+			this->_body = cgi.getOutput();
+		}
+	}
+	else
+	{	
+		std::cout << "path: " << real_path << std::endl;
+		if (pathIsFile(real_path.substr(1)) == 1)
+		{
+			file.open(real_path.substr(1).c_str());
 			file << ss;
 			file.close();
-			this->handleHeader(real_path, 201);
+			this->handleHeader(real_path, 204);
+		}
+		else
+		{
+			file.open(real_path.substr(1).c_str(), std::ofstream::out | std::ofstream::trunc);
+			if (!file.is_open())
+				this->retreiveBody(_context->get_error_page()[403], 403);
+			else
+			{
+				file << ss;
+				file.close();
+				this->handleHeader(real_path, 201);
+			}
 		}
 	}
 }
