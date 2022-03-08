@@ -7,5 +7,4 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <poll.h>
-#define SERVER_PORT 8080
 #define MAXLINE 4096

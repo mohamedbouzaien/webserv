@@ -1,4 +1,5 @@
 #include "header.hpp"
+#define SERVER_PORT 80
 
 int main(int ac, char **av) {
 	int sockfd;
@@ -25,7 +26,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "GET /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n6\r\nhelloo\r\n6\r\n world\r\n0\r\n\r\n";
+	std::string request = "PUT /index.html HTTP/1.1\r\nHost: e\r\nContent-Type: text/plain\r\nContent-Length: 11\r\n\r\nHello world";
 
 	std::cout << request.size() << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);
