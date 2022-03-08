@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 09:03:14 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 12:06:00 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,6 +359,33 @@ void		Response::postMethod(Request &request, std::string &real_path)
 		this->handleHeader(real_path, 204);
 }
 
+void		Response::putMethod(Request &request, std::string &real_path)
+{
+	std::ofstream	file;
+	std::string		ss(request.getBody().begin(), request.getBody().end());
+
+
+	if (pathIsFile(real_path) == 1)
+	{
+		file.open(real_path.c_str());
+		file << ss;
+		file.close();
+		this->handleHeader(real_path, 204);
+	}
+	else
+	{
+		file.open(real_path.c_str(), std::ofstream::out | std::ofstream::trunc);
+		if (!file.is_open())
+			this->retreiveBody(_context->get_error_page()[403], 403);
+		else
+		{
+			file << ss;
+			file.close();
+			this->handleHeader(real_path, 201);
+		}
+	}
+}
+
 void		Response::prepare(Request &request)
 {
 	_host = request.getHost().first;
@@ -383,6 +410,8 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(POST);
 	if (_context->is_allowed_delete())
 		_allowed_methods.push_back(DELETE);
+	if (_context->is_allowed_put())
+		_allowed_methods.push_back(PUT);
 	if (request.getStatusCode() == 414)
 		this->retreiveBody(_context->get_error_page()[414], 414);
 	else if (request.getStatusCode() == 400)
@@ -405,6 +434,8 @@ void		Response::prepare(Request &request)
 			this->postMethod(request, real_path);
 		else if (request.getMethod() == DELETE)
 			this->deleteMethod(real_path);
+		else if (request.getMethod() == PUT)
+			this->putMethod(request, real_path);
 	}
 }
 

@@ -25,6 +25,7 @@
 # define METH_GET    0
 # define METH_POST   1
 # define METH_DELETE 2
+# define METH_PUT    4
 
 class Location_t;
 
@@ -64,6 +65,7 @@ class Context_t
         void allow_get();
         void allow_post();
         void allow_delete();
+        void allow_put();
         void set_cgi(std::string &path, std::string &type);
         void set_upload_to(const std::string s);
         void set_redir(const std::string s);
@@ -79,6 +81,7 @@ class Context_t
         bool is_allowed_get()   const;
         bool is_allowed_post()  const;
         bool is_allowed_delete()        const;
+        bool is_allowed_put()           const;
         const std::string &get_cgi_path() const ;
         const std::string &get_cgi_type() const;
         const std::string &get_upload_to() const;

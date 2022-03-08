@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/05 11:39:07 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 10:14:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 # include "Config.hpp"
 # include "Cgi.hpp"
 
-#define URI_MAX_LEN 280000
+#define URI_MAX_LEN 1000000
 
 class Response
 {
@@ -55,6 +55,7 @@ class Response
 		void		getMethod(Request &request, std::string &real_path);
 		void		deleteMethod(std::string const &path);
 		void		postMethod(Request &request, std::string &real_path);
+		void		putMethod(Request &request, std::string &real_path);
 		void		listDirectory(std::string const &path, std::vector<std::string> dir_cont);
 		std::string	findIndex(std::vector<std::string> dir_cont);
 		std::vector<std::string>	getDirContents(std::string const &path);
