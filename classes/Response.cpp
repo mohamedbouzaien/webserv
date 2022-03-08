@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/07 22:00:12 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 09:03:14 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,13 +290,18 @@ bool 		Response::endsWith(std::string const &value, std::string const &ending)
 
 int			Response::setLocationBlock(std::string const &path)
 {
+	std::vector<Location_t>::iterator loc = _conf.get_locations().end();
+
 	for (std::vector<Location_t>::iterator	it = _conf.get_locations().begin();it != _conf.get_locations().end(); it++)
 		if (path.rfind(it->get_uri(), 0) == 0)
 		{
-			_loc = *it;
-			return (true);
+			if (loc == _conf.get_locations().end() || loc->get_uri().size() < it->get_uri().size())
+				loc = it;
 		}
-	return (false);
+	if (loc == _conf.get_locations().end())
+		return (false);
+	_loc = *loc;
+	return (true);
 }
 
 void		Response::deleteMethod(std::string const &path)
