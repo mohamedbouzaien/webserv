@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/07 22:00:12 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/08 09:54:36 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -316,11 +316,9 @@ void		Response::getMethod(Request &request, std::string &real_path)
 {
 	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
-		std::string t_path(real_path);
-		if (t_path[0] == '/')
-			t_path.erase(0, 1);
-		Cgi cgi(_conf.get_best_cgi(real_path).first, t_path, request);
+		Cgi cgi(_conf.get_best_cgi(real_path).first, real_path, _conf.get_best_upload_to(real_path), request);
 		cgi.runCgi();
+		std::cout << cgi << std::endl;
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else
@@ -337,11 +335,9 @@ void		Response::postMethod(Request &request, std::string &real_path)
 {
 	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
-		std::string t_path(real_path);
-		if (t_path[0] == '/')
-			t_path.erase(0, 1);
-		Cgi cgi(_conf.get_best_cgi(real_path).first, t_path, request);
+		Cgi cgi(_conf.get_best_cgi(real_path).first, real_path, _conf.get_best_upload_to(real_path), request);
 		cgi.runCgi();
+		std::cout << cgi << std::endl;
 		if (cgi.getStatusCode() - 400 <= 100 && cgi.getStatusCode() - 400 >= 0)
 			this->retreiveBody(_context->get_error_page()[cgi.getStatusCode()], cgi.getStatusCode());
 		else

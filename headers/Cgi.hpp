@@ -1,5 +1,6 @@
 #pragma once
 #include "Request.hpp"
+#include "Server_t.hpp"
 #include <unistd.h>
 #define SIDE_IN 0
 #define SIDE_OUT 1
@@ -13,6 +14,7 @@ class Cgi {
 		std::string _cgi_path;
 		std::string _translated_path;
 		std::string _output;
+		std::string _upload_to;
 		int _body_pipe[2]; // PARENT -> CHILD, SEND BODY
 		int _output_pipe[2]; // CHILD -> PARENT, SEND CGI OUTPUT
 		char *_body;
@@ -23,7 +25,7 @@ class Cgi {
 
 	public:
 		Cgi();
-		Cgi(std::string cgi_path, std::string t_path, Request &request);
+		Cgi(std::string cgi_path, std::string t_path, std::string upload_to, Request &request);
 		Cgi(const Cgi &other);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
@@ -37,6 +39,7 @@ class Cgi {
 		void setCgiPath(std::string path);
 		void setTranslatedPath(std::string t_path);
 		void setOutput(std::string output);
+		void setUploadTo(std::string location);
 		void setBody(const std::vector<char> vbody);
 		void setBodySize(size_t size);
 		void setResponseHeader(std::map<std::string, std::string>);
@@ -47,6 +50,7 @@ class Cgi {
 		std::string getTranslatedPath() const ;
 		std::string getCgiPath() const;
 		std::string getOutput() const;
+		std::string getUploadTo() const;
 		char *getBody() const;
 		int getBodySize() const;
 		int getStatusCode() const;
