@@ -16,6 +16,7 @@ Cgi::Cgi(Server_t &conf, std::string t_path, Request &request) : _translated_pat
 	_cgi_env = NULL;
 	if (_translated_path[0] == '/')
 		_translated_path.erase(0, 1);
+	_translated_path = getFullPath(_translated_path);
 	setUploadTo(_conf.get_best_upload_to(request.getPath()));
 	setBody(request.getBody());
 	_body_size = request.getBody().size();
@@ -140,8 +141,6 @@ void Cgi::parseHeader(std::string &header) {
 			break;
 		header.erase(0, endline + 2);
 	}
-	if (_status_code == 0)
-		_status_code = OK;
 }
 
 void Cgi::readHeader() {
@@ -215,6 +214,7 @@ void Cgi::setCgiEnv(Request &request) {
 	mapped_cgi_env["PATH_INFO"] = request.getPath();
 	mapped_cgi_env["PATH_TRANSLATED"] = _translated_path;
 	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
+	mapped_cgi_env["REQUEST_URI"] = request.getPath();
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
 
@@ -266,6 +266,21 @@ std::string Cgi::upper_key(std::string key) const {
 	return (key);
 }
 
+std::string Cgi::getFullPath(std::string relative) {
+	char buffer[CGI_BUFFER_SIZE + 1];
+
+	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
+	if (relative.empty() || relative[0] == '/')
+		;
+	else {
+		if (getcwd(buffer, CGI_BUFFER_SIZE) == NULL)
+			return (relative);
+		relative = std::string(buffer) + "/" + relative;
+	}
+	return (relative);
+}
+
+
 //Setter
 
 void Cgi::setConf(Server_t conf) {
@@ -295,7 +310,7 @@ void Cgi::setUploadTo(std::string location) {
 			return;
 		_upload_to = std::string(buffer) + "/" + location;
 	}
-	if (_upload_to[_upload_to.size() - 1] != '/')
+	if (!_upload_to.empty() && _upload_to[_upload_to.size() - 1] != '/')
 		_upload_to += "/";
 }
 
