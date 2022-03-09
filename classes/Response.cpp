@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 20:04:23 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/09 16:25:29 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -443,6 +443,5 @@ std::string Response::parse(void)
 	for (std::map<std::string, std::string>::iterator it = this->_header.begin(); it != this->_header.end(); it++)
 		hello += it->first +  it->second + "\n";
 	hello += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
-	std::cout << hello << std::endl;
 	return (hello);
 }
