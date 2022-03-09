@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 14:13:36 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/08 20:04:23 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,7 @@ void		Response::retreiveBody(std::string path, int code)
 	{
 		if (path.back() != '/')
 		{
-			this->addHeader("Location: ", path + "/");
+			this->addHeader("Location: ", _old_path + "/");
 			this->retreiveBody(_context->get_error_page()[301], 301);
 		}
 		else
@@ -220,6 +220,8 @@ void		Response::retreiveBody(std::string path, int code)
 				this->addHeader("Content-type: ", "text/html");
 				this->listDirectory(path, dir_conts);
 			}
+			else
+				this->retreiveBody(_context->get_error_page()[404], 404);
 		}
 	}
 	else
@@ -389,11 +391,12 @@ void		Response::prepare(Request &request)
 	else
 		_port = std::stoi(request.getHost().second);
 	std::string	real_path = request.getPath();
+	_old_path = request.getPath();
 	if (setLocationBlock(request.getPath()))
 	{
 		_context = &_loc;
 		if (!(_loc.get_alias().empty()))
-			real_path = _loc.get_alias() + real_path.substr(_loc.get_uri().size());
+			real_path = _loc.get_alias().substr(1) + real_path.substr(_loc.get_uri().size());
 		std::cout << "location: " << _loc.get_uri() << std::endl;
 		std::cout << "loc root: " << _loc.get_root() << std::endl;
 	}
@@ -440,5 +443,6 @@ std::string Response::parse(void)
 	for (std::map<std::string, std::string>::iterator it = this->_header.begin(); it != this->_header.end(); it++)
 		hello += it->first +  it->second + "\n";
 	hello += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
+	std::cout << hello << std::endl;
 	return (hello);
 }
