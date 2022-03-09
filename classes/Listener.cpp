@@ -76,8 +76,10 @@ void	Listener::execute(std::string addr, in_port_t port)
     else
         this->_address.sin_addr.s_addr = inet_addr(addr.c_str());
 	this->_address.sin_port = htons(port);
+	this->_address.sin_len = sizeof(struct sockaddr_in);
 
-	int	on, rc;
+	int	rc;
+    int on = 1;
 	rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEADDR,
 				(char *)&on, sizeof(on));
 	if (rc < 0)
