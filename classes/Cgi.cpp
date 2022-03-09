@@ -16,6 +16,7 @@ Cgi::Cgi(Server_t &conf, std::string t_path, Request &request) : _translated_pat
 	_cgi_env = NULL;
 	if (_translated_path[0] == '/')
 		_translated_path.erase(0, 1);
+	_translated_path = getFullPath(_translated_path);
 	setUploadTo(_conf.get_best_upload_to(request.getPath()));
 	setBody(request.getBody());
 	_body_size = request.getBody().size();
@@ -140,8 +141,6 @@ void Cgi::parseHeader(std::string &header) {
 			break;
 		header.erase(0, endline + 2);
 	}
-	if (_status_code == 0)
-		_status_code = OK;
 }
 
 void Cgi::readHeader() {
@@ -203,7 +202,6 @@ void Cgi::setCgiEnv(Request &request) {
 	std::map<std::string, std::string>::iterator it = header_fields.begin();
 	std::map<std::string, std::string>::iterator ite = header_fields.end();
 
-	std::string full_path = getFullPath(_translated_path);
 	header_fields = request.getHeaderFields();
 	mapped_cgi_env["SERVER_SOFTWARE"] = "webserv/1.0";
 	mapped_cgi_env["SERVER_NAME"] = "localhost";
@@ -213,9 +211,10 @@ void Cgi::setCgiEnv(Request &request) {
 	mapped_cgi_env["SERVER_PORT"] = request.getHost().second;
 
 	mapped_cgi_env["REQUEST_METHOD"] = request.getMethod();
-	mapped_cgi_env["PATH_INFO"] = full_path;
-	mapped_cgi_env["PATH_TRANSLATED"] = full_path;
-	mapped_cgi_env["SCRIPT_NAME"] = full_path;
+	mapped_cgi_env["PATH_INFO"] = request.getPath();
+	mapped_cgi_env["PATH_TRANSLATED"] = _translated_path;
+	mapped_cgi_env["SCRIPT_NAME"] = request.getPath();
+	mapped_cgi_env["REQUEST_URI"] = request.getPath();
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
 
@@ -311,7 +310,7 @@ void Cgi::setUploadTo(std::string location) {
 			return;
 		_upload_to = std::string(buffer) + "/" + location;
 	}
-	if (_upload_to[_upload_to.size() - 1] != '/')
+	if (!_upload_to.empty() && _upload_to[_upload_to.size() - 1] != '/')
 		_upload_to += "/";
 }
 
