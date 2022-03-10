@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 15:16:13 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/10 15:28:37 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,6 +422,8 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_context->get_error_page()[405], 405);
 	else if (request.getStatusCode() == 413)
 		this->retreiveBody(_context->get_error_page()[413], 413);
+	else if (request.getStatusCode() == 505)
+		this->retreiveBody(_context->get_error_page()[505], 505);
 	else if (_context->get_redir() != "")
 	{
 		this->addHeader("Location: ", _context->get_redir());
