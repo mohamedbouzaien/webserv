@@ -65,8 +65,8 @@ int Request::setRequestLine(std::string line) {
 	if (line.size() == 0)
 		return (0);
 	_protocol = line;
-	if (_protocol != "HTTP/1.1")
-		_status_code = 400;
+	if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0")
+		_status_code = 505;
 	return (1);
 }
 
@@ -294,7 +294,6 @@ int Request::readBody(size_t len, size_t max_body_size) {
 	int to_read;
 	int	bytesRead;
 
-	std::cout << "Max body size : " << max_body_size << std::endl;
 	if ( max_body_size > 0 && len > max_body_size) {
 		_status_code = 413;
 		return (1);
@@ -432,6 +431,8 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 	std::cout << "<------ BODY ----->" << std::endl;
 	for(std::vector<char>::const_iterator it = request._body.begin(); it != request._body.end(); it++)
 		std::cout << *it;
-	std::cout << std::endl << "<------ END ----->" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Status code : " << request._status_code << std::endl;
+	std::cout << "<------ END ----->" << std::endl;
 	return (os);
 }
