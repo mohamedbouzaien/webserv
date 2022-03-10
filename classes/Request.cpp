@@ -179,6 +179,8 @@ int		Request::recvHeader(std::string &header) {
 
 	memset(buffer, 0, BUFFER_SIZE + 1);
 	bytesRead = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+	if (bytesRead == -1)
+		return (bytesRead);
 	if ((to_skip = isHeaderEnded(header, buffer)) > 0)
 		_is_body = 1;
 	else
@@ -195,14 +197,24 @@ int		Request::readHeader(std::string &header) {
 
 	while (header.find("\r\n\r\n") == std::string::npos) {
 		status = recvHeader(header);
-		if (status <= 0)
-			return (-1);
 		if (status != BUFFER_SIZE || header.size() > MAX_HEADER_SIZE) {
 			if (header.size() > MAX_HEADER_SIZE)
 				_status_code = 431;
 			break;
 		}
 	}
+	return (status);
+}
+
+
+int Request::readAndParseHeader() {
+	std::string header;
+	int status;
+
+	status = readHeader(header);
+	if (status == -1)
+		return (status);
+	parseHeader(header);
 	return (status);
 }
 
@@ -256,7 +268,6 @@ int Request::unchunkBody(std::vector<char> &body_buffer) {
 	return (chunk_size);
 }
 
-
 int Request::readChunkedBody(int status, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
 	size_t client_body_size;
@@ -276,7 +287,7 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 		memset(buffer, 0, BUFFER_SIZE + 1);
 		status = recv(_client_socket, buffer, BUFFER_SIZE, 0);
 		if (status <= 0)
-			return (-1);
+			return (status);
 		body_buffer.insert(body_buffer.end(), buffer, buffer + status);
 		client_body_size += status;
 		if (is_limit == false)
@@ -309,22 +320,11 @@ int Request::readBody(size_t len, size_t max_body_size) {
 		else
 			to_read = len - _body.size();
 		bytesRead = recv(_client_socket, buffer, to_read, 0);
-		_body.insert(_body.end(), buffer, buffer + bytesRead);
 		if (bytesRead < 1)
 			return (bytesRead);
+		_body.insert(_body.end(), buffer, buffer + bytesRead);
 	}
 	return (bytesRead);
-}
-
-int Request::readAndParseHeader() {
-	std::string header;
-	int status;
-
-	status = readHeader(header);
-	if (status < 1)
-		return (status);
-	parseHeader(header);
-	return (1);
 }
 
 int Request::readAndParseBody(int status, size_t max_body_size) {
@@ -332,9 +332,7 @@ int Request::readAndParseBody(int status, size_t max_body_size) {
 		status = readChunkedBody(status, max_body_size);
 	else if (_header_fields.find("Content-Length") != _header_fields.end())
 		status = readBody(stoi(_header_fields["Content-Length"]), max_body_size);
-	if (status < 1)
-		return (status);
-	return (1);
+	return (status);
 }
 
 //Setters

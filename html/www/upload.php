@@ -164,7 +164,7 @@ $uploaddir = getenv('UPLOADS_DIR');
 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
 
 echo '<pre>';
-if (!$uploaddir && move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
+if ($uploaddir && move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
 	http_response_code(201);
     $msg = "File succesfully uploaded !";
 } else {
