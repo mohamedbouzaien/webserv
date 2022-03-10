@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 15:28:37 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/10 16:45:43 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,6 +332,9 @@ void		Response::getMethod(Request &request, std::string &real_path)
 		else
 		{
 			this->handleHeader(real_path, cgi.getStatusCode());
+			std::map<std::string, std::string> response_header = cgi.getResponseHeader();
+			for (std::map<std::string, std::string>::iterator it = response_header.begin(); it != response_header.end(); ++it)
+				this->addHeader(it->first + ": ", it->second);
 			this->_body = cgi.getOutput();
 		}
 	}
@@ -350,6 +353,9 @@ void		Response::postMethod(Request &request, std::string &real_path)
 		else
 		{
 			this->handleHeader(real_path, cgi.getStatusCode());
+			std::map<std::string, std::string> response_header = cgi.getResponseHeader();
+			for (std::map<std::string, std::string>::iterator it = response_header.begin(); it != response_header.end(); ++it)
+				this->addHeader(it->first + ": ", it->second);
 			this->_body = cgi.getOutput();
 		}
 	}
@@ -422,7 +428,7 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_context->get_error_page()[405], 405);
 	else if (request.getStatusCode() == 413)
 		this->retreiveBody(_context->get_error_page()[413], 413);
-	else if (request.getStatusCode() == 505)
+	else if (request.getStatusCode() == 505)	
 		this->retreiveBody(_context->get_error_page()[505], 505);
 	else if (_context->get_redir() != "")
 	{
@@ -445,9 +451,9 @@ void		Response::prepare(Request &request)
 
 std::string Response::parse(void)
 {
-	std::string hello = "HTTP/1.1 ";
+	std::string response = "HTTP/1.1 ";
 	for (std::map<std::string, std::string>::iterator it = this->_header.begin(); it != this->_header.end(); it++)
-		hello += it->first +  it->second + "\n";
-	hello += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
-	return (hello);
+		response += it->first +  it->second + "\n";
+	response += "Content-Length: " + std::to_string(this->_body.size()) + "\n\n" + this->_body;
+	return (response);
 }
