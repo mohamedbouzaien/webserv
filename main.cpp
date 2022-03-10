@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/08 10:36:27 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/10 10:19:52 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@
 
 
 void sig_handler(int signal) {
-	std::cout << "signal handled :" << signal << std::endl;
+	(void) signal;
+	std::cout << "[Stop Webserv]" << std::endl;
 	exit(1);
 }
 

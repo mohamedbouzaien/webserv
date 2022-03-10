@@ -129,7 +129,7 @@ else
 Your email is : 
 <?php 
 if ($_POST["email"])
-	echo $_POST["name"];
+	echo $_POST["email"];
 else
 	echo "oh, you havent send your email";
 ?>
@@ -140,7 +140,7 @@ else
 Your phone is : 
 <?php 
 if ($_POST["phone"])
-	echo $_POST["name"];
+	echo $_POST["phone"];
 else
 	echo "oh, you havent send your phone number";
 ?>

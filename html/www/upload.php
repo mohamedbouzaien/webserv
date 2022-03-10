@@ -168,6 +168,7 @@ if (getenv('UPLOADS_DIR') != "" && move_uploaded_file($_FILES['userfile']['tmp_n
 	http_response_code(201);
     $msg = "File succesfully uploaded !";
 } else {
+	http_response_code(500);
 	$msg = "Upload failed :(";
 }
 ?>
