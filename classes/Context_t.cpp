@@ -92,7 +92,9 @@ void Context_t::init_not_set()
 	_error_pages.insert(std::make_pair<int, std::string>(405, "/error_page/400_error/405.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(413, "/error_page/400_error/413.html"));
     _error_pages.insert(std::make_pair<int, std::string>(414, "/error_page/400_error/414.html"));
+    _error_pages.insert(std::make_pair<int, std::string>(414, "/error_page/400_error/431.html"));
 	_error_pages.insert(std::make_pair<int, std::string>(500, "/error_page/500_error/500.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(500, "/error_page/500_error/505.html"));
 }
 
 // Setters ---------------------------------

@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/09 16:25:29 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/10 15:16:13 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,9 @@ void		Response::initCodes()
 	this->_codes.insert(std::make_pair<int, std::string>(405, "Method Not Alloud"));
 	this->_codes.insert(std::make_pair<int, std::string>(413, "Payload Too Large"));
 	this->_codes.insert(std::make_pair<int, std::string>(414, "URI Too Long"));
+	this->_codes.insert(std::make_pair<int, std::string>(431, "Request Header Fields Too Large"));
 	this->_codes.insert(std::make_pair<int, std::string>(500, "Internal Server Error"));
+	this->_codes.insert(std::make_pair<int, std::string>(505, "HTTP Version Not Supported"));
 }
 
 void		Response::handleHeader(std::string path, int code)
@@ -412,6 +414,8 @@ void		Response::prepare(Request &request)
 		_allowed_methods.push_back(PUT);
 	if (request.getStatusCode() == 414)
 		this->retreiveBody(_context->get_error_page()[414], 414);
+	else if (request.getStatusCode() == 431)
+		this->retreiveBody(_context->get_error_page()[431], 431);
 	else if (request.getStatusCode() == 400)
 		this->retreiveBody(_context->get_error_page()[400], 400);
 	else if (std::find(_allowed_methods.begin(), _allowed_methods.end(), request.getMethod()) == _allowed_methods.end())
