@@ -45,8 +45,8 @@ class Request {
 		int readHeader(std::string& header);
 		int readChunkedBody(int status, size_t max_body_size);
 		int searchEndline(std::vector<char> &vector) const;
-		int getChunkSize(std::vector<char> &vector) const;
-		int unchunkBody(std::vector<char> &body_buffer);
+		long int getChunkSize(std::vector<char> &vector) const;
+		long int unchunkBody(std::vector<char> &body_buffer);
 		int readBody(size_t len, size_t max_body_size);
 		int isHeaderEnded(std::string &request, char *buffer) ;
 		int readAndParseHeader();

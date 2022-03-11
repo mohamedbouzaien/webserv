@@ -233,37 +233,43 @@ int Request::searchEndline(std::vector<char> &vector) const {
 	return (-1);
 }
 
-int Request::getChunkSize(std::vector<char> &vector) const {
+long int Request::getChunkSize(std::vector<char> &vector) const {
 	int endline = searchEndline(vector);
 	if (endline < 0)
-		return (-1);
+		return (-2);
 	std::string size(vector.begin(), vector.begin() + endline);
+	if (size.find_first_not_of("0123456789ABCDEFabcdef") != std::string::npos || size.empty())
+		return (-1);
 	return (strtol(size.c_str(), NULL, 16));
 }
 
-int Request::unchunkBody(std::vector<char> &body_buffer) {
-	size_t chunk_size;
+long int Request::unchunkBody(std::vector<char> &body_buffer) {
+	long int chunk_size;
 	std::vector<char> chunk;
 	std::vector<char> body_copy;
 
 	body_copy = body_buffer;
 	while (1) {
 		chunk_size = getChunkSize(body_copy);
-		if (chunk_size == std::string::npos)
+		if (chunk_size < 0)
 			return (chunk_size);
-		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
 		if (chunk_size > MAX_MALLOC_SIZE)
-			return (0);
-		if (body_copy.size() < chunk_size)
 			return (-1);
+		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
+		if (body_copy.size() < (size_t)chunk_size)
+			return (-2);
 		chunk.insert(chunk.end(), body_copy.begin(), body_copy.begin() + chunk_size);
 		body_copy.erase(body_copy.begin(), body_copy.begin() + chunk_size);
-		if (searchEndline(body_copy) == -1)
+		if (searchEndline(body_copy) > 0)
 			return (-1);
+		else if (searchEndline(body_copy) == -1)
+			return (-2);
 		_body.insert(_body.end(), chunk.begin(), chunk.end());
 		body_copy.erase(body_copy.begin(), body_copy.begin() + searchEndline(body_copy) + 2);
 		body_buffer = body_copy;
 		chunk.clear();
+		if (chunk_size == 0)
+			return (0);
 	}
 	return (chunk_size);
 }
@@ -271,6 +277,7 @@ int Request::unchunkBody(std::vector<char> &body_buffer) {
 int Request::readChunkedBody(int status, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
 	size_t client_body_size;
+	long int chunk_size;
 	std::vector<char> body_buffer = _body;
 	bool is_limit = true;
 
@@ -282,7 +289,8 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 		max_body_size = client_body_size + 1;
 	}
 	while (client_body_size < max_body_size) {
-		if (unchunkBody(body_buffer) == 0 || status != BUFFER_SIZE)
+		chunk_size = unchunkBody(body_buffer);
+		if (chunk_size == 0 || chunk_size == -1 || status != BUFFER_SIZE)
 			break;
 		memset(buffer, 0, BUFFER_SIZE + 1);
 		status = recv(_client_socket, buffer, BUFFER_SIZE, 0);
@@ -293,7 +301,8 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 		if (is_limit == false)
 			max_body_size = client_body_size + 1;
 	}
-
+	if (chunk_size != 0)
+		_status_code = 400;
 	if (client_body_size > max_body_size)
 		_status_code = 413;
 	return (1);
@@ -430,7 +439,9 @@ std::ostream& operator<<(std::ostream& os, const Request& request) {
 	for(std::vector<char>::const_iterator it = request._body.begin(); it != request._body.end(); it++)
 		std::cout << *it;
 	std::cout << std::endl;
+
+	std::cout << "<------ ---- ----->" << std::endl;
 	std::cout << "Status code : " << request._status_code << std::endl;
-	std::cout << "<------ END ----->" << std::endl;
+	std::cout << "<------ END  ----->" << std::endl;
 	return (os);
 }
