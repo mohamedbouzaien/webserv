@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 13:59:05 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/12 14:05:51 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,13 @@ int main(int ac, char **av) {
 	std::cout << "                    \\ \\ /\\ / / _ \\ '_ \\/ __|/ _ \\ '__\\ \\ / /" << std::endl;
 	std::cout << "                     \\ V  V /  __/ |_) \\__ \\  __/ |   \\ V / " << std::endl;
 	std::cout << "                      \\_/\\_/ \\___|_.__/|___/\\___|_|    \\_/  " << std::endl;
+	std::cout << "\033[0m";
+	std::cout << "\033[0;95m";
+	std::cout << "                              _   _          _   _ " << std::endl;
+	std::cout << "                             | | | |_      _| | | |" << std::endl;
+	std::cout << "                             | | | \\ \\ /\\ / / | | |" << std::endl;
+	std::cout << "                             | |_| |\\ V  V /| |_| |" << std::endl;
+	std::cout << "                              \\___/  \\_/\\_/  \\___/ " << std::endl;
 	std::cout << "\033[0m";
 	signal(SIGINT, sig_handler);
     if (ac > 2)
