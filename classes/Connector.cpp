@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 18:00:25 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/12 21:12:39 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,11 @@ const char* Connector::RecvFailedException::what() const throw()
 
 bool    Connector::accept_c()
 {
-	socklen_t	addrlen = sizeof(this->_listener.getAddress());
-	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_listener.getAddress()), &addrlen);
+	socklen_t	addrlen = sizeof(_client);
+	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_client), (socklen_t *)&addrlen);
+	std::cout << "In Connector::accept_c, clients infos are : " << std::endl;
+	printf("IP address is: %s\n", inet_ntoa(_client.sin_addr));
+printf("port is: %d\n", (int) ntohs(_client.sin_port));
 	if (_client_socket < 0)
     {
         if (errno == EAGAIN)
@@ -102,6 +105,9 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	Request request(_client_socket);
 	int status;
 
+	std::cout << "In Connector handle, client infos are :" << std::endl;
+	printf("IP address is: %s\n", inet_ntoa(_client.sin_addr));
+printf("port is: %d\n", (int) ntohs(_client.sin_port));
 	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
 	if ((status = request.readAndParseHeader()) < 0) {
 		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
