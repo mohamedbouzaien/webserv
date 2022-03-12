@@ -14,9 +14,6 @@ Cgi::Cgi(Server_t &conf, std::string t_path, Request &request) : _translated_pat
 	_cgi_path = _conf.get_best_cgi(request.getPath()).first;
 	_body = NULL;
 	_cgi_env = NULL;
-	if (_translated_path[0] == '/')
-		_translated_path.erase(0, 1);
-	_translated_path = getFullPath(_translated_path);
 	setUploadTo(_conf.get_best_upload_to(request.getPath()));
 	setBody(request.getBody());
 	_body_size = request.getBody().size();
@@ -265,21 +262,6 @@ std::string Cgi::upper_key(std::string key) const {
 	}
 	return (key);
 }
-
-std::string Cgi::getFullPath(std::string relative) {
-	char buffer[CGI_BUFFER_SIZE + 1];
-
-	memset(buffer, 0, CGI_BUFFER_SIZE + 1);
-	if (relative.empty() || relative[0] == '/')
-		;
-	else {
-		if (getcwd(buffer, CGI_BUFFER_SIZE) == NULL)
-			return (relative);
-		relative = std::string(buffer) + "/" + relative;
-	}
-	return (relative);
-}
-
 
 //Setter
 
