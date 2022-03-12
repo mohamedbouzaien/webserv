@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 16:45:43 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/12 17:00:46 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,6 @@ void		Response::handleHeader(std::string path, int code)
 	this->addHeader(std::to_string(code) + " ", _codes[code]);
 	if (index != std::string::npos)
 	{
-		std::cout << "Fetched => " << path << std::endl;
 		std::map<std::string, std::string>::iterator	it = this->_mime.find(path.substr(index, path.size()));
 		if (it != this->_mime.end())
 		{
@@ -181,6 +180,9 @@ void		Response::handleHeader(std::string path, int code)
 	timeinfo = localtime(&rawtime);
 	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
 	this->addHeader("Date: ", std::string(buffer));
+	std::cout << "\033[0;36m --- Response --- " << std::endl;
+	std::cout << "code : " << code << std::endl;
+	std::cout << "Path : " << path << "\033[0m" << std::endl;
 }
 
 void		Response::retreiveBody(std::string path, int code)
@@ -207,7 +209,9 @@ void		Response::retreiveBody(std::string path, int code)
 	{
 		if (path.back() != '/')
 		{
-			this->addHeader("Location: ", _old_path + "/");
+			if (_old_path.back() != '/')
+				_old_path += "/";
+			this->addHeader("Location: ", _old_path);
 			this->retreiveBody(_context->get_error_page()[301], 301);
 		}
 		else
@@ -220,7 +224,10 @@ void		Response::retreiveBody(std::string path, int code)
 			{
 				this->addHeader(std::to_string(code) + " ", _codes[code]);
 				this->addHeader("Content-type: ", "text/html");
-				this->listDirectory(path, dir_conts);
+				this->listDirectory(dir_conts);
+				std::cout << "\033[0;36m --- Response --- " << std::endl;
+				std::cout << "code : " << code << std::endl;
+				std::cout << "Path : " << path << "\033[0m" << std::endl;
 			}
 			else
 				this->retreiveBody(_context->get_error_page()[404], 404);
@@ -228,7 +235,7 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 	else
 	{
-		std::cerr << " File not found => \"" << path.substr(1) << "\"" << std::endl;
+		std::cerr << "\033[0;36m File not found => \"" << path.substr(1) << "\"\033[0m" << std::endl;
 		this->retreiveBody(_context->get_error_page()[404], 404);
 	}
 }
@@ -265,14 +272,14 @@ std::vector<std::string>	Response::getDirContents(std::string const &path)
 	return (dir_contents);
 }
 
-void		Response::listDirectory(std::string const &path, std::vector<std::string> dir_cont)
+void		Response::listDirectory(std::vector<std::string> dir_cont)
 {
-		this->_body ="<!DOCTYPE html><html><head><title>" + path + "</title>\
-		</head><body><h1>Index of " + path + "</h1><p>";
-		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
-			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + path\
-			+ *it + "\">" + *it + "</a></p>";
-		this->_body += "</p></body></html>";
+	this->_body ="<!DOCTYPE html><html><head><title>" + _old_path + "</title>\
+	</head><body><h1>Index of " + _old_path + "</h1><p>";
+	for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
+		this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + _old_path\
+		+ *it + "\">" + *it + "</a></p>";
+	this->_body += "</p></body></html>";
 }
 
 std::string		Response::findIndex(std::vector<std::string> dir_cont)
@@ -298,10 +305,8 @@ int			Response::setLocationBlock(std::string const &path)
 
 	for (std::vector<Location_t>::iterator	it = _conf.get_locations().begin();it != _conf.get_locations().end(); it++)
 		if (path.rfind(it->get_uri(), 0) == 0)
-		{
 			if (loc == _conf.get_locations().end() || loc->get_uri().size() < it->get_uri().size())
 				loc = it;
-		}
 	if (loc == _conf.get_locations().end())
 		return (false);
 	_loc = *loc;
@@ -369,7 +374,6 @@ void		Response::putMethod(Request &request, std::string &real_path)
 	std::vector<char> body = request.getBody();
 	std::string		ss(body.begin(), body.end());
 
-	std::cout << "path: " << real_path << std::endl;
 	if (pathIsFile(real_path.substr(1)) == 1)
 	{
 		file.open(real_path.substr(1).c_str());
@@ -405,8 +409,6 @@ void		Response::prepare(Request &request)
 		_context = &_loc;
 		if (!(_loc.get_alias().empty()))
 			real_path = _loc.get_alias().substr(1) + real_path.substr(_loc.get_uri().size());
-		std::cout << "location: " << _loc.get_uri() << std::endl;
-		std::cout << "loc root: " << _loc.get_root() << std::endl;
 	}
 	else
 		_context = &_conf;
@@ -437,7 +439,10 @@ void		Response::prepare(Request &request)
 	}
 	else
 	{
-		real_path = _context->get_root() + real_path;
+		if (_context->get_root().back() != '/' && real_path.front() != '/')
+			real_path = _context->get_root() + '/' + real_path;
+		else
+			real_path = _context->get_root() + real_path;
 		if (request.getMethod() == GET)
 			this->getMethod(request, real_path);
 		else if (request.getMethod() == POST)
