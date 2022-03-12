@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 16:45:43 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/12 14:20:07 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,7 +220,7 @@ void		Response::retreiveBody(std::string path, int code)
 			{
 				this->addHeader(std::to_string(code) + " ", _codes[code]);
 				this->addHeader("Content-type: ", "text/html");
-				this->listDirectory(path, dir_conts);
+				this->listDirectory(dir_conts);
 			}
 			else
 				this->retreiveBody(_context->get_error_page()[404], 404);
@@ -265,14 +265,14 @@ std::vector<std::string>	Response::getDirContents(std::string const &path)
 	return (dir_contents);
 }
 
-void		Response::listDirectory(std::string const &path, std::vector<std::string> dir_cont)
+void		Response::listDirectory(std::vector<std::string> dir_cont)
 {
-		this->_body ="<!DOCTYPE html><html><head><title>" + path + "</title>\
-		</head><body><h1>Index of " + path + "</h1><p>";
-		for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
-			this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + path\
-			+ *it + "\">" + *it + "</a></p>";
-		this->_body += "</p></body></html>";
+	this->_body ="<!DOCTYPE html><html><head><title>" + _old_path + "</title>\
+	</head><body><h1>Index of " + _old_path + "</h1><p>";
+	for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
+		this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + _old_path\
+		+ *it + "\">" + *it + "</a></p>";
+	this->_body += "</p></body></html>";
 }
 
 std::string		Response::findIndex(std::vector<std::string> dir_cont)
