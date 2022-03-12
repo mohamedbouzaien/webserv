@@ -85,16 +85,16 @@ void Context_t::init_not_set()
         allow_delete();
         allow_put();
     }
-	_error_pages.insert(std::make_pair<int, std::string>(301, "/error_page/300_error/301.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(400, "/error_page/400_error/400.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(403, "/error_page/400_error/403.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(404, "/error_page/400_error/404.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(405, "/error_page/400_error/405.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(413, "/error_page/400_error/413.html"));
-    _error_pages.insert(std::make_pair<int, std::string>(414, "/error_page/400_error/414.html"));
-    _error_pages.insert(std::make_pair<int, std::string>(431, "/error_page/400_error/431.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(500, "/error_page/500_error/500.html"));
-	_error_pages.insert(std::make_pair<int, std::string>(505, "/error_page/500_error/505.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(301, "error_page/300_error/301.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(400, "error_page/400_error/400.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(403, "error_page/400_error/403.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(404, "error_page/400_error/404.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(405, "error_page/400_error/405.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(413, "error_page/400_error/413.html"));
+    _error_pages.insert(std::make_pair<int, std::string>(414, "error_page/400_error/414.html"));
+    _error_pages.insert(std::make_pair<int, std::string>(431, "error_page/400_error/431.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(500, "error_page/500_error/500.html"));
+	_error_pages.insert(std::make_pair<int, std::string>(505, "error_page/500_error/505.html"));
 }
 
 // Setters ---------------------------------

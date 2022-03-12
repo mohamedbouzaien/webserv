@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 17:00:46 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/12 21:30:03 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,10 +191,10 @@ void		Response::retreiveBody(std::string path, int code)
 	std::ostringstream	sstr;
 	int					path_type;
 
-	path_type = pathIsFile(path.substr(1));
+	path_type = pathIsFile(path);
 	if (path_type == 1)
 	{
-		indata.open(path.substr(1), std::ifstream::in);
+		indata.open(path, std::ifstream::in);
 		if (!indata.is_open())
 			this->retreiveBody(_context->get_error_page()[403], 403);
 		else
@@ -235,7 +235,7 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 	else
 	{
-		std::cerr << "\033[0;36m File not found => \"" << path.substr(1) << "\"\033[0m" << std::endl;
+		std::cerr << "\033[0;36m File not found => \"" << path << "\"\033[0m" << std::endl;
 		this->retreiveBody(_context->get_error_page()[404], 404);
 	}
 }
@@ -258,7 +258,7 @@ int			Response::pathIsFile(std::string const &path)
 
 std::vector<std::string>	Response::getDirContents(std::string const &path)
 {
-	DIR							*dir=opendir(path.substr(1).c_str());
+	DIR							*dir=opendir(path.c_str());
 	std::vector<std::string>	dir_contents;
 
 	if (dir != NULL)
@@ -315,9 +315,9 @@ int			Response::setLocationBlock(std::string const &path)
 
 void		Response::deleteMethod(std::string const &path)
 {
-	if (pathIsFile(path.substr(1)) != -1)
+	if (pathIsFile(path) != -1)
 	{
-		if (remove(path.substr(1).c_str()) == 0)
+		if (remove(path.c_str()) == 0)
 			this->handleHeader(path, 204);
 		else
 			retreiveBody(_context->get_error_page()[403], 403);
@@ -374,16 +374,16 @@ void		Response::putMethod(Request &request, std::string &real_path)
 	std::vector<char> body = request.getBody();
 	std::string		ss(body.begin(), body.end());
 
-	if (pathIsFile(real_path.substr(1)) == 1)
+	if (pathIsFile(real_path) == 1)
 	{
-		file.open(real_path.substr(1).c_str());
+		file.open(real_path.c_str());
 		file << ss;
 		file.close();
 		this->handleHeader(real_path, 204);
 	}
 	else
 	{
-		file.open(real_path.substr(1).c_str(), std::ofstream::out | std::ofstream::trunc);
+		file.open(real_path.c_str(), std::ofstream::out | std::ofstream::trunc);
 		if (!file.is_open())
 			this->retreiveBody(_context->get_error_page()[403], 403);
 		else
