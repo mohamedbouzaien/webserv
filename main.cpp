@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 10:19:52 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/12 13:59:05 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,13 @@ void sig_handler(int signal) {
 
 int main(int ac, char **av) {
     const char * conf_path = "./tests/default.conf";
+	std::cout << "\033[0;31m";
+	std::cout << "                   __        __   _" << std::endl;
+	std::cout << "                   \\ \\      / /__| |__  ___  ___ _ ____   __" << std::endl;
+	std::cout << "                    \\ \\ /\\ / / _ \\ '_ \\/ __|/ _ \\ '__\\ \\ / /" << std::endl;
+	std::cout << "                     \\ V  V /  __/ |_) \\__ \\  __/ |   \\ V / " << std::endl;
+	std::cout << "                      \\_/\\_/ \\___|_.__/|___/\\___|_|    \\_/  " << std::endl;
+	std::cout << "\033[0m";
 	signal(SIGINT, sig_handler);
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
