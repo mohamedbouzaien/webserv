@@ -34,7 +34,6 @@ void Config::next_word(std::fstream &file, std::string &word)
         //std::cout << _line_number << "|" <<  _line << '\n';
         if (!file.good())
         {
-            //std::cout << "fin du game\n";
             if (_line.size())
             {
                 size_t start = _line.find_first_not_of(" \t\n\r\f\v");

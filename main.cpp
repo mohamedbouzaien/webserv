@@ -24,13 +24,13 @@
 
 void sig_handler(int signal) {
 	(void) signal;
-	std::cout << "[Stop Webserv]" << std::endl;
+	std::cout << RED << "[Stoping Webserv]" << COLOR_OFF << std::endl;
 	exit(1);
 }
 
-int main(int ac, char **av) {
-    const char * conf_path = "./config/default.conf";
-	std::cout << RED;
+void ascii_title()
+{
+    std::cout << RED;
 	std::cout << "                   __        __   _" << std::endl;
 	std::cout << "                   \\ \\      / /__| |__  ___  ___ _ ____   __" << std::endl;
 	std::cout << "                    \\ \\ /\\ / / _ \\ '_ \\/ __|/ _ \\ '__\\ \\ / /" << std::endl;
@@ -44,7 +44,24 @@ int main(int ac, char **av) {
 	std::cout << "                             | |_| |\\ V  V /| |_| |" << std::endl;
 	std::cout << "                              \\___/  \\_/\\_/  \\___/ " << std::endl;
 	std::cout << COLOR_OFF;
-	signal(SIGINT, sig_handler);
+    std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+void print_servs_found(int n)
+{
+    std::cout << BI_PURPLE << "Webserv launched, " << n;
+    if (n == 1)
+       std::cout << " server found\n";
+    else
+       std::cout << " servers found\n";
+    std::cout << "Starting to listen...\n\n" << COLOR_OFF;
+}
+
+int main(int ac, char **av) {
+    const char * conf_path = "./config/default.conf";
+    signal(SIGINT, sig_handler);
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
     else
@@ -54,7 +71,10 @@ int main(int ac, char **av) {
         try
         {
             Config conf(conf_path);
-            conf.print_servers(); // Testing // prints all servers content
+            //conf.print_servers(); // Testing // prints all servers content
+            ascii_title();
+
+            print_servs_found(conf.get_servers().size());
 
             Lstn_collec listeners(conf.get_servers());
 

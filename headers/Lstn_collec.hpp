@@ -3,6 +3,7 @@
 
 # include <set>
 
+# include "colors.hpp"
 # include "Listener.hpp"
 # include "Server_t.hpp"
 
@@ -18,5 +19,7 @@ class Lstn_collec{
 
         std::vector<Listener> &get_collec();
 };
+
+std::ostream operator<<(std::ostream &os, const Lstn_collec &coll);
 
 #endif

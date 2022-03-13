@@ -55,6 +55,7 @@ const char* Poller::max_clients_reached::what() const throw()
 
 
 
+//Prints all fds, only used for testing
 void Poller::print_fds()
 {
     std::cout << "=";
@@ -84,10 +85,9 @@ void        Poller::start(void)
 {
 	int	rc;
 
-    std::cout << "Poll called !\n";
-    print_fds();
+    std::cout << B_GREEN << "Poll called, waiting for readable sockets..." << COLOR_OFF << std::endl;
 	rc = poll(_fds, _nfds, -1);
-    std::cout << "Poll returned !\n";
+    //std::cout << "Poll returned !\n";
 	if (rc < 0)
 		throw	Poller::PollFailedException();
 }
@@ -106,7 +106,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
             ++it;
         if (it != _listeners.end())
         {
-            std::cout << "  Listening socket is readable" << std::endl;
+            std::cout << "  Listening socket " << it->getFd() << " is readable" << std::endl;
             while (1)
             {
                 Connector connector(*it);
@@ -115,7 +115,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                     std::cout << "  No more incoming connection on this socket" << std::endl;
                     break;
                 }
-                std::cout << "  New incoming connection - " << connector.getClientSocket() << std::endl;
+                std::cout << "     New incoming connection. Descriptor " << connector.getClientSocket() << std::endl;
                 _fds[_nfds].fd = connector.getClientSocket();
                 _fds[_nfds].events = POLLIN | POLLPRI;
                 _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
@@ -127,7 +127,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
         }
         else
 		{
-			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _listen_map[_fds[i].fd]->getFd() << " on "  << inet_ntoa(_listen_map[_fds[i].fd]->getAddress().sin_addr) << ":" << ntohs(_listen_map[_fds[i].fd]->getAddress().sin_port)  << std::endl;
+			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listening socket " << _listen_map[_fds[i].fd]->getFd() << " on "  << inet_ntoa(_listen_map[_fds[i].fd]->getAddress().sin_addr) << ":" << ntohs(_listen_map[_fds[i].fd]->getAddress().sin_port)  << std::endl;
             Connector connector(*_listen_map[_fds[i].fd]);
             connector.setClient(_client_map[_fds[i].fd]);
 			connector.setClientSocket(_fds[i].fd);
@@ -142,7 +142,6 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                 compress = true;
 			}
 		}
-        print_fds();
 	}
 
     if (compress)
@@ -156,5 +155,4 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                 --i;
             }
         }
-    print_fds();
 }
