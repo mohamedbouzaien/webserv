@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:22:28 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/09 18:26:03 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 21:01:50 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,8 @@
 
 # define MAX_CLIENTS	200
 
-# include <sys/poll.h>
-# include <iostream>
-# include <cstring> // memset()
 
+# include "common.hpp"
 # include "colors.hpp"
 # include "Listener.hpp"
 # include "Config.hpp"

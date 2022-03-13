@@ -1,11 +1,7 @@
 #ifndef SERVER_T_HPP
 # define SERVER_T_HPP
 
-# include <netinet/in.h>
-# include <string>
-# include <set>
-# include <vector>
-
+# include "common.hpp"
 # include "Context_t.hpp"
 # include "Location_t.hpp"
 

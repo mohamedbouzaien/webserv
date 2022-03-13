@@ -1,10 +1,7 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-# include <iostream>
-# include <vector>
-# include <fstream>
-# include <sstream>
+# include "common.hpp"
 
 # include "Server_t.hpp"
 # include "Location_t.hpp"

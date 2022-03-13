@@ -6,27 +6,20 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:10 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 21:08:30 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/13 20:55:49 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONNECTOR_HPP
 
 # define CONNECTOR_HPP
-
-# include <arpa/inet.h>
-# include <list>
-# include <vector>
-# include <algorithm>
-
-
+# include "common.hpp"
 # include "colors.hpp"
 # include "Listener.hpp"
 # include "Response.hpp"
 # include "Config.hpp"
 
-# include <sys/socket.h>
-# include <unistd.h>
+
 
 class Connector
 {

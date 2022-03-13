@@ -1,10 +1,7 @@
 #ifndef LOCATION_T_HPP
 # define LOCATION_T_HPP
 
-# include <netinet/in.h>
-# include <string>
-# include <vector>
-# include <set>
+# include "common.hpp"
 
 # include "Context_t.hpp"
 # include "default_conf.hpp"

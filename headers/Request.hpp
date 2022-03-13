@@ -1,21 +1,14 @@
 #pragma once
-#include <sys/socket.h>
-#include <iostream>
-#include <cstdlib>
-#include <map>
-#include <vector>
-#include <algorithm>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <cstring>
-#define GET "GET"
-#define POST "POST"
-#define DELETE "DELETE"
-#define PUT	"PUT"
-#define BUFFER_SIZE 30000
-#define MAX_MALLOC_SIZE 16711568
-#define MAX_HEADER_SIZE 16000
-#define MAX_URI_SIZE 2048
+
+# include "common.hpp"
+# define GET "GET"
+# define POST "POST"
+# define DELETE "DELETE"
+# define PUT	"PUT"
+# define BUFFER_SIZE 30000
+# define MAX_MALLOC_SIZE 16711568
+# define MAX_HEADER_SIZE 16000
+# define MAX_URI_SIZE 2048
 
 class Request {
 	private:
