@@ -10,6 +10,7 @@
 # define CYAN   "\033[0;36m"
 
 // Bold
+# define BOLD     "\033[1m"
 # define B_RED    "\033[1;31m"
 # define B_GREEN  "\033[1;32m"
 # define B_YELLOW "\033[1;33m"
