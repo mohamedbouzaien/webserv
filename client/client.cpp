@@ -26,7 +26,7 @@ int main(int ac, char **av) {
 		std::cout << "Cant connect to server" << std::endl;
 		exit(1);
 	}
-	std::string request = "POST / HTTP/1.1\r\nHost: e\r\nContent-Type: application/x-www-form-urlencoded\r\nTransfer-Encoding: chunked\r\n\r\n3\r\naaa\r\n0\r\n\r\n";
+	std::string request = "POST / HTTP/1.1\r\nHost: e\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 0\r\n\r\n";
 
 	std::cout << request.size() << std::endl;
 	send(sockfd, request.c_str(), request.size(), 0);

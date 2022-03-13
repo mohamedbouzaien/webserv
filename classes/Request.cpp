@@ -97,6 +97,8 @@ void Request::setHeaderField(std::string keyword, std::string value) {
 	value.erase(0, pos);
 	value.erase(value.find_last_not_of(' ') + 1);
 	_header_fields[keyword] = value;
+	if (value.empty())
+		_status_code = 400;
 }
 
 int Request::setRequestField(std::string buffer) {
@@ -146,7 +148,7 @@ void Request::parseHeader(std::string header) {
 	if (_path.size() + _host.first.size() > MAX_URI_SIZE)
 		_status_code = 414;
 	std::map<std::string, std::string>::iterator  content_length = _header_fields.find("Content-Length");
-	if (content_length != _header_fields.end() && std::all_of(content_length->second.begin(), content_length->second.end(), ::isdigit) == false)
+	if (content_length != _header_fields.end() && (std::all_of(content_length->second.begin(), content_length->second.end(), ::isdigit) == false || content_length->second.empty()))
 		_status_code = 400;
 	if (_host.first.empty())
 		_status_code = 400;
@@ -342,7 +344,7 @@ int Request::readBody(size_t len, size_t max_body_size) {
 int Request::readAndParseBody(int status, size_t max_body_size) {
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status, max_body_size);
-	else if (_header_fields.find("Content-Length") != _header_fields.end())
+	else if (_header_fields.find("Content-Length") != _header_fields.end() && !_header_fields["Content-Length"].empty())
 		status = readBody(stoi(_header_fields["Content-Length"]), max_body_size);
 	return (status);
 }
