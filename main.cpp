@@ -24,7 +24,7 @@
 
 void sig_handler(int signal) {
 	(void) signal;
-	std::cout << RED << "[Stoping Webserv]" << COLOR_OFF << std::endl;
+	std::cout << RED << " [Stoping Webserv]" << COLOR_OFF << std::endl;
 	exit(1);
 }
 
@@ -56,7 +56,7 @@ void print_servs_found(int n)
        std::cout << " server found\n";
     else
        std::cout << " servers found\n";
-    std::cout << "Starting to listen...\n\n" << COLOR_OFF;
+    std::cout << "Starting to listen..." << COLOR_OFF << std::endl << std::endl;
 }
 
 int main(int ac, char **av) {
