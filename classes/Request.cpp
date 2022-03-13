@@ -148,6 +148,8 @@ void Request::parseHeader(std::string header) {
 	std::map<std::string, std::string>::iterator  content_length = _header_fields.find("Content-Length");
 	if (content_length != _header_fields.end() && std::all_of(content_length->second.begin(), content_length->second.end(), ::isdigit) == false)
 		_status_code = 400;
+	if (_host.first.empty())
+		_status_code = 400;
 }
 
 int		Request::isHeaderEnded(std::string &request, char *buffer) {
