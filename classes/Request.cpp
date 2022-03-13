@@ -97,6 +97,8 @@ void Request::setHeaderField(std::string keyword, std::string value) {
 	value.erase(0, pos);
 	value.erase(value.find_last_not_of(' ') + 1);
 	_header_fields[keyword] = value;
+	if (value.empty())
+		_status_code = 400;
 }
 
 int Request::setRequestField(std::string buffer) {
