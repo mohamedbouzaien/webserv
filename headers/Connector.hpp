@@ -53,8 +53,13 @@ class Connector
 		void		poll_server();
 		bool		accept_c();
 		int			handle(const std::vector<Server_t> &servs);
+
 		void		setClientSocket(int client_socket);
 		int			getClientSocket()	const;
+
+		void         setClient(sockaddr_in &client);
+		sockaddr_in  &getClient();
+
 		Listener	getListener()	const;
 };
 

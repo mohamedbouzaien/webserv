@@ -17,6 +17,7 @@
 Connector::Connector(Listener &listener): _listener(listener)
 {
 	_client_socket = 0;
+    memset(&_client, 0, sizeof(_client));
 }
 
 Connector::Connector(const Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
@@ -139,3 +140,14 @@ int		Connector::getClientSocket()	const
 {
 	return (this->_client_socket);
 }
+
+void Connector::setClient(sockaddr_in &client)
+{
+    _client = client;
+}
+
+sockaddr_in &Connector::getClient()
+{
+    return _client;
+}
+

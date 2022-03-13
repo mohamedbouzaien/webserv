@@ -27,10 +27,11 @@ class Poller
 	private:
         typedef std::vector<Listener> lstnrs;
 
-		struct pollfd             _fds[MAX_CLIENTS + 1];
-		nfds_t		              _nfds;
-        lstnrs		              _listeners;
-        std::map<int, Listener*>  _listen_map;
+		struct pollfd               _fds[MAX_CLIENTS + 1];
+		nfds_t		                _nfds;
+        lstnrs		                _listeners;
+        std::map<int, Listener*>    _listen_map;
+        std::map<int, sockaddr_in> _client_map;
 
 
         //testing
