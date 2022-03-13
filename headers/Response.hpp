@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 14:19:53 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 14:44:05 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,8 @@ class Response
 		std::vector<std::string>			_allowed_methods;
 		Server_t							_conf;
 		Location_t							_loc;
-		std::string							_host;
-		int									_port;
 		Context_t							*_context;
-		std::string							_old_path;
+		Request								_request;
 
 
 		void		addHeader(std::string key, std::string value);
@@ -54,7 +52,7 @@ class Response
 		bool 		endsWith(std::string const & value, std::string const & ending);
 		int			pathIsFile(std::string const &path);
 		int			setLocationBlock(std::string const &path);
-		void		getMethod(Request &request, std::string &real_path);
+		void		getMethod(Request &request, std::string real_path);
 		void		deleteMethod(std::string const &path);
 		void		postMethod(Request &request, std::string &real_path);
 		void		putMethod(Request &request, std::string &real_path);
