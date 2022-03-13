@@ -6,12 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/19 15:35:07 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/24 15:33:11 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/13 16:53:28 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../headers/Poller.hpp"
 # include "../headers/Connector.hpp"
+# include "../headers/common.hpp"
 
 Poller::Poller(lstnrs &listeners) : _nfds(listeners.size()), _listeners(listeners)
 {
@@ -85,8 +86,10 @@ void        Poller::start(void)
 	int	rc;
 
     std::cout << "Poll called !\n";
-    print_fds();
+	print_fds();
 	rc = poll(_fds, _nfds, -1);
+	if (should_run == 0)
+		return ;
     std::cout << "Poll returned !\n";
 	if (rc < 0)
 		throw	Poller::PollFailedException();
@@ -97,6 +100,8 @@ void        Poller::handle(const std::vector<Server_t> &servs)
 	nfds_t current_sockets = _nfds;
     bool compress = false;
 
+	if (should_run == 0)
+		return ;
 	for (nfds_t i = 0; i < current_sockets; i++)
 	{
 		if(_fds[i].revents == 0)
