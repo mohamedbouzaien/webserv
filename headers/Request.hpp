@@ -60,16 +60,17 @@ class Request {
 		void setClient(sockaddr_in client);
 		void setMethod(std::string method);
 		void setPath(std::string path);
+		void setQueryString(std::string s);
 		void setProtocol(std::string protocol);
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
 		void setBody(std::vector<char> vbody);
+		void setIsBody(int i);
 		void setStatusCode(int status_code);
 		//Getters
 		std::string search(std::string) const;
 		int getClientSocket() const;
 		sockaddr_in getClient() const;
-		int getStatusCode() const;
 		std::string getMethod() const ;
 		std::string getPath() const ;
 		std::string getQueryString() const ;
@@ -77,6 +78,8 @@ class Request {
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
 		std::vector<char> getBody() const;
+		int getIsBody() const;
+		int getStatusCode() const;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception

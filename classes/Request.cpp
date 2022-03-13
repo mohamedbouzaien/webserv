@@ -345,12 +345,24 @@ int Request::readAndParseBody(int status, size_t max_body_size) {
 
 //Setters
 
+void Request::setClientSocket(int socket) {
+	_client_socket = socket;
+}
+
+void Request::setClient(sockaddr_in client) {
+	_client = client;
+}
+
 void Request::setMethod(std::string method) {
 	_method = method;
 }
 
 void Request::setPath(std::string path) {
 	_path = path;
+}
+
+void Request::setQueryString(std::string s) {
+	_query_string = s;
 }
 
 void Request::setProtocol(std::string protocol) {
@@ -369,6 +381,10 @@ void Request::setBody(std::vector<char> vbody) {
 	_body = vbody;
 }
 
+void Request::setIsBody(int i) {
+	_is_body = i;
+}
+
 void Request::setStatusCode(int status_code) {
 	_status_code = status_code;
 }
@@ -380,6 +396,14 @@ std::string Request::search(std::string s) const {
 		return (_header_fields.find(s)->second);
 	else
 		return ("");
+}
+
+int Request::getClientSocket() const {
+	return (_client_socket);
+}
+
+sockaddr_in Request::getClient() const {
+	return (_client);
 }
 
 std::string Request::getMethod() const {
@@ -408,6 +432,10 @@ std::string Request::getQueryString() const {
 
 std::vector<char> Request::getBody() const {
 	return (_body);
+}
+
+int Request::getIsBody() const {
+	return(_is_body);
 }
 
 int Request::getStatusCode() const {

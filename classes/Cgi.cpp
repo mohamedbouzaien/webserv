@@ -215,8 +215,8 @@ void Cgi::setCgiEnv(Request &request) {
 	if (mapped_cgi_env["REQUEST_METHOD"] == "GET")
 		mapped_cgi_env["QUERY_STRING"] = request.getQueryString();
 
-	mapped_cgi_env["REMOTE_HOST"] = "127.0.0.1";
-	mapped_cgi_env["REMOTE_ADDR"] = "127.0.0.1";
+	mapped_cgi_env["REMOTE_HOST"] = "";
+	mapped_cgi_env["REMOTE_ADDR"] = inet_ntoa(request.getClient().sin_addr);
 	it = header_fields.find("Authorization");
 	if (it != header_fields.end() && it->second.size()) {
 		std::string auth_str = std::string(it->second, it->second.find_first_not_of(" "));
