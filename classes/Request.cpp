@@ -44,6 +44,7 @@ void Request::clear() {
 int Request::setRequestLine(std::string line) {
 	size_t pos;
 
+	line.erase(line.find_last_not_of(' ') + 1);
 	pos = line.find(" ");
 	std::string word = line.substr(0, pos);
 	if (word == "GET" || word == "POST" || word == "DELETE" || word == "PUT")
@@ -51,8 +52,6 @@ int Request::setRequestLine(std::string line) {
 	else
 		_status_code = 400;
 	line.erase(0, pos + (pos != std::string::npos ? 1 : 0));
-	if (line.size() == 0)
-		return (0);
 	if (line[0] != '/')
 		_status_code = 400;
 	pos = line.find(" ");
@@ -72,6 +71,7 @@ int Request::setRequestLine(std::string line) {
 int Request::setHostField(std::string host) {
 	size_t pos;
 
+	host.erase(host.find_last_not_of(' ') + 1);
 	if (_host.first.size())
 	{
 		_status_code = 400;
@@ -85,7 +85,7 @@ int Request::setHostField(std::string host) {
 		_host.second = host.substr(pos + 1);
 	else
 		_host.second = "80";
-	if (_host.first.find('	') != std::string::npos || _host.second.find_first_not_of("0123456789") != std::string::npos)
+	if (_host.first.find_first_of("	 ") != std::string::npos || _host.second.find_first_not_of("0123456789") != std::string::npos || _host.second.empty())
 		_status_code = 400;
 	return (1);
 }
