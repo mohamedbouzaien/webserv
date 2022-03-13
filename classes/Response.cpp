@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 14:45:09 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 15:02:08 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,7 +238,10 @@ void		Response::retreiveBody(std::string path, int code)
 	{
 		std::cerr << CYAN << " File not found => \"" << path << COLOR_OFF << std::endl;
 		if (code == 404)
+		{
+			this->handleHeader("404.html", code);
 			this->_body = "<html><h1>Error 404</h1></html>";
+		}
 		else
 			this->retreiveBody(_context->get_error_page()[404], 404);
 	}
