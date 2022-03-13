@@ -103,22 +103,22 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	Request request(_client_socket, _client);
 	int status;
 
-	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
+    std::cout << B_RED << "--- Exchange Started ---" << COLOR_OFF << "\n";
 	std::cout << "Exchange with [" << inet_ntoa(_client.sin_addr) << "]:[" << ntohs(_client.sin_port) << "]"<< std::endl;
 	if ((status = request.readAndParseHeader()) < 0) {
-		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
+		std::cout << B_RED << "--- Exchange Ended ---" << COLOR_OFF << "\n";
 		return (status);
 	}
 	const Server_t &current_serv = (choose_serv(servs, request.getHost().first));
 	if ((status = request.readAndParseBody(status, current_serv.get_best_client_max_body_size(request.getPath()))) < 0) {
-		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
+		std::cout << B_RED << "--- Exchange Ended ---" << COLOR_OFF << "\n";
 		return (status);
 	}
 	Response	response(choose_serv(servs, request.getHost().first));
 	response.prepare(request);
 	std::string hello = response.parse();
 	send(_client_socket, hello.c_str(), hello.size(), 0);
-	std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
+    std::cout << B_RED << "--- Exchange Ended ---" << COLOR_OFF << "\n";
 	if (request.search("Connection") == "keep-alive")
 		return (0);
 	return (1);

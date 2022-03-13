@@ -23,6 +23,7 @@
 # include <dirent.h>
 # include <sys/stat.h>
 
+# include "colors.hpp"
 # include "Request.hpp"
 # include "Config.hpp"
 # include "Cgi.hpp"
@@ -33,7 +34,7 @@ class Response
 {
 	private:
 		std::map<int, std::string>			_codes;
-		std::map<std::string, std::string>	_header;		
+		std::map<std::string, std::string>	_header;
 		std::string							_body;
 		std::map<std::string, std::string>	_mime;
 		std::vector<std::string>			_allowed_methods;
@@ -43,7 +44,7 @@ class Response
 		int									_port;
 		Context_t							*_context;
 		std::string							_old_path;
-		
+
 
 		void		addHeader(std::string key, std::string value);
 		void		initMime();

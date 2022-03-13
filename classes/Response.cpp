@@ -180,9 +180,9 @@ void		Response::handleHeader(std::string path, int code)
 	timeinfo = localtime(&rawtime);
 	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
 	this->addHeader("Date: ", std::string(buffer));
-	std::cout << "\033[0;36m --- Response --- " << std::endl;
+	std::cout << CYAN << " --- Response --- " << std::endl;
 	std::cout << "code : " << code << std::endl;
-	std::cout << "Path : " << path << "\033[0m" << std::endl;
+	std::cout << "Path : " << path << COLOR_OFF << std::endl;
 }
 
 void		Response::retreiveBody(std::string path, int code)
@@ -225,9 +225,9 @@ void		Response::retreiveBody(std::string path, int code)
 				this->addHeader(std::to_string(code) + " ", _codes[code]);
 				this->addHeader("Content-type: ", "text/html");
 				this->listDirectory(dir_conts);
-				std::cout << "\033[0;36m --- Response --- " << std::endl;
+				std::cout << CYAN << " --- Response --- " << std::endl;
 				std::cout << "code : " << code << std::endl;
-				std::cout << "Path : " << path << "\033[0m" << std::endl;
+				std::cout << "Path : " << path << COLOR_OFF << std::endl;
 			}
 			else
 				this->retreiveBody(_context->get_error_page()[404], 404);
@@ -235,7 +235,7 @@ void		Response::retreiveBody(std::string path, int code)
 	}
 	else
 	{
-		std::cerr << "\033[0;36m File not found => \"" << path << "\"\033[0m" << std::endl;
+		std::cerr << CYAN << " File not found => \"" << path << COLOR_OFF << std::endl;
 		this->retreiveBody(_context->get_error_page()[404], 404);
 	}
 }
@@ -430,7 +430,7 @@ void		Response::prepare(Request &request)
 		this->retreiveBody(_context->get_error_page()[405], 405);
 	else if (request.getStatusCode() == 413)
 		this->retreiveBody(_context->get_error_page()[413], 413);
-	else if (request.getStatusCode() == 505)	
+	else if (request.getStatusCode() == 505)
 		this->retreiveBody(_context->get_error_page()[505], 505);
 	else if (_context->get_redir() != "")
 	{

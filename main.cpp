@@ -15,6 +15,7 @@
 # include "headers/Config.hpp"
 # include "headers/Poller.hpp"
 # include "headers/Lstn_collec.hpp"
+# include "headers/colors.hpp"
 
 # include <string.h>
 #include <csignal>
@@ -29,20 +30,20 @@ void sig_handler(int signal) {
 
 int main(int ac, char **av) {
     const char * conf_path = "./config/default.conf";
-	std::cout << "\033[0;31m";
+	std::cout << RED;
 	std::cout << "                   __        __   _" << std::endl;
 	std::cout << "                   \\ \\      / /__| |__  ___  ___ _ ____   __" << std::endl;
 	std::cout << "                    \\ \\ /\\ / / _ \\ '_ \\/ __|/ _ \\ '__\\ \\ / /" << std::endl;
 	std::cout << "                     \\ V  V /  __/ |_) \\__ \\  __/ |   \\ V / " << std::endl;
 	std::cout << "                      \\_/\\_/ \\___|_.__/|___/\\___|_|    \\_/  " << std::endl;
-	std::cout << "\033[0m";
-	std::cout << "\033[0;95m";
+	std::cout << COLOR_OFF;
+	std::cout << I_PURPLE;
 	std::cout << "                              _   _          _   _ " << std::endl;
 	std::cout << "                             | | | |_      _| | | |" << std::endl;
 	std::cout << "                             | | | \\ \\ /\\ / / | | |" << std::endl;
 	std::cout << "                             | |_| |\\ V  V /| |_| |" << std::endl;
 	std::cout << "                              \\___/  \\_/\\_/  \\___/ " << std::endl;
-	std::cout << "\033[0m";
+	std::cout << COLOR_OFF;
 	signal(SIGINT, sig_handler);
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
