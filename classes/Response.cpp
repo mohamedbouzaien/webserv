@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 13:41:22 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 14:39:16 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,9 +209,10 @@ void		Response::retreiveBody(std::string path, int code)
 	{
 		if (path.back() != '/')
 		{
-			if (_old_path.back() != '/')
-				_old_path += "/";
-			this->addHeader("Location: ", _old_path);
+			std::string old_path = _request.getPath(); 
+			if (old_path.back() != '/')
+				old_path += "/";
+			this->addHeader("Location: ", old_path);
 			this->retreiveBody(_context->get_error_page()[301], 301);
 		}
 		else
@@ -219,7 +220,7 @@ void		Response::retreiveBody(std::string path, int code)
 			std::vector<std::string>	dir_conts = getDirContents(path);
 			std::string index = findIndex(dir_conts);
 			if (!index.empty())
-				this->getMethod(_request, std::string(path + index));
+				this->getMethod(_request, path + index);
 			else if (_context->get_autoindex())
 			{
 				this->addHeader(std::to_string(code) + " ", _codes[code]);
@@ -236,7 +237,10 @@ void		Response::retreiveBody(std::string path, int code)
 	else
 	{
 		std::cerr << CYAN << " File not found => \"" << path << COLOR_OFF << std::endl;
-		this->retreiveBody(_context->get_error_page()[404], 404);
+		if (code == 404)
+			this->_body = "<html><h1>Error 404</h1></html>";
+		else
+			this->retreiveBody(_context->get_error_page()[404], 404);
 	}
 }
 
@@ -274,10 +278,10 @@ std::vector<std::string>	Response::getDirContents(std::string const &path)
 
 void		Response::listDirectory(std::vector<std::string> dir_cont)
 {
-	this->_body ="<!DOCTYPE html><html><head><title>" + _old_path + "</title>\
-	</head><body><h1>Index of " + _old_path + "</h1><p>";
+	this->_body ="<!DOCTYPE html><html><head><title>" + _request.getPath() + "</title>\
+	</head><body><h1>Index of " + _request.getPath() + "</h1><p>";
 	for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
-		this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + _old_path\
+		this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + _request.getPath()\
 		+ *it + "\">" + *it + "</a></p>";
 	this->_body += "</p></body></html>";
 }
@@ -402,7 +406,6 @@ void		Response::prepare(Request &request)
 		_port = 80;
 	else
 		_port = std::stoi(request.getHost().second);
-	std::cout << _request << std::endl;
 	std::string	real_path = request.getPath();
 	_request = request;
 	if (setLocationBlock(request.getPath()))

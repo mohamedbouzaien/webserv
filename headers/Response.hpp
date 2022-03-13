@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 13:36:09 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 14:15:05 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ class Response
 		std::string							_host;
 		int									_port;
 		Context_t							*_context;
-		std::string							_old_path;
 		Request								_request;
 
 
