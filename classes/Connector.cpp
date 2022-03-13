@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 07:58:31 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/13 08:27:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 	int status;
 
 	std::cout << "\033[1;31m--- Exchange Started ---\033[0m\n";
+	std::cout << "Exchange with [" << inet_ntoa(_client.sin_addr) << "]:[" << ntohs(_client.sin_port) << "]"<< std::endl;
 	if ((status = request.readAndParseHeader()) < 0) {
 		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
 		return (status);
@@ -113,8 +114,6 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 		std::cout << "\033[1;31m--- Exchange Ended ---\033[0m\n";
 		return (status);
 	}
-	std::cout << request << std::endl;
-
 	Response	response(choose_serv(servs, request.getHost().first));
 	response.prepare(request);
 	std::string hello = response.parse();
