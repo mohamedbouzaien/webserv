@@ -85,11 +85,6 @@ void	Listener::execute(std::string addr, in_port_t port)
 	if (rc < 0)
         close_perror("setsockopt() SO_REUSEADDR failed");
 
-    rc = setsockopt(_fd, SOL_SOCKET,  SO_REUSEPORT,
-                (char *)&on, sizeof(on));
-	if (rc < 0)
-        close_perror("setsockopt() SO_REUSEPORT failed");
-
     rc = fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL, 0) | O_NONBLOCK);
 	if (rc < 0)
         close_perror("fctnl() set NONBLOCK failed");
