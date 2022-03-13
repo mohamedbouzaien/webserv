@@ -5,6 +5,9 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstring>
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
@@ -17,6 +20,7 @@
 class Request {
 	private:
 		int _client_socket;
+		sockaddr_in _client;
 		std::string _method;
 		std::string _path;
 		std::string _query_string;
@@ -29,7 +33,7 @@ class Request {
 
 	public:
 		Request();
-		Request(int socket);
+		Request(int socket, sockaddr_in client);
 		Request (const Request &other);
 		~Request();
 		Request &operator=(const Request &other);
@@ -53,17 +57,20 @@ class Request {
 		int readAndParseBody(int status, size_t max_body_size);
 		//Setters
 		void setClientSocket(int socket);
+		void setClient(sockaddr_in client);
 		void setMethod(std::string method);
 		void setPath(std::string path);
+		void setQueryString(std::string s);
 		void setProtocol(std::string protocol);
 		void setHost(std::pair<std::string, std::string> host);
 		void setHeaderFields(std::map<std::string, std::string > header_fields);
 		void setBody(std::vector<char> vbody);
+		void setIsBody(int i);
 		void setStatusCode(int status_code);
 		//Getters
 		std::string search(std::string) const;
 		int getClientSocket() const;
-		int getStatusCode() const;
+		sockaddr_in getClient() const;
 		std::string getMethod() const ;
 		std::string getPath() const ;
 		std::string getQueryString() const ;
@@ -71,6 +78,8 @@ class Request {
 		std::pair<std::string, std::string> getHost() const ;
 		std::map<std::string, std::string> getHeaderFields() const;
 		std::vector<char> getBody() const;
+		int getIsBody() const;
+		int getStatusCode() const;
 		//EXCEPTIONS
 
 		class MallocFailedException : public std::exception

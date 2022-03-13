@@ -1,5 +1,4 @@
 #include "../headers/Request.hpp"
-#include <cstring>
 
 const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
@@ -7,7 +6,7 @@ const char* Request::MallocFailedException::what() const throw() {
 
 Request::Request() :  _is_body(0) , _status_code(200){}
 
-Request::Request(int socket) : _client_socket(socket), _is_body(0), _status_code(200) {}
+Request::Request(int socket, sockaddr_in client) : _client_socket(socket), _client(client), _is_body(0), _status_code(200) {}
 
 Request::Request(const Request &other) {
 	*this = other;
@@ -346,12 +345,24 @@ int Request::readAndParseBody(int status, size_t max_body_size) {
 
 //Setters
 
+void Request::setClientSocket(int socket) {
+	_client_socket = socket;
+}
+
+void Request::setClient(sockaddr_in client) {
+	_client = client;
+}
+
 void Request::setMethod(std::string method) {
 	_method = method;
 }
 
 void Request::setPath(std::string path) {
 	_path = path;
+}
+
+void Request::setQueryString(std::string s) {
+	_query_string = s;
 }
 
 void Request::setProtocol(std::string protocol) {
@@ -370,6 +381,10 @@ void Request::setBody(std::vector<char> vbody) {
 	_body = vbody;
 }
 
+void Request::setIsBody(int i) {
+	_is_body = i;
+}
+
 void Request::setStatusCode(int status_code) {
 	_status_code = status_code;
 }
@@ -381,6 +396,14 @@ std::string Request::search(std::string s) const {
 		return (_header_fields.find(s)->second);
 	else
 		return ("");
+}
+
+int Request::getClientSocket() const {
+	return (_client_socket);
+}
+
+sockaddr_in Request::getClient() const {
+	return (_client);
 }
 
 std::string Request::getMethod() const {
@@ -411,6 +434,10 @@ std::vector<char> Request::getBody() const {
 	return (_body);
 }
 
+int Request::getIsBody() const {
+	return(_is_body);
+}
+
 int Request::getStatusCode() const {
 	return (_status_code);
 }
@@ -418,6 +445,9 @@ int Request::getStatusCode() const {
 // << OVERLOAD
 
 std::ostream& operator<<(std::ostream& os, const Request& request) {
+	std::cout << "Client IP address is: " << inet_ntoa(request._client.sin_addr) << std::endl;
+	std::cout << "Client port is: " << (int) ntohs(request._client.sin_port) << std::endl;
+
 	std::cout << "<----- HEADER ----->" << std::endl;
 	std::cout << "Method: " << request._method << ", Path: " << request._path << ", Protocol: " << request._protocol << std::endl;
 	std::cout << "Query_string : ";
