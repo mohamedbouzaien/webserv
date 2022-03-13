@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 14:15:05 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 14:44:05 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ class Response
 		std::vector<std::string>			_allowed_methods;
 		Server_t							_conf;
 		Location_t							_loc;
-		std::string							_host;
-		int									_port;
 		Context_t							*_context;
 		Request								_request;
 

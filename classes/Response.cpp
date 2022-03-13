@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 14:39:16 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 14:45:09 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,7 +281,7 @@ void		Response::listDirectory(std::vector<std::string> dir_cont)
 	this->_body ="<!DOCTYPE html><html><head><title>" + _request.getPath() + "</title>\
 	</head><body><h1>Index of " + _request.getPath() + "</h1><p>";
 	for (std::vector<std::string>::iterator it = dir_cont.begin(); it != dir_cont.end(); ++it)
-		this->_body += "\t\t<p><a href=\"http://" + _host + ":" + std::to_string(_port) + _request.getPath()\
+		this->_body += "\t\t<p><a href=\"http://" + _request.getHost().first + ":" + _request.getHost().second + _request.getPath()\
 		+ *it + "\">" + *it + "</a></p>";
 	this->_body += "</p></body></html>";
 }
@@ -401,11 +401,6 @@ void		Response::putMethod(Request &request, std::string &real_path)
 
 void		Response::prepare(Request &request)
 {
-	_host = request.getHost().first;
-	if (request.getHost().second.empty())
-		_port = 80;
-	else
-		_port = std::stoi(request.getHost().second);
 	std::string	real_path = request.getPath();
 	_request = request;
 	if (setLocationBlock(request.getPath()))
