@@ -1,11 +1,7 @@
 #ifndef CONTEXT_T_HPP
 # define CONTEXT_T_HPP
 
-# include <vector>
-# include <list>
-# include <string>
-# include <map>
-
+#include "common.hpp"
 # include "default_conf.hpp"
 
 // is_set bool vector correspondance

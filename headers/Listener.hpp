@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 14:38:57 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/02/02 12:45:24 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 20:59:04 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,7 @@
 
 # define SERVER_HPP
 
-# include <fcntl.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <iostream>
+# include "common.hpp"
 
 class	Listener
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include "Request.hpp"
 #include "Server_t.hpp"
-#include <unistd.h>
+#include "common.hpp"
 #define SIDE_IN 0
 #define SIDE_OUT 1
 #define CGI_BUFFER_SIZE 30000

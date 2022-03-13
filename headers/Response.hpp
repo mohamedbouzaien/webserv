@@ -6,23 +6,13 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:10:06 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 14:44:05 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 21:03:56 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <cstdio>
-# include <fstream>
-# include <sstream>
-
-# include <time.h>
-# include <dirent.h>
-# include <sys/stat.h>
-
+# include "common.hpp"
 # include "colors.hpp"
 # include "Request.hpp"
 # include "Config.hpp"
