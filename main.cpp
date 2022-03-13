@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 12:24:45 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 14:05:51 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/13 17:09:12 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,18 @@
 # include "headers/Poller.hpp"
 # include "headers/Lstn_collec.hpp"
 # include "headers/colors.hpp"
-
+# include "headers/common.hpp"
 # include <string.h>
 #include <csignal>
 # include "headers/Request.hpp"
 
 
+int should_run = 1;
+
 void sig_handler(int signal) {
 	(void) signal;
 	std::cout << RED << " [Stoping Webserv]" << COLOR_OFF << std::endl;
-	exit(1);
+	should_run = 0;
 }
 
 void ascii_title()
@@ -61,6 +63,7 @@ void print_servs_found(int n)
 
 int main(int ac, char **av) {
     const char * conf_path = "./config/default.conf";
+
     signal(SIGINT, sig_handler);
     if (ac > 2)
         std::cerr << "Wrong arg number. Can take at most one arg (configuration file path)" << std::endl;
@@ -79,12 +82,11 @@ int main(int ac, char **av) {
             Lstn_collec listeners(conf.get_servers());
 
             Poller		poller(listeners.get_collec());
-            while (true)
+            while (should_run)
             {
                 poller.start();
                 poller.handle(conf.get_servers());
             }
-
         }
         catch(const std::exception& e)
         {
