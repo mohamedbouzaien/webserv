@@ -5,6 +5,9 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <cstring>
 #define GET "GET"
 #define POST "POST"
 #define DELETE "DELETE"
@@ -17,6 +20,7 @@
 class Request {
 	private:
 		int _client_socket;
+		sockaddr_in _client;
 		std::string _method;
 		std::string _path;
 		std::string _query_string;
@@ -29,7 +33,7 @@ class Request {
 
 	public:
 		Request();
-		Request(int socket);
+		Request(int socket, sockaddr_in client);
 		Request (const Request &other);
 		~Request();
 		Request &operator=(const Request &other);
@@ -53,6 +57,7 @@ class Request {
 		int readAndParseBody(int status, size_t max_body_size);
 		//Setters
 		void setClientSocket(int socket);
+		void setClient(sockaddr_in client);
 		void setMethod(std::string method);
 		void setPath(std::string path);
 		void setProtocol(std::string protocol);
@@ -63,6 +68,7 @@ class Request {
 		//Getters
 		std::string search(std::string) const;
 		int getClientSocket() const;
+		sockaddr_in getClient() const;
 		int getStatusCode() const;
 		std::string getMethod() const ;
 		std::string getPath() const ;

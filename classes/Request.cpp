@@ -1,5 +1,4 @@
 #include "../headers/Request.hpp"
-#include <cstring>
 
 const char* Request::MallocFailedException::what() const throw() {
 	return ("Malloc failed");
@@ -7,7 +6,7 @@ const char* Request::MallocFailedException::what() const throw() {
 
 Request::Request() :  _is_body(0) , _status_code(200){}
 
-Request::Request(int socket) : _client_socket(socket), _is_body(0), _status_code(200) {}
+Request::Request(int socket, sockaddr_in client) : _client_socket(socket), _client(client), _is_body(0), _status_code(200) {}
 
 Request::Request(const Request &other) {
 	*this = other;
@@ -418,6 +417,9 @@ int Request::getStatusCode() const {
 // << OVERLOAD
 
 std::ostream& operator<<(std::ostream& os, const Request& request) {
+	std::cout << "Client IP address is: " << inet_ntoa(request._client.sin_addr) << std::endl;
+	std::cout << "Client port is: " << (int) ntohs(request._client.sin_port) << std::endl;
+
 	std::cout << "<----- HEADER ----->" << std::endl;
 	std::cout << "Method: " << request._method << ", Path: " << request._path << ", Protocol: " << request._protocol << std::endl;
 	std::cout << "Query_string : ";
