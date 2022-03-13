@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/12 21:30:03 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/13 13:41:22 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ void		Response::retreiveBody(std::string path, int code)
 			std::vector<std::string>	dir_conts = getDirContents(path);
 			std::string index = findIndex(dir_conts);
 			if (!index.empty())
-				this->retreiveBody(path + index, 200);
+				this->getMethod(_request, std::string(path + index));
 			else if (_context->get_autoindex())
 			{
 				this->addHeader(std::to_string(code) + " ", _codes[code]);
@@ -326,7 +326,7 @@ void		Response::deleteMethod(std::string const &path)
 		retreiveBody(_context->get_error_page()[404], 404);
 }
 
-void		Response::getMethod(Request &request, std::string &real_path)
+void		Response::getMethod(Request &request, std::string real_path)
 {
 	if (endsWith(real_path, _conf.get_best_cgi(real_path).second))
 	{
@@ -402,8 +402,9 @@ void		Response::prepare(Request &request)
 		_port = 80;
 	else
 		_port = std::stoi(request.getHost().second);
+	std::cout << _request << std::endl;
 	std::string	real_path = request.getPath();
-	_old_path = request.getPath();
+	_request = request;
 	if (setLocationBlock(request.getPath()))
 	{
 		_context = &_loc;
