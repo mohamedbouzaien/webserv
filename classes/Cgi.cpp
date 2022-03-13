@@ -159,6 +159,8 @@ void Cgi::readHeader() {
 }
 
 void Cgi::processOutput() {
+	if (_status_code == 0)
+		_status_code = 200;
 	readHeader();
 	readBody();
 }
