@@ -83,6 +83,8 @@ int Request::setHostField(std::string host) {
 	_host.first = host.substr(0, pos);
 	if (pos != std::string::npos)
 		_host.second = host.substr(pos + 1);
+	else
+		_host.second = "80";
 	if (_host.first.find('	') != std::string::npos || _host.second.find_first_not_of("0123456789") != std::string::npos)
 		_status_code = 400;
 	return (1);
