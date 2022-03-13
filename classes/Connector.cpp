@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/11 16:37:13 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/10 18:00:25 by acastelb         ###   ########.fr       */
+/*   Updated: 2022/03/13 08:27:40 by acastelb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 Connector::Connector(Listener &listener): _listener(listener)
 {
 	_client_socket = 0;
+    memset(&_client, 0, sizeof(_client));
 }
 
 Connector::Connector(const Connector &copy): _client_socket(copy._client_socket), _listener(copy._listener)
@@ -45,8 +46,8 @@ const char* Connector::RecvFailedException::what() const throw()
 
 bool    Connector::accept_c()
 {
-	socklen_t	addrlen = sizeof(this->_listener.getAddress());
-	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_listener.getAddress()), &addrlen);
+	socklen_t	addrlen = sizeof(_client);
+	_client_socket = accept(this->_listener.getFd(), (struct sockaddr*)&(_client), (socklen_t *)&addrlen);
 	if (_client_socket < 0)
     {
         if (errno == EAGAIN)
@@ -99,10 +100,11 @@ const Server_t &Connector::choose_serv(const std::vector<Server_t> &servs, const
 
 int    Connector::handle(const std::vector<Server_t> &servs)
 {
-	Request request(_client_socket);
+	Request request(_client_socket, _client);
 	int status;
 
     std::cout << B_RED << "--- Exchange Started ---" << COLOR_OFF << "\n";
+	std::cout << "Exchange with [" << inet_ntoa(_client.sin_addr) << "]:[" << ntohs(_client.sin_port) << "]"<< std::endl;
 	if ((status = request.readAndParseHeader()) < 0) {
 		std::cout << B_RED << "--- Exchange Ended ---" << COLOR_OFF << "\n";
 		return (status);
@@ -112,8 +114,6 @@ int    Connector::handle(const std::vector<Server_t> &servs)
 		std::cout << B_RED << "--- Exchange Ended ---" << COLOR_OFF << "\n";
 		return (status);
 	}
-	std::cout << request << std::endl;
-
 	Response	response(choose_serv(servs, request.getHost().first));
 	response.prepare(request);
 	std::string hello = response.parse();
@@ -133,3 +133,14 @@ int		Connector::getClientSocket()	const
 {
 	return (this->_client_socket);
 }
+
+void Connector::setClient(sockaddr_in &client)
+{
+    _client = client;
+}
+
+sockaddr_in &Connector::getClient()
+{
+    return _client;
+}
+

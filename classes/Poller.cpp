@@ -119,6 +119,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                 _fds[_nfds].fd = connector.getClientSocket();
                 _fds[_nfds].events = POLLIN | POLLPRI;
                 _listen_map.insert(std::make_pair(_fds[_nfds].fd, &(*it)));
+                _client_map.insert(std::make_pair(_fds[_nfds].fd, connector.getClient()));
                 ++_nfds;
                 if (_nfds == MAX_CLIENTS)
                     throw (max_clients_reached());
@@ -128,6 +129,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
 		{
 			std::cout << "  Descriptor " << _fds[i].fd << " is readable. Refers to listen descriptor " << _listen_map[_fds[i].fd]->getFd() << " on "  << inet_ntoa(_listen_map[_fds[i].fd]->getAddress().sin_addr) << ":" << ntohs(_listen_map[_fds[i].fd]->getAddress().sin_port)  << std::endl;
             Connector connector(*_listen_map[_fds[i].fd]);
+            connector.setClient(_client_map[_fds[i].fd]);
 			connector.setClientSocket(_fds[i].fd);
 			if (connector.handle(servs))
 			{
@@ -135,6 +137,7 @@ void        Poller::handle(const std::vector<Server_t> &servs)
                 shutdown(_fds[i].fd, SHUT_RDWR);
                 close(_fds[i].fd);
                 _listen_map.erase(_fds[i].fd);
+                _client_map.erase(_fds[i].fd);
 				_fds[i].fd = -1;
                 compress = true;
 			}
