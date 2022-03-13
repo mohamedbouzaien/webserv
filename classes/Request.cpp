@@ -61,11 +61,11 @@ int Request::setRequestLine(std::string line) {
 	if (word.find("?") != std::string::npos)
 		_query_string = word.substr(word.find("?") + 1);
 	line.erase(0, pos + (pos != std::string::npos ? 1 : 0));
-	if (line.size() == 0)
-		return (0);
 	_protocol = line;
 	if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0")
 		_status_code = 505;
+	if (_protocol.empty())
+		_status_code = 400;
 	return (1);
 }
 
