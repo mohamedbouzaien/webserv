@@ -28,7 +28,7 @@ void sig_handler(int signal) {
 }
 
 int main(int ac, char **av) {
-    const char * conf_path = "./tests/default.conf";
+    const char * conf_path = "./config/default.conf";
 	std::cout << "\033[0;31m";
 	std::cout << "                   __        __   _" << std::endl;
 	std::cout << "                   \\ \\      / /__| |__  ___  ___ _ ____   __" << std::endl;
