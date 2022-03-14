@@ -7,8 +7,8 @@
 # define PUT	"PUT"
 # define BUFFER_SIZE 30000
 # define MAX_MALLOC_SIZE 16711568
-# define MAX_HEADER_SIZE 16000
-# define MAX_URI_SIZE 2048
+# define MAX_HEADER_SIZE 10000
+# define MAX_URI_SIZE 10000
 
 class Request {
 	private:
