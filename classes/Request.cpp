@@ -116,7 +116,9 @@ int Request::setRequestField(std::string buffer) {
 		_status_code = 400;
 		return (1);
 	}
-	if (keyword == "Host")
+	if (keyword.empty())
+		_status_code = 400;
+	else if (keyword == "Host")
 		setHostField(buffer.substr(pos + 1));
 	else
 		setHeaderField(keyword, buffer.substr(pos + 1));
