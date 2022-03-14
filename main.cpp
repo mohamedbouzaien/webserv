@@ -26,7 +26,7 @@ int should_run = 1;
 
 void sig_handler(int signal) {
 	(void) signal;
-	std::cout << RED << " [Stoping Webserv]" << COLOR_OFF << std::endl;
+	std::cout << std::endl << RED << "[Stoping Webserv]" << COLOR_OFF << std::endl;
 	should_run = 0;
 }
 
