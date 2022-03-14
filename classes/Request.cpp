@@ -314,38 +314,34 @@ int Request::readChunkedBody(int status, size_t max_body_size) {
 
 }
 
-int Request::readBody(size_t len, size_t max_body_size) {
+int Request::readBody(int status, size_t len, size_t max_body_size) {
 	char buffer[BUFFER_SIZE + 1];
-	int to_read;
-	int	bytesRead;
 
-	if ( max_body_size > 0 && len > max_body_size) {
+	if (max_body_size > 0 && len > max_body_size) {
 		_status_code = 413;
 		return (1);
 	}
-	if (_body.size() >= len) {
-		_body.erase(_body.begin() + len, _body.end());
+	if (_body.size() > len) {
+		_status_code = 400;
 		return (1);
 	}
-	while (_body.size() < len) {
+	while (status == BUFFER_SIZE) {
 		memset(buffer, 0, BUFFER_SIZE + 1);
-		if (_body.size() + BUFFER_SIZE < len)
-			to_read = BUFFER_SIZE;
-		else
-			to_read = len - _body.size();
-		bytesRead = recv(_client_socket, buffer, to_read, 0);
-		if (bytesRead < 1)
-			return (bytesRead);
-		_body.insert(_body.end(), buffer, buffer + bytesRead);
+		status = recv(_client_socket, buffer, BUFFER_SIZE, 0);
+		if (status < 1)
+			break;
+		_body.insert(_body.end(), buffer, buffer + status);
 	}
-	return (bytesRead);
+	if (_body.size() != len)
+		_status_code = 400;
+	return (status);
 }
 
 int Request::readAndParseBody(int status, size_t max_body_size) {
 	if (_header_fields.find("Transfer-Encoding") != _header_fields.end() && _header_fields["Transfer-Encoding"] == "chunked")
 		status = readChunkedBody(status, max_body_size);
 	else if (_header_fields.find("Content-Length") != _header_fields.end() && !_header_fields["Content-Length"].empty())
-		status = readBody(stoi(_header_fields["Content-Length"]), max_body_size);
+		status = readBody(status, stoi(_header_fields["Content-Length"]), max_body_size);
 	return (status);
 }
 
