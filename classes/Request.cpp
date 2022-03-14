@@ -61,10 +61,10 @@ int Request::setRequestLine(std::string line) {
 		_query_string = word.substr(word.find("?") + 1);
 	line.erase(0, pos + (pos != std::string::npos ? 1 : 0));
 	_protocol = line;
-	if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0")
-		_status_code = 505;
-	if (_protocol.empty())
+	if (_protocol.empty() || _protocol[0] == ' ' || _protocol[0] == '	')
 		_status_code = 400;
+	else if (_protocol != "HTTP/1.1" && _protocol != "HTTP/1.0" && _status_code == 200)
+		_status_code = 505;
 	return (1);
 }
 
@@ -116,7 +116,9 @@ int Request::setRequestField(std::string buffer) {
 		_status_code = 400;
 		return (1);
 	}
-	if (keyword == "Host")
+	if (keyword.empty())
+		_status_code = 400;
+	else if (keyword == "Host")
 		setHostField(buffer.substr(pos + 1));
 	else
 		setHeaderField(keyword, buffer.substr(pos + 1));
