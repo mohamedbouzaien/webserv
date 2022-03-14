@@ -6,7 +6,7 @@
 /*   By: mbouzaie <mbouzaie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 15:09:59 by mbouzaie          #+#    #+#             */
-/*   Updated: 2022/03/13 15:02:08 by mbouzaie         ###   ########.fr       */
+/*   Updated: 2022/03/14 11:56:48 by mbouzaie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,7 +410,7 @@ void		Response::prepare(Request &request)
 	{
 		_context = &_loc;
 		if (!(_loc.get_alias().empty()))
-			real_path = _loc.get_alias().substr(1) + real_path.substr(_loc.get_uri().size());
+			real_path = _loc.get_alias() + real_path.substr(_loc.get_uri().size());
 	}
 	else
 		_context = &_conf;
